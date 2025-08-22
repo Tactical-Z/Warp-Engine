@@ -1,0 +1,3 @@
+Mingw?
+msys64?
+vulkanSDK

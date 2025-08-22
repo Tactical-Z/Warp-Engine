@@ -53,18 +53,15 @@ void PopulateVkInstanceCreateInfo(VkInstanceCreateInfo* _createInfo, VkApplicati
     _createInfo->ppEnabledExtensionNames = extensions;
 
     // Manage validation layers for the application
-    const char* validationLayers[] = {
-        "VK_LAYER_KHRONOS_validation"
-    };
     uint32_t numValidationLayers = sizeof(validationLayers) / sizeof(validationLayers[0]);
 
     if(ENABLE_VALIDATION_LAYERS && !CheckValidationLayerSupport(0, validationLayers, numValidationLayers)){
         _createInfo->enabledLayerCount = 0;
         LOG_WARN("Validation layers requested, but not availible, continueing without");
-    } else if(ENABLE_VALIDATION_LAYERS){
+    } else if(ENABLE_VALIDATION_LAYERS && numValidationLayers >= 1){
         _createInfo->enabledLayerCount = numValidationLayers;
         _createInfo->ppEnabledLayerNames = validationLayers;
-
+        
         // Creates a seperate vk debug messenger spesifically for instencing and destroying. 
         PopulateVkDebugMessengerCreateInfo(_initDebugCreateInfo);
         _createInfo->pNext = (VkDebugUtilsMessengerCreateInfoEXT*) _initDebugCreateInfo;

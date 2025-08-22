@@ -21,6 +21,10 @@ const char** GetRequiredExtensions(uint32_t* _numExtensions, int _shouldLog);
 int CheckValidationLayerSupport(int _shouldLog, const char* const* _validationLayers, const int _numValidationLayers);
 int CleanupVolk(VkInstance* _vki, VkDebugUtilsMessengerEXT* _debugMessenger);
 
+static const char* validationLayers[] = {
+      "VK_LAYER_KHRONOS_validation"
+};
+
 // Vk Proxy Functions ----
   
 // Static vulcan callback function for error message writing

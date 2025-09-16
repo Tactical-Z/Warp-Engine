@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "cstdint": "c",
+        "deque": "c",
+        "list": "c",
+        "string": "c",
+        "vector": "c",
+        "format": "c",
+        "queue": "c",
+        "stack": "c",
+        "thread": "c",
+        "array": "c",
+        "string_view": "c",
+        "ranges": "c",
+        "span": "c"
+    }
+}

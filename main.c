@@ -8,6 +8,8 @@ int main(int argc, char *argv[]){
    
    INIT_LOG_TIMER();
 
+   LOG_INFO("Starting Application");
+
    struct ThreadData* threadData = malloc(sizeof(struct ThreadData));
    if(!InitThreads(threadData))
       return 1;
@@ -33,11 +35,17 @@ int main(int argc, char *argv[]){
 
    VkInstance vkInstance;
    VkDebugUtilsMessengerEXT vkDebugger;
-   InitVolk(&vkInstance, &vkDebugger);
+   VkPhysicalDevice vkPhysicalDevice;
+   VkDevice vkDevice;
+   VkSurfaceKHR vkSurface;
+   VkSwapchainKHR vkSwapChain;
+   InitVolk(glfwWindow, &vkInstance, &vkDebugger, &vkPhysicalDevice, &vkDevice, &vkSurface, &vkSwapChain);
 
    Run(glfwWindow);
 
-   if(CleanupVolk(&vkInstance, &vkDebugger))
+   LOG_INFO("Starting Cleanup");
+
+   if(CleanupVolk(&vkInstance, &vkDebugger, &vkDevice, &vkSurface, &vkSwapChain))
      LOG_ERROR("Volkan Cleanup Faild");
 
    if(CleanupThreads(&threadData))

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Logger.h"
+#define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
 
 GLFWwindow* InitWindow(int _width, int _height, const char* _name);

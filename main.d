@@ -1,4 +1,4 @@
-main.o: main.c includes/Render/WindowManager.h includes/Utility/Logger.h \
+main.o: main.c headers/Render/WindowManager.h headers/Utility/Logger.h \
  libs/glfw-lib-vc2022/inc/glfw3.h libs/VulkanSDK/inc/vulkan/vulkan.h \
  libs/VulkanSDK/inc/vulkan/vk_platform.h \
  libs/VulkanSDK/inc/vulkan/vulkan_core.h \
@@ -18,10 +18,10 @@ main.o: main.c includes/Render/WindowManager.h includes/Utility/Logger.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
- includes/Online/NetworkManager.h includes/Threads/ThreadManager.h \
- includes/Render/VKManager.h libs/VulkanSDK/inc/vulkan/vulkan.h
-includes/Render/WindowManager.h:
-includes/Utility/Logger.h:
+ headers/Online/NetworkManager.h headers/Threads/ThreadManager.h \
+ headers/Render/VKManager.h libs/VulkanSDK/inc/vulkan/vulkan.h
+headers/Render/WindowManager.h:
+headers/Utility/Logger.h:
 libs/glfw-lib-vc2022/inc/glfw3.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:
 libs/VulkanSDK/inc/vulkan/vk_platform.h:
@@ -42,7 +42,7 @@ libs/VulkanSDK/inc/vk_video/vulkan_video_codec_av1std_encode.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
-includes/Online/NetworkManager.h:
-includes/Threads/ThreadManager.h:
-includes/Render/VKManager.h:
+headers/Online/NetworkManager.h:
+headers/Threads/ThreadManager.h:
+headers/Render/VKManager.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:

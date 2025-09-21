@@ -9,8 +9,16 @@
     #define ENABLE_VALIDATION_LAYERS 1 // true
 #endif
 
-// Move to a math file
-#define CLAMP(x,lower, upper) ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)))
+typedef struct {
+    VkInstance mInstance;
+    VkDebugUtilsMessengerEXT mDebugger;
+    VkPhysicalDevice mPhysicalDevice;
+    VkDevice mDevice;
+    VkSurfaceKHR mSurface;
+    VkSwapchainKHR mSwapChain;
+} VkContext;
+
+extern VkContext gVkContext;
 
 static const char* sRequiredDeviceExtensions[] = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME

@@ -1,4 +1,4 @@
-build/Render/VKManager.o: src/Render/VKManager.c \
+build/Render/Vk/VkInstance.o: src/Render/Vk/VkInstance.c \
  headers/Render/VKManager.h headers/Render/WindowManager.h \
  headers/Utility/Logger.h libs/glfw-lib-vc2022/inc/glfw3.h \
  libs/VulkanSDK/inc/vulkan/vulkan.h \
@@ -20,7 +20,7 @@ build/Render/VKManager.o: src/Render/VKManager.c \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
- libs/VulkanSDK/inc/vulkan/vulkan.h headers/Utility/Math.h
+ libs/VulkanSDK/inc/vulkan/vulkan.h headers/Render/Vk/VkInstance.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -45,4 +45,4 @@ libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:
-headers/Utility/Math.h:
+headers/Render/Vk/VkInstance.h:

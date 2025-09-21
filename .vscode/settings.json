@@ -12,6 +12,8 @@
         "array": "c",
         "string_view": "c",
         "ranges": "c",
-        "span": "c"
+        "span": "c",
+        "windowmanager.h": "c",
+        "cstdlib": "c"
     }
 }

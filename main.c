@@ -8,7 +8,7 @@ int main(int argc, char *argv[]){
    
    INIT_LOG_TIMER();
 
-   LOG_INFO("Starting Application");
+   LOG_INFO("------- Starting Application ------");
 
    struct ThreadData* threadData = malloc(sizeof(struct ThreadData));
    if(!InitThreads(threadData))
@@ -33,19 +33,13 @@ int main(int argc, char *argv[]){
    if(!glfwWindow)
       return 1;
 
-   VkInstance vkInstance;
-   VkDebugUtilsMessengerEXT vkDebugger;
-   VkPhysicalDevice vkPhysicalDevice;
-   VkDevice vkDevice;
-   VkSurfaceKHR vkSurface;
-   VkSwapchainKHR vkSwapChain;
-   InitVolk(glfwWindow, &vkInstance, &vkDebugger, &vkPhysicalDevice, &vkDevice, &vkSurface, &vkSwapChain);
+   InitVolk(glfwWindow);
 
    Run(glfwWindow);
 
    LOG_INFO("Starting Cleanup");
 
-   if(CleanupVolk(&vkInstance, &vkDebugger, &vkDevice, &vkSurface, &vkSwapChain))
+   if(CleanupVolk())
      LOG_ERROR("Volkan Cleanup Faild");
 
    if(CleanupThreads(&threadData))
@@ -57,5 +51,7 @@ int main(int argc, char *argv[]){
    if(CleanupNetwork(&conData))
      LOG_ERROR("Connection Cleanup Faild");
    
+   LOG_INFO("------- Application Ended ------");
+
    return 0;
 }

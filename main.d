@@ -19,7 +19,8 @@ main.o: main.c headers/Render/WindowManager.h headers/Utility/Logger.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
  headers/Online/NetworkManager.h headers/Threads/ThreadManager.h \
- headers/Render/VKManager.h libs/VulkanSDK/inc/vulkan/vulkan.h
+ headers/Render/VKManager.h libs/VulkanSDK/inc/vulkan/vulkan.h \
+ headers/Utility/Math.h
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
 libs/glfw-lib-vc2022/inc/glfw3.h:
@@ -46,3 +47,4 @@ headers/Online/NetworkManager.h:
 headers/Threads/ThreadManager.h:
 headers/Render/VKManager.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:
+headers/Utility/Math.h:

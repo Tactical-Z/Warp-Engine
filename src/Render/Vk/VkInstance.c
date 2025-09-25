@@ -1,11 +1,12 @@
 
 #include "VKManager.h"
 #include "VkInstance.h"
+#include "VkDebugMessenger.h"
 
 VkInstance CreateInstance(){
 
-    LOG_INFO("Setup Instance");
-    VkInstance instance;
+    LOG_INFO("Setup VkInstance");
+    VkInstance instance = {0};
     // The application info contains optional info for the instance 
     // to use during init best to fill it so it can optimise behind the scenes
     VkApplicationInfo appInfo = {0};
@@ -32,7 +33,7 @@ VkInstance CreateInstance(){
     return instance;
 };
 
-void PopulateVkInstanceCreateInfo(VkInstanceCreateInfo* _createInfo, VkApplicationInfo* _appInfo, VkDebugUtilsMessengerCreateInfoEXT* _initDebugCreateInfo){
+void PopulateVkInstanceCreateInfo(VkInstanceCreateInfo* _createInfo, const VkApplicationInfo* _appInfo, VkDebugUtilsMessengerCreateInfoEXT* _initDebugCreateInfo){
 
     _createInfo->pNext = NULL;
     _createInfo->sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -41,7 +42,7 @@ void PopulateVkInstanceCreateInfo(VkInstanceCreateInfo* _createInfo, VkApplicati
     // These paramaters spcify the desired global extentsions 
     // (Vulkan is an Agnostic API, so it needs an Extension to interface with windows)
     uint32_t numExtensions = 0;
-    const char** extensions = GetRequiredExtensions(&numExtensions, 0);
+    const char** extensions = GetRequiredExtensions(&numExtensions);
     _createInfo->enabledExtensionCount = numExtensions;
     _createInfo->ppEnabledExtensionNames = extensions;
 
@@ -50,7 +51,7 @@ void PopulateVkInstanceCreateInfo(VkInstanceCreateInfo* _createInfo, VkApplicati
 
     // Validation layers must be made here in instance as well as debugger
     // so that init and shutdown can be debugged correctly
-    if(ENABLE_VALIDATION_LAYERS && !IsValidationLayerSupported(0, sValidationLayers, numValidationLayers)){
+    if(ENABLE_VALIDATION_LAYERS && !IsValidationLayersSupported(sValidationLayers)){
         _createInfo->enabledLayerCount = 0;
         LOG_WARN("Validation layers requested, but not availible, continueing without");
     } else if(ENABLE_VALIDATION_LAYERS && numValidationLayers >= 1){
@@ -60,15 +61,16 @@ void PopulateVkInstanceCreateInfo(VkInstanceCreateInfo* _createInfo, VkApplicati
         // Creates a seperate vk debug messenger spesifically for instencing and destroying. 
         PopulateVkDebugMessengerCreateInfo(_initDebugCreateInfo);
         _createInfo->pNext = (VkDebugUtilsMessengerCreateInfoEXT*) _initDebugCreateInfo;
-
+        
     } else {
         _createInfo->enabledLayerCount = 0;
     }
 
 };
 
-void CleanupSurface(){
+void CleanupInstance(){
 
+    LOG_INFO("Cleanup VkInstance");
     vkDestroyInstance(gVkContext.mInstance, NULL);
 
 };

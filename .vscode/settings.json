@@ -14,6 +14,13 @@
         "ranges": "c",
         "span": "c",
         "windowmanager.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "vkmanager.h": "c",
+        "math.h": "c",
+        "vkphysicaldevice.h": "c",
+        "vksurface.h": "c",
+        "vkswapchain.h": "c",
+        "vulkan.h": "c",
+        "initializer_list": "c"
     }
 }

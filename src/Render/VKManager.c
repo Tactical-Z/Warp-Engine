@@ -7,6 +7,8 @@
 #include "VkDevice.h"
 #include "VkSwapChain.h"
 #include "VkImageViewer.h"
+#include "VkGraphicsPipeline.h"
+#include "VkFramebuffer.h"
 #include "Math.h"
 
 VkContext gVkContext = {0};
@@ -23,9 +25,9 @@ void InitVolk(GLFWwindow* _window){
     gVkContext.mDevice = SetupDevice(gVkContext.mInstance, gVkContext.mSurface, gVkContext.mPhysicalDevice, &gVkContext.mDeviceSupportDetails.mQueueFamily);
     gVkContext.mSwapChain = SetupSwapChain(_window, gVkContext.mDevice, gVkContext.mPhysicalDevice, gVkContext.mSurface );
     gVkContext.mNumImageViews = gVkSwapChainHandles.mNumImages;
-    gVkContext.mSwapChainImageViews = SetupImageViews(gVkContext.mDevice,gVkContext.mNumImageViews);
-    gVkContext.mGr
-    
+    gVkContext.mSwapChainImageViews = SetupImageViews(gVkContext.mDevice, gVkContext.mNumImageViews);
+    /*gVkContext.mGraphicsPipeline */ SetupGraphicsPipeline(gVkContext.mDevice);
+    //gVkContext.mSwapChainFramebuffers = SetupFrameBuffers(gVkContext.mDevice, gVkContext.mNumImageViews);
     LOG_INFO("Finished Vk-Init");
 };
 
@@ -193,6 +195,8 @@ int CleanupVolk(){
     if(ENABLE_VALIDATION_LAYERS){
         CleanupDebugMessenger();
     }
+    //CleanupFrameBuffers();
+    CleanupGraphicsPipeline();
     CleanupImageViews();
     CleanupSwapChain();
     CleanupSurface();

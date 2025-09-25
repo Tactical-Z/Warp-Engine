@@ -50,6 +50,7 @@ typedef struct {
     VkSwapchainKHR mSwapChain;
     uint32_t mNumImageViews;
     VkImageView* mSwapChainImageViews;
+    VkFramebuffer* mSwapChainFramebuffers;
 } VkContext;
 extern VkContext gVkContext;
 

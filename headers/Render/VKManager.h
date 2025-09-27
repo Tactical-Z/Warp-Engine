@@ -48,9 +48,14 @@ typedef struct {
     DeviceSupportDetails mDeviceSupportDetails;
     VkSurfaceKHR mSurface;
     VkSwapchainKHR mSwapChain;
+    VkRenderPass mRenderPass;
+    VkPipelineLayout mPipelineLayout;
+    VkPipeline mGraphicsPipeline;
     uint32_t mNumImageViews;
     VkImageView* mSwapChainImageViews;
     VkFramebuffer* mSwapChainFramebuffers;
+    VkCommandPool mCommandPool;
+    VkCommandBuffer mCommandBuffer;
 } VkContext;
 extern VkContext gVkContext;
 
@@ -72,6 +77,8 @@ int IsDeviceExtensionSupported(VkPhysicalDevice _physicalDevice, const char* con
 // Logs All Supported pshyical devices for this application.
 // @param The Vk instance used for finding the suported devices.
 void LogDeviceSupport(VkInstance _vki);
+
+void DrawFrame();
 
 // Cleans up all vulkan resources for this application. 
 int CleanupVolk();

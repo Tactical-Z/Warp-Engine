@@ -1,5 +1,6 @@
 
 #include "WindowManager.h"
+#include "VKManager.h"
 
 GLFWwindow* InitWindow(int _width, int _height, const char* _name){
     return InitGLFW(_width, _height, _name);
@@ -29,6 +30,8 @@ void Run(GLFWwindow* _glfwWindow){
     {
         glfwSwapBuffers(_glfwWindow);
         glfwPollEvents();
+
+        DrawFrame();
 
         frames++;
         if (frames > 500000){

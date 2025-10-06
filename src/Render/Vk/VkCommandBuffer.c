@@ -33,29 +33,26 @@ void PopulateCommandPool(VkCommandPoolCreateInfo* _createInfo){
     _createInfo->queueFamilyIndex = gVkContext.mDeviceSupportDetails.mQueueFamily.mGraphicsFamily;
 };
 
-void CleanupCommandPool(){
-
-    LOG_INFO("Cleanup VkCommandPool and VkcommandBuffer");
-    vkDestroyCommandPool(gVkContext.mDevice, gVkContext.mCommandPool, NULL);
-
-};
-
 /* --------------- Command buffer --------------------- */
 
 
-VkCommandBuffer SetupCommandBuffer(VkDevice _device, VkCommandPool _pool){
+int SetupCommandBuffers(VkDevice _device, VkCommandPool _pool){
 
-    LOG_INFO("Setup VkCommandBuffer");
-    VkCommandBuffer commandBuffer = {0};
-    VkCommandBufferAllocateInfo bufferCreateInfo = {0};
-    PopulateCommandBuffer(&bufferCreateInfo, _pool);
+    LOG_INFO("Setup VkCommandBuffers");
+    gVkContext.mCommandBuffers = malloc(sizeof(VkCommandBuffer) * MAX_FRAMES_IN_FLIGHT);
+    memset(gVkContext.mCommandBuffers, 0, MAX_FRAMES_IN_FLIGHT);
+
+    for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
+        VkCommandBufferAllocateInfo bufferCreateInfo = {0};
+        PopulateCommandBuffer(&bufferCreateInfo, _pool);
     
-    if (vkAllocateCommandBuffers(_device, &bufferCreateInfo, &commandBuffer) != VK_SUCCESS) {
-        LOG_ERROR("Faild creating vk command buffer");
-        return VK_NULL_HANDLE;
+        if (vkAllocateCommandBuffers(_device, &bufferCreateInfo, &gVkContext.mCommandBuffers[i]) != VK_SUCCESS) {
+            LOG_ERROR("Faild creating vk command buffers");
+           return 0;
+        }
     }
-
-    return commandBuffer;
+    
+    return 1;
 };
 
 void PopulateCommandBuffer(VkCommandBufferAllocateInfo* _createInfo, VkCommandPool _pool){
@@ -71,7 +68,7 @@ void PopulateCommandBuffer(VkCommandBufferAllocateInfo* _createInfo, VkCommandPo
 };
 
 /* --------------- Command buffer recording --------------------- */
-void RecordCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageIndex){
+void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageIndex){
 
     // start recording ----
     VkCommandBufferBeginInfo beginCreateInfo = {0};
@@ -129,4 +126,16 @@ void PopulateCommandBufferBeginCreateInfo(VkCommandBufferBeginInfo * _createInfo
     _createInfo->flags = 0; // Optional
     // only relevent for secondary buffers, specifies which state to inhert from.
     _createInfo->pInheritanceInfo = NULL; // Optional
+};
+
+void CleanupCommandObjects(){
+
+    LOG_INFO("Cleanup VkCommandPool and VkcommandBuffers");
+    // also destroys all command buffers
+    vkDestroyCommandPool(gVkContext.mDevice, gVkContext.mCommandPool, NULL);
+    
+
+    free(gVkContext.mCommandBuffers);
+    gVkContext.mCommandBuffers = NULL;
+
 };

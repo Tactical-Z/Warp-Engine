@@ -27,6 +27,9 @@ VkDevice SetupDevice(VkInstance _inst, VkSurfaceKHR _surface, VkPhysicalDevice _
     free(queueCreateInfo);
     queueCreateInfo = NULL;
 
+    // Get the graphics queue handle
+    vkGetDeviceQueue(device, _familyIndices->mGraphicsFamily, 0, &gVkContext.mGraphicsQueue);
+    vkGetDeviceQueue(device, _familyIndices->mPresentFamily, 0, &gVkContext.mPresentQueue);
     return device;
 };
 

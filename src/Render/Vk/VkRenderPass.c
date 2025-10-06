@@ -11,7 +11,8 @@ VkRenderPass SetupRenderPass(VkDevice _device){
     VkRenderPass renderPass;
 
     VkRenderPassCreateInfo renderPassInfo = {0};
-    PopulateRenderPass(&renderPassInfo);
+    VkSubpassDependency dependency = {0};
+    PopulateRenderPass(&renderPassInfo, &dependency);
 
     if (vkCreateRenderPass(_device, &renderPassInfo, NULL, &renderPass) != VK_SUCCESS) {
         LOG_ERROR("Faild to create VkRenderPass");
@@ -21,17 +22,21 @@ VkRenderPass SetupRenderPass(VkDevice _device){
     return renderPass;
 };
 
-void PopulateRenderPass(VkRenderPassCreateInfo * _createInfo){
+void PopulateRenderPass(VkRenderPassCreateInfo * _createInfo, VkSubpassDependency* _dependency){
 
     PopulateColorAttachment(&vkRenderPassAttachmentContext.mColorAttachment);
     PopulateColorAttachmentRef(&vkRenderPassAttachmentContext.mColorAttachmentRef);
     PopulateSubpassDescription(&vkRenderPassAttachmentContext.mSubpass, &vkRenderPassAttachmentContext.mColorAttachmentRef);
+    PopulateSubpassDependency(_dependency);
 
     _createInfo->sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     _createInfo->attachmentCount = 1;
     _createInfo->pAttachments = &vkRenderPassAttachmentContext.mColorAttachment;
     _createInfo->subpassCount = 1;
     _createInfo->pSubpasses = &vkRenderPassAttachmentContext.mSubpass;
+    // sup pass dependencies
+    _createInfo->dependencyCount = 1;
+    _createInfo->pDependencies = _dependency;
 };
 
 void PopulateColorAttachment(VkAttachmentDescription* _createInfo){
@@ -60,7 +65,6 @@ void PopulateColorAttachment(VkAttachmentDescription* _createInfo){
     // final layout specifies what to transition to once the render pass finishes. 
     _createInfo->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // dont care what it starts as
     _createInfo->finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // as long as it sready for presentation at the end.
-
 };
 
 void PopulateColorAttachmentRef(VkAttachmentReference* _createInfo){
@@ -77,6 +81,21 @@ void PopulateSubpassDescription(VkSubpassDescription* _createInfo, VkAttachmentR
     _createInfo->pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     _createInfo->colorAttachmentCount = 1;
     _createInfo->pColorAttachments = _ref;
+}
+
+void PopulateSubpassDependency(VkSubpassDependency* _createInfo){
+    // Defines the type of dependency, VK_SUBPASS_EXTERNAL refers to the implicit subpass before or after the rneder pass depending
+    // depending on weather it is specified in srcSubpass or dstSubpass. Index is what subpass, 0 for first one. 
+    // Note dstSubpass myst always be higher than srcSubpass to prevent cycles in the dependency graph.
+    _createInfo->srcSubpass = VK_SUBPASS_EXTERNAL;
+    _createInfo->dstSubpass = 0;
+    // Specify the operations to wait on and the stages in which tehse occur. We need to wait for the swapchain 
+    // to finish reading from the image before we can acces it, so we wait for the color attactchment output itself.
+    _createInfo->srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    _createInfo->srcAccessMask = 0;
+    // Define when something is allowed do happen. 
+    _createInfo->dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    _createInfo->dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 }
 
 void CleanupRenderPass(){

@@ -13,7 +13,7 @@ typedef struct {
 VkRenderPass SetupRenderPass(VkDevice _device);
 
 // Populates the construction info for the render pass.
-void PopulateRenderPass(VkRenderPassCreateInfo * _createInfo);
+void PopulateRenderPass(VkRenderPassCreateInfo * _createInfo, VkSubpassDependency* _dependency);
 
 // Gets a VkAttachmentDescription for the color attachment of the render pass.
 void PopulateColorAttachment(VkAttachmentDescription* _createInfo);
@@ -23,6 +23,9 @@ void PopulateColorAttachmentRef(VkAttachmentReference* _createInfo);
 
 // Gets the descriptor for the subpasses we want to use.
 void PopulateSubpassDescription(VkSubpassDescription* _createInfo, VkAttachmentReference* _ref);
+
+// populates the dependency of a supass for the render pass create information.
+void PopulateSubpassDependency(VkSubpassDependency* _createInfo);
 
 // Cleans up the Vk render pass
 void CleanupRenderPass();

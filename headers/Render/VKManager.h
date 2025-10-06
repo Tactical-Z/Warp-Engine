@@ -7,6 +7,9 @@
 #define ENABLE_VALIDATION_LAYERS 1 // true
 #define SHOULD_LOG 0 // true
 
+#define MAX_FRAMES_IN_FLIGHT 3
+extern uint32_t gCurrentFrame;
+
 static const char* sValidationLayers[] = {
     "VK_LAYER_KHRONOS_validation"
 };
@@ -45,6 +48,8 @@ typedef struct {
     VkDebugUtilsMessengerEXT mDebugger;
     VkPhysicalDevice mPhysicalDevice;
     VkDevice mDevice;
+    VkQueue mGraphicsQueue;
+    VkQueue mPresentQueue;
     DeviceSupportDetails mDeviceSupportDetails;
     VkSurfaceKHR mSurface;
     VkSwapchainKHR mSwapChain;
@@ -55,7 +60,13 @@ typedef struct {
     VkImageView* mSwapChainImageViews;
     VkFramebuffer* mSwapChainFramebuffers;
     VkCommandPool mCommandPool;
-    VkCommandBuffer mCommandBuffer;
+    VkCommandBuffer* mCommandBuffers;
+    
+    // sync objects
+    VkSemaphore* mImageAvailableSemaphores;
+    VkSemaphore* mRenderFinishedSemaphores;
+    VkFence* mInFlightFences;
+    int mFramebufferResized;
 } VkContext;
 extern VkContext gVkContext;
 
@@ -78,10 +89,16 @@ int IsDeviceExtensionSupported(VkPhysicalDevice _physicalDevice, const char* con
 // @param The Vk instance used for finding the suported devices.
 void LogDeviceSupport(VkInstance _vki);
 
-void DrawFrame();
+void DrawFrame(GLFWwindow* _window);
 
 // Cleans up all vulkan resources for this application. 
 int CleanupVolk();
+
+// Populates present infor for presenting an image from the swap chain
+void PopulatePresentCreateInfo(VkPresentInfoKHR* _createInfo, uint32_t* _imageIndex, VkSwapchainKHR* _swapchains, VkSemaphore* _signalSemaphores);
+
+// Populates the create infor for the submission struct for the draw command.
+void PopulateDrawSubmitCreateInfo(VkSubmitInfo* _createInfo, VkSemaphore* _signalSemaphores, VkSemaphore* _waitSemaphores);
 
 // Vk Proxy Functions ----
 

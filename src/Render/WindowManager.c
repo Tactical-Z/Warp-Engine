@@ -20,7 +20,12 @@ GLFWwindow* InitGLFW(int _width, int _height, const char* _name){
 }
 
 GLFWwindow* InitGLFWWindow(int _width, int _height, const char* _name){
-    return glfwCreateWindow(_width, _height, _name, NULL, NULL);
+    // Create window
+    GLFWwindow* window = glfwCreateWindow(_width, _height, _name, NULL, NULL);
+
+    // Set callbacks for window
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    return window;
 }
 
 void Run(GLFWwindow* _glfwWindow){
@@ -31,7 +36,7 @@ void Run(GLFWwindow* _glfwWindow){
         glfwSwapBuffers(_glfwWindow);
         glfwPollEvents();
 
-        DrawFrame();
+        DrawFrame(_glfwWindow);
 
         frames++;
         if (frames > 500000){
@@ -39,6 +44,10 @@ void Run(GLFWwindow* _glfwWindow){
             frames = 0;
         }
     }
+}
+
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    gVkContext.mFramebufferResized = 1;
 }
 
 int CleanupWindow(GLFWwindow* _glfwWindow){

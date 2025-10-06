@@ -11,10 +11,12 @@
 #include "VkGraphicsPipeline.h"
 #include "VkFramebuffer.h"
 #include "VkCommandBuffer.h"
+#include "VkSyncObjects.h"
 #include "Math.h"
 
 VkContext gVkContext = {0};
 SwapChainHandels gVkSwapChainHandles = {0};
+uint32_t gCurrentFrame = 0;
 
 void InitVolk(GLFWwindow* _window){
 
@@ -32,7 +34,9 @@ void InitVolk(GLFWwindow* _window){
     gVkContext.mGraphicsPipeline = SetupGraphicsPipeline(gVkContext.mDevice);
     gVkContext.mSwapChainFramebuffers = SetupFrameBuffers(gVkContext.mDevice, gVkContext.mNumImageViews);
     gVkContext.mCommandPool = SetupCommandPool(gVkContext.mDevice);
-    gVkContext.mCommandBuffer = SetupCommandBuffer(gVkContext.mDevice, gVkContext.mCommandPool);
+    SetupCommandBuffers(gVkContext.mDevice, gVkContext.mCommandPool);
+    SetupSyncObjects(gVkContext.mDevice);
+    
     LOG_INFO("Finished Vk-Init");
 };
 
@@ -195,16 +199,96 @@ void LogDeviceSupport(VkInstance _vki){
     devices = NULL;
 };
 
-void DrawFrame(){
+void DrawFrame(GLFWwindow* _window){
 
+    // wait until previous frame has finished so that command buffer and smaphores are availible
+    vkWaitForFences(gVkContext.mDevice, 1 , &gVkContext.mInFlightFences[gCurrentFrame], VK_TRUE, UINT64_MAX);
+
+    // get next availible image from swapchain by index
+    uint32_t imageIndex;
+    VkResult result = vkAcquireNextImageKHR(gVkContext.mDevice, gVkContext.mSwapChain, UINT64_MAX, gVkContext.mImageAvailableSemaphores[gCurrentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if(result == VK_ERROR_OUT_OF_DATE_KHR){
+        RecreateSwapchain(_window);
+        return;
+    }else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR){
+        LOG_ERROR("Faild to aqquire swap chain image");
+        return;
+    }
+
+    // reset fence so it is ready for next frame
+    vkResetFences(gVkContext.mDevice, 1 ,&gVkContext.mInFlightFences[gCurrentFrame]);
+
+    // reset command buffer, then call the draw command using the availible index.
+    vkResetCommandBuffer(gVkContext.mCommandBuffers[gCurrentFrame], 0);
+    RecordDrawCommandBuffer(gVkContext.mCommandBuffers[gCurrentFrame], imageIndex);
+    // We can then submit the command
+
+    VkSubmitInfo submitInfo = {0};
+    VkSwapchainKHR swapChains[] = {gVkContext.mSwapChain};
+    VkSemaphore signalSemaphores[] = {gVkContext.mRenderFinishedSemaphores[gCurrentFrame]};
+    VkSemaphore waitSemaphores[] = {gVkContext.mImageAvailableSemaphores[gCurrentFrame]};
+    PopulateDrawSubmitCreateInfo(&submitInfo, signalSemaphores, waitSemaphores);
+
+    if (vkQueueSubmit(gVkContext.mGraphicsQueue, 1, &submitInfo, gVkContext.mInFlightFences[gCurrentFrame]) != VK_SUCCESS) {
+        LOG_ERROR("Faild to subbmit draw command to command buffer");
+        return;
+    }
+
+    // present the image
+    VkPresentInfoKHR presentInfo = {0};
+    PopulatePresentCreateInfo(&presentInfo, &imageIndex, swapChains , signalSemaphores);
+    result = vkQueuePresentKHR(gVkContext.mPresentQueue, &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        gVkContext.mFramebufferResized = 0;
+        RecreateSwapchain(_window);
+    } else if (result != VK_SUCCESS) {
+        LOG_ERROR("Failed to present swap chain image");
+        return;
+    }
+
+    gCurrentFrame = (gCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+};
+
+void PopulatePresentCreateInfo(VkPresentInfoKHR* _createInfo, uint32_t* _imageIndex, VkSwapchainKHR* _swapchains, VkSemaphore* _signalSemaphores){
+
+    // What semaphores to wait for
+    _createInfo->sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    _createInfo->waitSemaphoreCount = 1;
+    _createInfo->pWaitSemaphores = _signalSemaphores;
+    // the swapchains to present images to
+    _createInfo->swapchainCount = 1;
+    _createInfo->pSwapchains = _swapchains;
+    _createInfo->pImageIndices = _imageIndex;
+    // optional for multiple swapchains to check if all swpachains where successful.
+    _createInfo->pResults = NULL; // Optional
+};
+
+void PopulateDrawSubmitCreateInfo(VkSubmitInfo* _createInfo, VkSemaphore* _signalSemaphores, VkSemaphore* _waitSemaphores){
+
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    // First three define the semaphores to wait on before execution begins. We specify the color attachment of the graphics
+    // pipeline since we need to wait for the image before applying colors. PopulateDrawSubmitInfo
+    _createInfo->sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    _createInfo->waitSemaphoreCount = 1;
+    _createInfo->pWaitSemaphores = _waitSemaphores;
+    _createInfo->pWaitDstStageMask = waitStages;
+    // Specify the command buffer to use
+    _createInfo->commandBufferCount = 1;
+    _createInfo->pCommandBuffers = &gVkContext.mCommandBuffers[gCurrentFrame];
+    // what semaphores to signal when finished.
+    _createInfo->signalSemaphoreCount = 1;
+    _createInfo->pSignalSemaphores = _signalSemaphores;
 };
 
 int CleanupVolk(){
 
+    vkDeviceWaitIdle(gVkContext.mDevice);
     if(ENABLE_VALIDATION_LAYERS){
         CleanupDebugMessenger();
     }
-    CleanupCommandPool();
+    CleanupSyncObjects();
+    CleanupCommandObjects();
     CleanupFrameBuffers();
     CleanupGraphicsPipeline();
     CleanupRenderPass();

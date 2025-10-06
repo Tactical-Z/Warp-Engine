@@ -2,6 +2,8 @@
 #include "VKManager.h"
 #include "VkSwapChain.h"
 #include "VkPhysicalDevice.h"
+#include "VkImageViewer.h"
+#include "VkFrameBuffer.h"
 
 VkSwapchainKHR SetupSwapChain(GLFWwindow* _window, VkDevice _device, VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface){
    
@@ -28,6 +30,29 @@ VkSwapchainKHR SetupSwapChain(GLFWwindow* _window, VkDevice _device, VkPhysicalD
     swapChainSupport.mPresentModes = NULL;
 
     return swapChain;
+};
+
+int RecreateSwapchain(GLFWwindow* _window){
+    
+    // if window is minimised, pause app
+     int width = 0, height = 0;
+    glfwGetFramebufferSize(_window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(_window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    // Wait until device avilible, then cleanup current swapchain
+    vkDeviceWaitIdle(gVkContext.mDevice);
+    CleanupFrameBuffers();
+    CleanupImageViews();
+    CleanupSwapChain();
+
+    // then remake and reassign swapchain and swapchain required objects.
+    gVkContext.mSwapChain = SetupSwapChain(_window, gVkContext.mDevice, gVkContext.mPhysicalDevice, gVkContext.mSurface);
+    gVkContext.mNumImageViews = gVkSwapChainHandles.mNumImages;
+    gVkContext.mSwapChainImageViews = SetupImageViews(gVkContext.mDevice, gVkContext.mNumImageViews);
+    gVkContext.mSwapChainFramebuffers = SetupFrameBuffers(gVkContext.mDevice, gVkContext.mNumImageViews);
 };
 
 SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface){
@@ -245,5 +270,4 @@ void CleanupSwapChain(){
     free(gVkSwapChainHandles.mSwapChainImages);
     gVkSwapChainHandles.mSwapChainImages = NULL;
     vkDestroySwapchainKHR(gVkContext.mDevice, gVkContext.mSwapChain, NULL);
-
 };

@@ -10,7 +10,7 @@ VkFramebuffer* SetupFrameBuffers(VkDevice _device, uint32_t _numImages);
 // Populates the framebuffer create info.
 // @param _creatInfo is passed htrough reference and filled.
 // @param _numImageViews is the number of images views in the swapchain
-void PopulateFrameBuffer(VkFramebufferCreateInfo* _createInfo, uint32_t _numImageViews);
+void PopulateFrameBuffer(VkFramebufferCreateInfo* _createInfo, int _imageviewIndex);
 
 // Cleans up the Vk FrameBuffers
 void CleanupFrameBuffers();

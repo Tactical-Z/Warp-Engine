@@ -12,12 +12,9 @@ VkCommandPool SetupCommandPool(VkDevice _device);
 // @param _creatInfo is passed through reference and filled.
 void PopulateCommandPool(VkCommandPoolCreateInfo* _createInfo);
 
-// Cleans up the Vk Command pool
-void CleanupCommandPool();
-
 /* --------------- Command buffer --------------------- */
 // Creates and executes commands from the pool.
-VkCommandBuffer SetupCommandBuffer(VkDevice _device, VkCommandPool _pool);
+int SetupCommandBuffers(VkDevice _device, VkCommandPool _pool);
 
 // Populates the command buffer create info.
 // @param _creatInfo is passed through reference and filled.
@@ -28,8 +25,12 @@ void PopulateCommandBuffer(VkCommandBufferAllocateInfo* _createInfo, VkCommandPo
 /* --------------- Command buffer recording --------------------- */
 // This record funciton actually writes the command we want to execute to the command buffer inputed.
 // Since we are recoding a draw call we need to specify the swapchain image we want to write to.
-void RecordCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageIndex);
+void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageIndex);
 
 // Populates the command buffer begin create info. Signifies the begining of a command buffer command push.
 // @param _creatInfo is passed through reference and filled.
 void PopulateCommandBufferBeginCreateInfo(VkCommandBufferBeginInfo * _createInfo);
+
+
+// Cleans up the Vk Command objects
+void CleanupCommandObjects();

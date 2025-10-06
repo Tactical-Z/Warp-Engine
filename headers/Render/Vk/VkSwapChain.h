@@ -20,6 +20,8 @@ typedef struct {
 // @return The VKSwpachain Struct. 
 VkSwapchainKHR SetupSwapChain(GLFWwindow* _window, VkDevice _device, VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface);
 
+int RecreateSwapchain(GLFWwindow* _window);
+
 // Querys the swapchain for spesific details and returns them
 // @param _physicalDevice the VK Physical device.
 // @param _surface is the vk surface.

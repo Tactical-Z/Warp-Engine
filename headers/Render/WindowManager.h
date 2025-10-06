@@ -10,5 +10,7 @@ GLFWwindow* InitGLFWWindow(int _width, int _height, const char* _name);
 
 void Run(GLFWwindow* _glfwWindow);
 
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
 int CleanupWindow(GLFWwindow* _glfwWindow);
 

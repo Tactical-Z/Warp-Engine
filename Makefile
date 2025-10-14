@@ -16,6 +16,10 @@ INC_DIR := ./libs
 CC := gcc
 CXX := g++
 
+# flags
+CFLAGS += -std=gnu99 -D__USE_MINGW_ANSI_STDIO=1 -D_USE_MATH_DEFINES
+CXXFLAGS += -std=c++11
+
 # Find all .c and .h files in directory locations
 SRCS := main.c # since it is outide src
 SRCS += $(wildcard $(SRC_DIR)/*.c) \
@@ -73,7 +77,7 @@ LIB_DIRS := $(sort $(dir $(LIB_FILES)))
 LIB_FLAGS := $(addprefix -L,$(LIB_DIRS))
 
 # 4. Update Flags to include libs
-LDFLAGS := $(LIB_FLAGS) -lglfw3 -lgdi32 -lopengl32 -luser32 -lkernel32 -lws2_32 -lpthread -lvulkan-1
+LDFLAGS := $(LIB_FLAGS) -lglfw3 -lgdi32 -lopengl32 -luser32 -lkernel32 -lws2_32 -lpthread -lvulkan-1 -lm
 
 # Conducting the compilation and build
 # ------------------------------------
@@ -87,12 +91,13 @@ LDFLAGS := $(LIB_FLAGS) -lglfw3 -lgdi32 -lopengl32 -luser32 -lkernel32 -lws2_32 
 #$(info SRCS = $(SRCS))
 
 # 0. Default target
-all: $(BUILD_DIR)/$(TARGET_EXEC)
+.PHONY: CompileShaders
+all: CompileShaders $(BUILD_DIR)/$(TARGET_EXEC)
 
 # 1. Generates the actuall executable file, requires all compiled OBJS file as input.
 # CXX is internal veriable for g++ compiler. $@ = target (name). LDFLAGS are for additional internal flags. 
 $(BUILD_DIR)/$(TARGET_EXEC) : CopyDlls $(OBJS) 
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # 2. Compiles all c files in build directories, mkdir -p makes sure it exists with $(dir $@) telling it where to find/make it.
 # $(CC) = the gcc compiler, $(CPPFLAGS) are flags for -I and other include files, $(CFLAGS) internal flags, -c $< -o $@ gets the source file.
@@ -111,6 +116,8 @@ $(BUILD_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp
 CopyDlls: 
 	@for %%f in ($(LIB_DIR)/**/*.dll) do copy "%%f" $(BUILD_DIR)
 
+CompileShaders:
+	@cmd /C "shaders\\compile.bat"
 
 # Cleaning
 # --------

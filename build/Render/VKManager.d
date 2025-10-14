@@ -20,13 +20,13 @@ build/Render/VKManager.o: src/Render/VKManager.c \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
- libs/VulkanSDK/inc/vulkan/vulkan.h headers/Utility/Math.h \
- headers/Render/Vk/VkInstance.h headers/Render/Vk/VkDebugMessenger.h \
- headers/Render/Vk/VkSurface.h headers/Render/Vk/VkPhysicalDevice.h \
- headers/Render/Vk/VkDevice.h headers/Render/Vk/VkSwapChain.h \
- headers/Render/Vk/VkImageViewer.h headers/Render/Vk/VkRenderPass.h \
- headers/Render/Vk/VkGraphicsPipeline.h headers/Render/Vk/VkFramebuffer.h \
- headers/Render/Vk/VkCommandBuffer.h headers/Render/Vk/VkSyncObjects.h
+ libs/VulkanSDK/inc/vulkan/vulkan.h headers/Render/Vk/VkInstance.h \
+ headers/Render/Vk/VkDebugMessenger.h headers/Render/Vk/VkSurface.h \
+ headers/Render/Vk/VkPhysicalDevice.h headers/Render/Vk/VkDevice.h \
+ headers/Render/Vk/VkSwapChain.h headers/Render/Vk/VkImageViewer.h \
+ headers/Render/Vk/VkRenderPass.h headers/Render/Vk/VkGraphicsPipeline.h \
+ headers/Render/Vk/VkFramebuffer.h headers/Render/Vk/VkCommandBuffer.h \
+ headers/Render/Vk/VkSyncObjects.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -51,7 +51,6 @@ libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:
-headers/Utility/Math.h:
 headers/Render/Vk/VkInstance.h:
 headers/Render/Vk/VkDebugMessenger.h:
 headers/Render/Vk/VkSurface.h:

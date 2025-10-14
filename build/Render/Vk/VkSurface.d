@@ -20,8 +20,7 @@ build/Render/Vk/VkSurface.o: src/Render/Vk/VkSurface.c \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
- libs/VulkanSDK/inc/vulkan/vulkan.h headers/Utility/Math.h \
- headers/Render/Vk/VkSurface.h
+ libs/VulkanSDK/inc/vulkan/vulkan.h headers/Render/Vk/VkSurface.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -46,5 +45,4 @@ libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:
-headers/Utility/Math.h:
 headers/Render/Vk/VkSurface.h:

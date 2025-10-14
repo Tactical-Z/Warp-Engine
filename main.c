@@ -4,12 +4,14 @@
 #include "ThreadManager.h"
 #include "VKManager.h"
 
+#include "Mesh.h"
+
 int main(int argc, char *argv[]){
    
    INIT_LOG_TIMER();
 
    LOG_INFO("------- Starting Application ------");
-
+   
    struct ThreadData* threadData = malloc(sizeof(struct ThreadData));
    if(!InitThreads(threadData))
       return 1;
@@ -34,6 +36,8 @@ int main(int argc, char *argv[]){
       return 1;
 
    InitVolk(glfwWindow);
+
+
 
    Run(glfwWindow);
 

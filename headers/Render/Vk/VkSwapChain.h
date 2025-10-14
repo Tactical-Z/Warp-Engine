@@ -3,6 +3,8 @@
 #include "vulkan.h"
 #include "glfw3.h"
 
+#define NUM_QUEUE_FAMILY_INDEXES 2
+
 // swap chain support details struct containing iomportant formats and presentation modes and arrays.
 typedef struct {
     VkSurfaceCapabilitiesKHR mCapabilities;
@@ -34,7 +36,7 @@ SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _physicalDevice, 
 // @param _surface is the vk surface
 // @param _swapChainSupportDetails are additional details for create info.
 // @param _window is a GLFW window reference. 
-void PopulateSwapChain(VkSwapchainCreateInfoKHR* _createInfo, VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface, SwapChainSupportDetails _swapChainSupport , GLFWwindow* _window);
+void PopulateSwapChain(VkSwapchainCreateInfoKHR* _createInfo, VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface, SwapChainSupportDetails _swapChainSupport,uint32_t* _queueFamilyIndexes, GLFWwindow* _window);
 
 // Checker function that returns wether or not a swapchain is adaquate.
 // @param _swapChain is the swapchain in question.

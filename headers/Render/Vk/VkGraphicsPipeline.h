@@ -13,6 +13,8 @@ static VkDynamicState sDynamicStates[NUM_DYNAMIC_PIPELINESTATES] = {
 
 typedef struct {
     VkPipelineVertexInputStateCreateInfo mVertexInputInfo;
+    VkVertexInputBindingDescription mBindingDescription;
+    VkVertexInputAttributeDescription* mAttributeDescriptions;
     VkPipelineInputAssemblyStateCreateInfo mInputAssembly;
     VkViewport mViewport;
     VkRect2D mScissor;
@@ -58,6 +60,12 @@ VkPipelineShaderStageCreateInfo GetPipelineFragmentShaderStageCreateInfo(VkShade
 // It describes the format of the vertex dat athat will be passed to the vertex shader.
 // descibes in two ways, bindings (spacing between data) and attribute descriptions (types of attributes passed to the vertex shader)
 void PopulatePipelineVertexInputStateCreateInfo(VkPipelineVertexInputStateCreateInfo* _createInfo);
+
+// Gets the binding description for vertexes
+VkVertexInputBindingDescription GetBindingDescription();
+
+// Gets the attribute descriptions for vertex attributes
+VkVertexInputAttributeDescription* GetAttributeDescriptions();
 
 // Decribes two things;
 // 1, what kind of geometry will be drawn from the verices.

@@ -4,6 +4,7 @@
 #include "VkPhysicalDevice.h"
 #include "VkImageViewer.h"
 #include "VkFrameBuffer.h"
+#include "UtilMath.h"
 
 VkSwapchainKHR SetupSwapChain(GLFWwindow* _window, VkDevice _device, VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface){
    
@@ -11,7 +12,8 @@ VkSwapchainKHR SetupSwapChain(GLFWwindow* _window, VkDevice _device, VkPhysicalD
     VkSwapchainKHR swapChain = {0};
     VkSwapchainCreateInfoKHR createInfo = {0};
     SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(_physicalDevice, _surface);
-    PopulateSwapChain(&createInfo, _physicalDevice, _surface, swapChainSupport, _window);
+    uint32_t* queueFamilyIndices = malloc(sizeof(uint32_t)* NUM_QUEUE_FAMILY_INDEXES);
+    PopulateSwapChain(&createInfo, _physicalDevice, _surface, swapChainSupport, queueFamilyIndices, _window);
 
     if (vkCreateSwapchainKHR(_device, &createInfo, NULL, &swapChain) != VK_SUCCESS) {
         LOG_ERROR("Faild Creating swap chain");
@@ -24,6 +26,8 @@ VkSwapchainKHR SetupSwapChain(GLFWwindow* _window, VkDevice _device, VkPhysicalD
     vkGetSwapchainImagesKHR(_device, swapChain, &gVkSwapChainHandles.mNumImages, gVkSwapChainHandles.mSwapChainImages);
 
     // free support detail arrays
+    free(queueFamilyIndices);
+    queueFamilyIndices = NULL;
     free(swapChainSupport.mFormats);
     swapChainSupport.mFormats = NULL;
     free(swapChainSupport.mPresentModes);
@@ -116,7 +120,7 @@ SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _physicalDevice, 
     return swapChainDetails;
 };
 
-void PopulateSwapChain(VkSwapchainCreateInfoKHR* _createInfo, VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface, SwapChainSupportDetails _swapChainSupport , GLFWwindow* _window){
+void PopulateSwapChain(VkSwapchainCreateInfoKHR* _createInfo, VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface, SwapChainSupportDetails _swapChainSupport,uint32_t* _queueFamilyIndexes, GLFWwindow* _window){
 
     _createInfo->sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     _createInfo->surface = _surface;
@@ -147,25 +151,24 @@ void PopulateSwapChain(VkSwapchainCreateInfoKHR* _createInfo, VkPhysicalDevice _
         // submitting them on the presentation queue. To ways to handle, VK_SHARING_MODE_EXCLUSIVE an images is owned by one queue family at a time, best for performance.
         // or VK_SHARING_MODE_CONCURRENT where images can be shared across multiple queue families. 
         // if the queue families differ we will use the concurrent one, otherwise we use the exclusive one.
-    QueueFamilyIndices indices;
+    QueueFamilyIndices indices = {0};
     FindQueueFamilies(_physicalDevice, _surface, &indices);
     //uint32_t queueFamilyIndices = {indices.mGraphicsFamily, &indices.mPresentFamily};
-    uint32_t* queueFamilyIndices = malloc(sizeof(uint32_t)* 2);
-    queueFamilyIndices[0] = indices.mGraphicsFamily;
-    queueFamilyIndices[1] = indices.mPresentFamily;
+    if(NUM_QUEUE_FAMILY_INDEXES - 1 != 1){
+        LOG_WARN("Change in num queue family indexes must be accounted for in swapchain creation");
+    }
+    _queueFamilyIndexes[NUM_QUEUE_FAMILY_INDEXES - NUM_QUEUE_FAMILY_INDEXES] = indices.mGraphicsFamily;
+    _queueFamilyIndexes[NUM_QUEUE_FAMILY_INDEXES - 1] = indices.mPresentFamily;
 
     if (indices.mGraphicsFamily != indices.mPresentFamily) {
         _createInfo->imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         _createInfo->queueFamilyIndexCount = 2; // Specifies which families have ownership over a queue
-        _createInfo->pQueueFamilyIndices = queueFamilyIndices; // along with this
+        _createInfo->pQueueFamilyIndices = _queueFamilyIndexes; // along with this
     } else {
         _createInfo->imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
         _createInfo->queueFamilyIndexCount = 0; // Optional
         _createInfo->pQueueFamilyIndices = NULL; // Optional
     }
-
-    free(queueFamilyIndices);
-    queueFamilyIndices = NULL;
 
     _createInfo->preTransform = _swapChainSupport.mCapabilities.currentTransform; // transform image location, no transform = current transform.
     _createInfo->compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // specifies blending with other windows, almost alawys ignore

@@ -20,9 +20,8 @@ build/Render/Vk/VkCommandBuffer.o: src/Render/Vk/VkCommandBuffer.c \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
- libs/VulkanSDK/inc/vulkan/vulkan.h headers/Utility/Math.h \
- headers/Render/Vk/VkCommandBuffer.h headers/Render/Vk/VkRenderPass.h \
- headers/Render/Vk/VkGraphicsPipeline.h
+ libs/VulkanSDK/inc/vulkan/vulkan.h headers/Render/Vk/VkCommandBuffer.h \
+ headers/Render/Vk/VkRenderPass.h headers/Render/Vk/VkGraphicsPipeline.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -47,7 +46,6 @@ libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:
-headers/Utility/Math.h:
 headers/Render/Vk/VkCommandBuffer.h:
 headers/Render/Vk/VkRenderPass.h:
 headers/Render/Vk/VkGraphicsPipeline.h:

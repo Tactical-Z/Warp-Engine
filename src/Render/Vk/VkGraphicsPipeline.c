@@ -1,7 +1,7 @@
 
 #include "VKManager.h"
 #include "VkGraphicsPipeline.h"
-
+#include "Vertex.h"
 #include "string.h"
 
 PipelineCreateInfoContext vkPipelineCreateInfoContext = {0};
@@ -186,14 +186,56 @@ VkPipelineShaderStageCreateInfo GetPipelineFragmentShaderStageCreateInfo(VkShade
 // ----------------------
 
 void PopulatePipelineVertexInputStateCreateInfo(VkPipelineVertexInputStateCreateInfo* _createInfo){
+    vkPipelineCreateInfoContext.mBindingDescription = GetBindingDescription();
+    vkPipelineCreateInfoContext.mAttributeDescriptions = GetAttributeDescriptions(NUM_VERTEX_ATTRIBUTES);
     
-    // Empty for now but will be configured for vertes attribute data. 
     _createInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    _createInfo->vertexBindingDescriptionCount = 0;
-    _createInfo->pVertexBindingDescriptions = NULL; // Optional
-    _createInfo->vertexAttributeDescriptionCount = 0;
-    _createInfo->pVertexAttributeDescriptions = NULL; // Optional
+    _createInfo->vertexBindingDescriptionCount = 1;
+    _createInfo->pVertexBindingDescriptions = &vkPipelineCreateInfoContext.mBindingDescription;
+    _createInfo->vertexAttributeDescriptionCount = NUM_VERTEX_ATTRIBUTES;
+    _createInfo->pVertexAttributeDescriptions = vkPipelineCreateInfoContext.mAttributeDescriptions;
+};
 
+VkVertexInputBindingDescription GetBindingDescription(){
+    
+    VkVertexInputBindingDescription bindingDescription = {0};
+    // One binding since it is all packed togeather in one array
+    // specifies the index of the binding in the array of bindings
+    bindingDescription.binding = 0;
+    // num bytes between vertices
+    bindingDescription.stride = sizeof(Vertex);
+    // Input rate     
+        // VK_VERTEX_INPUT_RATE_VERTEX: Move to the next data entry after each vertex
+        // VK_VERTEX_INPUT_RATE_INSTANCE: Move to the next data entry after each instance
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    return bindingDescription;
+};
+
+VkVertexInputAttributeDescription* GetAttributeDescriptions(){
+
+    VkVertexInputAttributeDescription* attributeDescriptions = malloc(sizeof(VkVertexInputAttributeDescription) * NUM_VERTEX_ATTRIBUTES);
+    memset(attributeDescriptions, 0, NUM_VERTEX_ATTRIBUTES);
+
+    // binding tells vulkan from which binding the per vertex data comes
+    attributeDescriptions[0].binding = 0;
+    // location references the location in the vertex shader
+    attributeDescriptions[0].location = 0;
+    // Describes the type of data for the attribte, formated to colors:
+        // float: VK_FORMAT_R32_SFLOAT
+        // vec2: VK_FORMAT_R32G32_SFLOAT
+        // vec3: VK_FORMAT_R32G32B32_SFLOAT
+        // vec4: VK_FORMAT_R32G32B32A32_SFLOAT
+    attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+    // num bytes to tead for this attribute
+    attributeDescriptions[0].offset = offsetof(Vertex, mPosition);
+
+    attributeDescriptions[1].binding = 0;
+    attributeDescriptions[1].location = 1;
+    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[1].offset = offsetof(Vertex, mColor);
+
+    return attributeDescriptions;
 };
 
 void PopulatePipelineInputAssemblyStateCreateInfo(VkPipelineInputAssemblyStateCreateInfo* _createInfo){
@@ -337,6 +379,8 @@ VkPipelineLayoutCreateInfo GetPipelineLayoutCreateInfo(){
 void CleanupGraphicsPipeline(){
 
     LOG_INFO("Cleanup VkGraphicsPipeline");
+    free(vkPipelineCreateInfoContext.mAttributeDescriptions);
+    vkPipelineCreateInfoContext.mAttributeDescriptions = NULL;
     vkDestroyPipeline(gVkContext.mDevice, gVkContext.mGraphicsPipeline, NULL);
     vkDestroyPipelineLayout(gVkContext.mDevice, gVkContext.mPipelineLayout, NULL);
 };

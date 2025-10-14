@@ -22,6 +22,8 @@
         "vkswapchain.h": "c",
         "vulkan.h": "c",
         "initializer_list": "c",
-        "vkframebuffer": "cpp"
+        "vkframebuffer": "cpp",
+        "mesh.h": "c",
+        "*.hpp11": "c"
     }
 }

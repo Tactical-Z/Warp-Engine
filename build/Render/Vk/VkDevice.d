@@ -20,8 +20,8 @@ build/Render/Vk/VkDevice.o: src/Render/Vk/VkDevice.c \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h \
- libs/VulkanSDK/inc/vulkan/vulkan.h headers/Utility/Math.h \
- headers/Render/Vk/VkDevice.h headers/Render/Vk/VkPhysicalDevice.h
+ libs/VulkanSDK/inc/vulkan/vulkan.h headers/Render/Vk/VkDevice.h \
+ headers/Render/Vk/VkPhysicalDevice.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -46,6 +46,5 @@ libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/inc/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/inc/vulkan/vulkan.h:
-headers/Utility/Math.h:
 headers/Render/Vk/VkDevice.h:
 headers/Render/Vk/VkPhysicalDevice.h:

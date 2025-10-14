@@ -14,7 +14,7 @@ GLFWwindow* InitGLFW(int _width, int _height, const char* _name){
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     return InitGLFWWindow(_width, _height, _name);
 }

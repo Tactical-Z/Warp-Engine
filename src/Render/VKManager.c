@@ -11,6 +11,7 @@
 #include "VkGraphicsPipeline.h"
 #include "VkFramebuffer.h"
 #include "VkCommandBuffer.h"
+#include "VkVertexBuffer.h"
 #include "VkSyncObjects.h"
 #include "Math.h"
 
@@ -34,7 +35,7 @@ void InitVolk(GLFWwindow* _window){
     gVkContext.mGraphicsPipeline = SetupGraphicsPipeline(gVkContext.mDevice);
     gVkContext.mSwapChainFramebuffers = SetupFrameBuffers(gVkContext.mDevice, gVkContext.mNumImageViews);
     gVkContext.mCommandPool = SetupCommandPool(gVkContext.mDevice);
-    SetupVertexBuffer();
+    gVkContext.mVertexBuffer = SetupVertexBuffer(gVkContext.mDevice);
     SetupCommandBuffers(gVkContext.mDevice, gVkContext.mCommandPool);
     SetupSyncObjects(gVkContext.mDevice);
     
@@ -289,6 +290,7 @@ int CleanupVolk(){
         CleanupDebugMessenger();
     }
     CleanupSyncObjects();
+    CleanupVertexBuffer();
     CleanupCommandObjects();
     CleanupFrameBuffers();
     CleanupGraphicsPipeline();

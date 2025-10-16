@@ -60,6 +60,7 @@ typedef struct {
     VkImageView* mSwapChainImageViews;
     VkFramebuffer* mSwapChainFramebuffers;
     VkCommandPool mCommandPool;
+    VkBuffer mVertexBuffer;
     VkCommandBuffer* mCommandBuffers;
     
     // sync objects

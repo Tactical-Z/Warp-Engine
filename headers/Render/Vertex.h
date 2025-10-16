@@ -3,6 +3,7 @@
 #include "cglm.h"
 
 #define NUM_VERTEX_ATTRIBUTES 2
+#define NUM
 typedef struct Vertex{
     vec2 mPosition;
     vec3 mColor;

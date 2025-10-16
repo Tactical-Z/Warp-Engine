@@ -2,8 +2,8 @@
 
 #include "vulkan.h"
 
-VkPhysicalDevice SetupVertexBuffer();
+VkBuffer SetupVertexBuffer(VkDevice _device);
 
-void PopulateVertexBufferCreateInfo(VkFramebufferCreateInfo* _createInfo, int _imageviewIndex);
+void PopulateVertexBufferCreateInfo(VkBufferCreateInfo* _createInfo, int _numVertices);
 
 void CleanupVertexBuffer();

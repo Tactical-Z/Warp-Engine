@@ -61,6 +61,7 @@ typedef struct {
     VkFramebuffer* mSwapChainFramebuffers;
     VkCommandPool mCommandPool;
     VkBuffer mVertexBuffer;
+    VkDeviceMemory mVertexBufferMemory;
     VkCommandBuffer* mCommandBuffers;
     
     // sync objects

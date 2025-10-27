@@ -35,7 +35,7 @@ void InitVolk(GLFWwindow* _window){
     gVkContext.mGraphicsPipeline = SetupGraphicsPipeline(gVkContext.mDevice);
     gVkContext.mSwapChainFramebuffers = SetupFrameBuffers(gVkContext.mDevice, gVkContext.mNumImageViews);
     gVkContext.mCommandPool = SetupCommandPool(gVkContext.mDevice);
-    gVkContext.mVertexBuffer = SetupVertexBuffer(gVkContext.mDevice);
+    SetupVertexBuffer(gVkContext.mDevice);
     SetupCommandBuffers(gVkContext.mDevice, gVkContext.mCommandPool);
     SetupSyncObjects(gVkContext.mDevice);
     

@@ -3,6 +3,7 @@
 #include "VkCommandBuffer.h"
 #include "VkRenderPass.h"
 #include "VkGraphicsPipeline.h"
+#include "Vertex.h"
 
 /* --------------- Command pool --------------------- */
 
@@ -91,6 +92,11 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     // Bind graphics pipeline ----
     vkCmdBindPipeline(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gVkContext.mGraphicsPipeline);
 
+    // Bind vertex buffers
+    VkBuffer vertexBuffers[] = {gVkContext.mVertexBuffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(_commandBuffer, 0, 1, vertexBuffers, offsets);
+
     // Set dynamic variables ----
     VkViewport viewport = {0};
     PopulateViewPort(&viewport);
@@ -104,7 +110,7 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
         // instanceCount: Used for instanced rendering, use 1 if you're not doing that.
         // firstVertex: Used as an offset into the vertex buffer, defines the lowest value of gl_VertexIndex.
         // firstInstance: Used as an offset for instanced rendering, defines the lowest value of gl_InstanceIndex. 
-    vkCmdDraw(_commandBuffer, 3, 1, 0, 0);
+    vkCmdDraw(_commandBuffer, NUM_VERTICES, 1, 0, 0);
 
     // End render pass ---- 
     vkCmdEndRenderPass(_commandBuffer);

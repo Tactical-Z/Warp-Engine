@@ -24,6 +24,7 @@
         "initializer_list": "c",
         "vkframebuffer": "cpp",
         "mesh.h": "c",
-        "*.hpp11": "c"
+        "*.hpp11": "c",
+        "vertex.h": "c"
     }
 }

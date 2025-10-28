@@ -283,6 +283,33 @@ void PopulateDrawSubmitCreateInfo(VkSubmitInfo* _createInfo, VkSemaphore* _signa
     _createInfo->pSignalSemaphores = _signalSemaphores;
 };
 
+void CreateBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer* _buffer, VkDeviceMemory* _bufferMemory){
+    
+    VkBufferCreateInfo bufferInfo = {0};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = _size;
+    bufferInfo.usage = _usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(gVkContext.mDevice, &bufferInfo, NULL, &_buffer) != VK_SUCCESS) {
+        LOG_ERROR("failed to create buffer");
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(gVkContext.mDevice, _buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {0};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if (vkAllocateMemory(gVkContext.mDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        LOG_ERROR("failed to allocate buffer memory");
+    }
+
+    vkBindBufferMemory(gVkContext.mDevice, _buffer, _bufferMemory, 0);
+};
+
 int CleanupVolk(){
 
     vkDeviceWaitIdle(gVkContext.mDevice);

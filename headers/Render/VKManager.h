@@ -93,14 +93,16 @@ void LogDeviceSupport(VkInstance _vki);
 
 void DrawFrame(GLFWwindow* _window);
 
-// Cleans up all vulkan resources for this application. 
-int CleanupVolk();
-
 // Populates present infor for presenting an image from the swap chain
 void PopulatePresentCreateInfo(VkPresentInfoKHR* _createInfo, uint32_t* _imageIndex, VkSwapchainKHR* _swapchains, VkSemaphore* _signalSemaphores);
 
 // Populates the create infor for the submission struct for the draw command.
 void PopulateDrawSubmitCreateInfo(VkSubmitInfo* _createInfo, VkSemaphore* _signalSemaphores, VkSemaphore* _waitSemaphores);
+
+void CreateBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer* _buffer, VkDeviceMemory* _bufferMemory);
+
+// Cleans up all vulkan resources for this application. 
+int CleanupVolk();
 
 // Vk Proxy Functions ----
 

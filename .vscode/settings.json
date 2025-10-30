@@ -26,6 +26,10 @@
         "mesh.h": "c",
         "*.hpp11": "c",
         "vertex.h": "c",
-        "compare": "c"
+        "compare": "c",
+        "xstring": "c",
+        "stdint.h": "c",
+        "cglm.h": "c",
+        "vkdescriptorsetbuffer.h": "c"
     }
 }

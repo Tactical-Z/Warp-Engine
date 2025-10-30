@@ -291,7 +291,7 @@ void PopulatePipelineRasterizationStateCreateInfo(VkPipelineRasterizationStateCr
     _createInfo->lineWidth = 1.0f;
     // cullmode defines what faces to cull 
     _createInfo->cullMode = VK_CULL_MODE_BACK_BIT;
-    _createInfo->frontFace = VK_FRONT_FACE_CLOCKWISE;
+    _createInfo->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     // depth bias is used for altering depth values, good for shadows.
     _createInfo->depthBiasEnable = VK_FALSE;
     _createInfo->depthBiasConstantFactor = 0.0f; // Optional
@@ -368,8 +368,8 @@ VkPipelineLayoutCreateInfo GetPipelineLayoutCreateInfo(){
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {0};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0; // Optional
-    pipelineLayoutInfo.pSetLayouts = NULL; // Optional
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &gVkContext.mDescriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = NULL; // Optional
 

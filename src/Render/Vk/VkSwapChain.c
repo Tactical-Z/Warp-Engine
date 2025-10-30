@@ -38,6 +38,7 @@ VkSwapchainKHR SetupSwapChain(GLFWwindow* _window, VkDevice _device, VkPhysicalD
 
 int RecreateSwapchain(GLFWwindow* _window){
     
+    LOG_INFO("Resizeing window detected, recreating swapchain");
     // if window is minimised, pause app
      int width = 0, height = 0;
     glfwGetFramebufferSize(_window, &width, &height);

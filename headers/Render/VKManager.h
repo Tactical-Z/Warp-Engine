@@ -54,6 +54,9 @@ typedef struct {
     VkSurfaceKHR mSurface;
     VkSwapchainKHR mSwapChain;
     VkRenderPass mRenderPass;
+    VkDescriptorSetLayout mDescriptorSetLayout;
+    VkDescriptorSet* mDescriptorSets;
+    VkDescriptorSetLayout* mDescriptorSetLayouts; // array, stored here for cleanup
     VkPipelineLayout mPipelineLayout;
     VkPipeline mGraphicsPipeline;
     uint32_t mNumImageViews;
@@ -64,6 +67,12 @@ typedef struct {
     VkDeviceMemory mVertexBufferMemory;
     VkBuffer mIndexBuffer;
     VkDeviceMemory mIndexBufferMemory;
+    /*Arrays of buffers*/
+    VkBuffer* mUniformBuffers;
+    VkDeviceMemory* mUniformBuffersMemory;
+    void** mUniformBuffersMapped;
+    /*---*/
+    VkDescriptorPool mDescriptorPool;
     VkCommandBuffer* mCommandBuffers;
     
     // sync objects

@@ -8,6 +8,7 @@
 #include "VkSwapChain.h"
 #include "VkImageViewer.h"
 #include "VkRenderPass.h"
+#include "VkDescriptorSetBuffer.h"
 #include "VkGraphicsPipeline.h"
 #include "VkFramebuffer.h"
 #include "VkCommandBuffer.h"
@@ -33,11 +34,15 @@ void InitVolk(GLFWwindow* _window){
     gVkContext.mNumImageViews = gVkSwapChainHandles.mNumImages;
     gVkContext.mSwapChainImageViews = SetupImageViews(gVkContext.mDevice, gVkContext.mNumImageViews);
     gVkContext.mRenderPass = SetupRenderPass(gVkContext.mDevice);
+    gVkContext.mDescriptorSetLayout = SetupDescriptorSetLayout(gVkContext.mDevice);
     gVkContext.mGraphicsPipeline = SetupGraphicsPipeline(gVkContext.mDevice);
     gVkContext.mSwapChainFramebuffers = SetupFrameBuffers(gVkContext.mDevice, gVkContext.mNumImageViews);
     gVkContext.mCommandPool = SetupCommandPool(gVkContext.mDevice);
     SetupVertexBuffer(gVkContext.mDevice);
     SetupIndexBuffer(gVkContext.mDevice);
+    SettupUniformBuffers(gVkContext.mDevice);
+    gVkContext.mDescriptorPool = SetupDescriptorPool(gVkContext.mDevice);
+    gVkContext.mDescriptorSets = SetupDescriptorSets(gVkContext.mDevice);
     SetupCommandBuffers(gVkContext.mDevice, gVkContext.mCommandPool);
     SetupSyncObjects(gVkContext.mDevice);
     
@@ -223,11 +228,14 @@ void DrawFrame(GLFWwindow* _window){
     // reset fence so it is ready for next frame
     vkResetFences(gVkContext.mDevice, 1 ,&gVkContext.mInFlightFences[gCurrentFrame]);
 
+    // Update Uniform buffer so it is ready for new frame
+    UpdateUniformBuffer(gCurrentFrame);
+
     // reset command buffer, then call the draw command using the availible index.
     vkResetCommandBuffer(gVkContext.mCommandBuffers[gCurrentFrame], 0);
     RecordDrawCommandBuffer(gVkContext.mCommandBuffers[gCurrentFrame], imageIndex);
-    // We can then submit the command
 
+    // We can then submit the command
     VkSubmitInfo submitInfo = {0};
     VkSwapchainKHR swapChains[] = {gVkContext.mSwapChain};
     VkSemaphore signalSemaphores[] = {gVkContext.mRenderFinishedSemaphores[gCurrentFrame]};
@@ -364,6 +372,7 @@ int CleanupVolk(){
     CleanupRenderPass();
     CleanupImageViews();
     CleanupSwapChain();
+    CleanupDescriptorSetLayout();
     CleanupSurface();
     CleanupPhysicalDevice();
     CleanupDevice();

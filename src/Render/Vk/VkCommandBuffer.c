@@ -96,6 +96,7 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     VkBuffer vertexBuffers[] = {gVkContext.mVertexBuffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(_commandBuffer, 0, 1, vertexBuffers, offsets);
+    vkCmdBindDescriptorSets(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gVkContext.mPipelineLayout, 0, 1, &gVkContext.mDescriptorSets[gCurrentFrame], 0, NULL);
     vkCmdBindIndexBuffer(_commandBuffer, gVkContext.mIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
     // Set dynamic variables ----

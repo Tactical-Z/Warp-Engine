@@ -9,11 +9,11 @@ typedef struct Vertex{
     vec3 mColor;
 } Vertex;
 
-struct UniformBufferObject {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-};
+typedef struct UniformBufferObject {
+    __attribute__((aligned(16))) mat4 model;
+    __attribute__((aligned(16))) mat4 view;
+    __attribute__((aligned(16))) mat4 proj;
+}UniformBufferObject;
 
 #define NUM_VERTICES 4
 static const Vertex testVertices[] = {

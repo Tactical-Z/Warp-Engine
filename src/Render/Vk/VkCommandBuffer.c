@@ -96,6 +96,7 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     VkBuffer vertexBuffers[] = {gVkContext.mVertexBuffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(_commandBuffer, 0, 1, vertexBuffers, offsets);
+    vkCmdBindIndexBuffer(_commandBuffer, gVkContext.mIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
     // Set dynamic variables ----
     VkViewport viewport = {0};
@@ -105,12 +106,9 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     PopulateScissor(&scissor);
     vkCmdSetScissor(_commandBuffer, 0, 1, &scissor);
 
-    // Issue draw command! -----
-        // vertexCount: Even though we don't have a vertex buffer, we technically still have 3 vertices to draw.
-        // instanceCount: Used for instanced rendering, use 1 if you're not doing that.
-        // firstVertex: Used as an offset into the vertex buffer, defines the lowest value of gl_VertexIndex.
-        // firstInstance: Used as an offset for instanced rendering, defines the lowest value of gl_InstanceIndex. 
-    vkCmdDraw(_commandBuffer, NUM_VERTICES, 1, 0, 0);
+    // Issue draw command -----
+    uint32_t numIndices = sizeof(testIndices) / sizeof(testIndices[0]);
+    vkCmdDrawIndexed(_commandBuffer, numIndices, 1, 0, 0, 0);
 
     // End render pass ---- 
     vkCmdEndRenderPass(_commandBuffer);

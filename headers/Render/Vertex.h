@@ -9,9 +9,20 @@ typedef struct Vertex{
     vec3 mColor;
 } Vertex;
 
-#define NUM_VERTICES 3
+struct UniformBufferObject {
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+};
+
+#define NUM_VERTICES 4
 static const Vertex testVertices[] = {
-    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+
+static const uint16_t testIndices[] = {
+    0, 1, 2, 2, 3, 0
 };

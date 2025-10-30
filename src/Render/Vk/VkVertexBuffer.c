@@ -6,39 +6,25 @@
 void SetupVertexBuffer(VkDevice _device){
     LOG_INFO("Setup VkVertexBuffer and VertexBufferMemory");
 
-    // Vertex Buffer ---
-    VkBuffer vertexBuffer;
-    VkBufferCreateInfo bufferInfo = {0};
-    PopulateVertexBufferCreateInfo(&bufferInfo, NUM_VERTICES);
+    VkDeviceSize bufferSize = sizeof(testVertices);
 
-    if (vkCreateBuffer(_device, &bufferInfo, NULL, &vertexBuffer) != VK_SUCCESS) {
-        LOG_ERROR("Faild creating vk Vertex buffer");
-        return;
-    }
-    gVkContext.mVertexBuffer = vertexBuffer;
-
-    // Vertex Memory ---
-    VkDeviceMemory vertexBufferMemory;
-    VkMemoryAllocateInfo allocInfo = {0};
-    VkMemoryRequirements memRequirements = {0};
-    vkGetBufferMemoryRequirements(_device, vertexBuffer, &memRequirements);
-    PopulateVertexMemoryAllocateInfo(&allocInfo, memRequirements);
-
-    if (vkAllocateMemory(_device, &allocInfo, NULL, &vertexBufferMemory) != VK_SUCCESS) {
-        LOG_ERROR("Failed to allocate vertex buffer memory");
-        return;
-    }
-    gVkContext.mVertexBufferMemory = vertexBufferMemory;
-
-    // Buffer and memory success we can then bind em.
-    vkBindBufferMemory(_device, vertexBuffer, vertexBufferMemory, 0);
-
-    // Fill vertex buffer with vertex data
+    // We are now uing these two flags to create a source and destination of the vertex buffer
+    // VK_BUFFER_USAGE_TRANSFER_SRC_BIT: Buffer can be used as source in a memory transfer operation.
+    // VK_BUFFER_USAGE_TRANSFER_DST_BIT: Buffer can be used as destination in a memory transfer operation.
+    VkBuffer stagingBuffer = {0};
+    VkDeviceMemory stagingBufferMemory = {0};
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+    
     void* data;
-    vkMapMemory(_device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, &testVertices, (size_t) bufferInfo.size);
-    vkUnmapMemory(_device, vertexBufferMemory);
+    vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, testVertices, (size_t) bufferSize);
+    vkUnmapMemory(_device, stagingBufferMemory);
 
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &gVkContext.mVertexBuffer, &gVkContext.mVertexBufferMemory);
+    CopyBuffer(stagingBuffer,gVkContext.mVertexBuffer, bufferSize);
+    
+    vkDestroyBuffer(_device, stagingBuffer, NULL);
+    vkFreeMemory(_device, stagingBufferMemory, NULL);
 };
 
 void PopulateVertexBufferCreateInfo(VkBufferCreateInfo* _createInfo, int _numVertices){

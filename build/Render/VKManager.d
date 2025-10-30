@@ -26,7 +26,8 @@ build/Render/VKManager.o: src/Render/VKManager.c \
  headers/Render/Vk/VkSwapChain.h headers/Render/Vk/VkImageViewer.h \
  headers/Render/Vk/VkRenderPass.h headers/Render/Vk/VkGraphicsPipeline.h \
  headers/Render/Vk/VkFramebuffer.h headers/Render/Vk/VkCommandBuffer.h \
- headers/Render/Vk/VkVertexBuffer.h headers/Render/Vk/VkSyncObjects.h
+ headers/Render/Vk/VkVertexBuffer.h headers/Render/Vk/VkIndexBuffer.h \
+ headers/Render/Vk/VkSyncObjects.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -63,4 +64,5 @@ headers/Render/Vk/VkGraphicsPipeline.h:
 headers/Render/Vk/VkFramebuffer.h:
 headers/Render/Vk/VkCommandBuffer.h:
 headers/Render/Vk/VkVertexBuffer.h:
+headers/Render/Vk/VkIndexBuffer.h:
 headers/Render/Vk/VkSyncObjects.h:

@@ -25,6 +25,7 @@
         "vkframebuffer": "cpp",
         "mesh.h": "c",
         "*.hpp11": "c",
-        "vertex.h": "c"
+        "vertex.h": "c",
+        "compare": "c"
     }
 }

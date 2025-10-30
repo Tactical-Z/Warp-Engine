@@ -62,6 +62,8 @@ typedef struct {
     VkCommandPool mCommandPool;
     VkBuffer mVertexBuffer;
     VkDeviceMemory mVertexBufferMemory;
+    VkBuffer mIndexBuffer;
+    VkDeviceMemory mIndexBufferMemory;
     VkCommandBuffer* mCommandBuffers;
     
     // sync objects
@@ -100,6 +102,8 @@ void PopulatePresentCreateInfo(VkPresentInfoKHR* _createInfo, uint32_t* _imageIn
 void PopulateDrawSubmitCreateInfo(VkSubmitInfo* _createInfo, VkSemaphore* _signalSemaphores, VkSemaphore* _waitSemaphores);
 
 void CreateBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer* _buffer, VkDeviceMemory* _bufferMemory);
+
+void CopyBuffer(VkBuffer _srcBuffer, VkBuffer _dstBuffer, VkDeviceSize _size);
 
 // Cleans up all vulkan resources for this application. 
 int CleanupVolk();

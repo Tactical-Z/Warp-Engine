@@ -1,6 +1,7 @@
 
 #include "WindowManager.h"
 #include "VKManager.h"
+#include "UIManager.h"
 
 GLFWwindow* InitWindow(int _width, int _height, const char* _name){
     return InitGLFW(_width, _height, _name);
@@ -37,7 +38,9 @@ void Run(GLFWwindow* _glfwWindow){
         glfwPollEvents();
 
         DrawFrame(_glfwWindow);
+        DrawUI();
 
+        // TEMP CAN BE REMOVED
         frames++;
         if (frames > 500000){
             LOG_INFO("Window still ticking...");

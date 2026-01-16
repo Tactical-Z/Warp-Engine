@@ -40,7 +40,7 @@ int RecreateSwapchain(GLFWwindow* _window){
     
     LOG_INFO("Resizeing window detected, recreating swapchain");
     // if window is minimised, pause app
-     int width = 0, height = 0;
+    int width = 0, height = 0;
     glfwGetFramebufferSize(_window, &width, &height);
     while (width == 0 || height == 0) {
         glfwGetFramebufferSize(_window, &width, &height);

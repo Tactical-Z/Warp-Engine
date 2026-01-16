@@ -3,8 +3,11 @@
 #include "NetworkManager.h"
 #include "ThreadManager.h"
 #include "VKManager.h"
+#include "UIManager.h"
 
 #include "Mesh.h"
+
+#include "CppTest.h" // C++ testing function, used for compiling c with c++. Can be removed
 
 int main(int argc, char *argv[]){
    
@@ -37,7 +40,9 @@ int main(int argc, char *argv[]){
 
    InitVolk(glfwWindow);
 
+   InitUI();
 
+   CPPTest_testLogFunc(); // C++ Testing
 
    Run(glfwWindow);
 
@@ -45,6 +50,9 @@ int main(int argc, char *argv[]){
 
    if(CleanupVolk())
      LOG_ERROR("Volkan Cleanup Faild");
+
+   if(ShutdownUI())
+      LOG_ERROR("UI Cleanup Faild");
 
    if(CleanupThreads(&threadData))
       LOG_ERROR("Thread Cleanup Faild");

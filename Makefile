@@ -20,11 +20,23 @@ CXX := g++
 CFLAGS += -std=gnu99 -D__USE_MINGW_ANSI_STDIO=1 -D_USE_MATH_DEFINES
 CXXFLAGS += -std=c++11
 
-# Find all .c and .h files in directory locations
-SRCS := main.c # since it is outide src
-SRCS += $(wildcard $(SRC_DIR)/*.c) \
+# Find all .c files in directory locations
+C_SRCS := main.c # since it is outide src
+C_SRCS += $(wildcard $(SRC_DIR)/*.c) \
 		$(wildcard $(SRC_DIR)/**/*.c) \
 		$(wildcard $(SRC_DIR)/**/**/*.c)
+# Also look for .c files in external sourc
+C_SRCS += $(wildcard $(LIB_DIR)/*/src/*.c) \
+		$(wildcard $(LIB_DIR)/*/src/**/*.c) \
+		$(wildcard $(LIB_DIR)/*/src/**/**/*.c)
+
+CPP_SRCS += $(wildcard $(SRC_DIR)/*.cpp) \
+		$(wildcard $(SRC_DIR)/**/*.cpp) \
+		$(wildcard $(SRC_DIR)/**/**/*.cpp)
+# Also look for .cpp files in external sourc
+CPP_SRCS += $(wildcard $(LIB_DIR)/*/src/*.cpp) \
+		$(wildcard $(LIB_DIR)/*/src/**/*.cpp) \
+		$(wildcard $(LIB_DIR)/*/src/**/**/*.cpp)
 
 # Filtered to only get directories since for linking
 HEADER_DIR :=   $(filter %/,$(wildcard $(HEADER_DIR)/**/)) \
@@ -36,7 +48,9 @@ HEADER_DIR :=   $(filter %/,$(wildcard $(HEADER_DIR)/**/)) \
 
 # 1. Creates a seperate list of objects that needs to be compiled from all the srouce files in SRCS.
 # It appends a .o to the end of it so the type is known and seperate.
-OBJS := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(SRCS:.c=.o))
+C_OBJS := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(C_SRCS:.c=.o))
+CPP_OBJS := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(CPP_SRCS:.cpp=.o))
+OBJS := $(C_OBJS) $(CPP_OBJS)
 
 # 2. Creates another seperate list of objects from the copiled list, where the .o is replaced by a .d
 # This simbolyses a dependency file and contains the objects dependent files. 
@@ -49,11 +63,11 @@ DEPS := $(OBJS:.o=.d)
 # Sympoliesed by -type d(directory) for all directories than can contain include files.
 
 # Update this with a python script or something similar to find all directories containing .h files, rather than just all directories. 
-INC_DIRS := $(filter %/, $(wildcard $(INC_DIR)/*/inc/)) \
-			$(filter %/, $(wildcard $(INC_DIR)/*/inc/**/)) \
-			$(filter %/, $(wildcard $(INC_DIR)/*/inc/**/**/)) \
-			$(filter %/, $(wildcard $(INC_DIR)/*/inc/**/**/**/)) \
-			$(filter %/, $(wildcard $(INC_DIR)/*/inc/**/**/**/**/)) \
+INC_DIRS := $(filter %/, $(wildcard $(INC_DIR)/*/include/)) \
+			$(filter %/, $(wildcard $(INC_DIR)/*/include/**/)) \
+			$(filter %/, $(wildcard $(INC_DIR)/*/include/**/**/)) \
+			$(filter %/, $(wildcard $(INC_DIR)/*/include/**/**/**/)) \
+			$(filter %/, $(wildcard $(INC_DIR)/*/include/**/**/**/**/)) \
 
 # 2. Creates a sperate list from the include directories with the directories containing an appended -I infront
 # This tells the compiler to look here for includes
@@ -95,9 +109,9 @@ LDFLAGS := $(LIB_FLAGS) -lglfw3 -lgdi32 -lopengl32 -luser32 -lkernel32 -lws2_32 
 all: CompileShaders $(BUILD_DIR)/$(TARGET_EXEC)
 
 # 1. Generates the actuall executable file, requires all compiled OBJS file as input.
-# CXX is internal veriable for g++ compiler. $@ = target (name). LDFLAGS are for additional internal flags. 
-$(BUILD_DIR)/$(TARGET_EXEC) : CopyDlls $(OBJS) 
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+# CXX is internal veriable for g++ (c++) compiler. $@ = target (name). LDFLAGS are for additional internal flags. 
+$(BUILD_DIR)/$(TARGET_EXEC) : CopyDlls $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 # 2. Compiles all c files in build directories, mkdir -p makes sure it exists with $(dir $@) telling it where to find/make it.
 # $(CC) = the gcc compiler, $(CPPFLAGS) are flags for -I and other include files, $(CFLAGS) internal flags, -c $< -o $@ gets the source file.
@@ -108,7 +122,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 # 3. Compiles all c++ files in build direcoties, 
 # only difference is the g++ (CXX) compiler rahter than gcc.
-$(BUILD_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(shell mkdir $(dir $@) 2>NUL)
 	$(shell mkdir $(subst /,\,$(dir $@)) 2>NUL)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@

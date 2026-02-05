@@ -21,6 +21,21 @@ VkDescriptorPool SetupDescriptorPool(VkDevice _device){
     return descriptorPool;
 };
 
+VkDescriptorPool SetupUIDescriptorPool(VkDevice _device){
+
+    LOG_INFO("Setup VkDescriptorPool for UI");
+    VkDescriptorPool descriptorPool = {0};
+    VkDescriptorPoolSize poolSize = {0};
+    VkDescriptorPoolCreateInfo poolInfo = {0};
+    PopulateUIDescriptorPoolCreateInfo(&poolSize, &poolInfo);
+
+    if (vkCreateDescriptorPool(_device, &poolInfo, NULL, &descriptorPool) != VK_SUCCESS) {
+        LOG_ERROR("Failed to create descriptor pool");
+    }
+
+    return descriptorPool;
+};
+
 void PopulateDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, VkDescriptorPoolCreateInfo* _createInfo){
     
     // Describes which discriptor sets are going to contain and how many
@@ -32,6 +47,19 @@ void PopulateDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, VkDescrip
     _createInfo->poolSizeCount = 1;
     _createInfo->pPoolSizes = _poolSize;
     _createInfo->maxSets = (uint32_t)MAX_FRAMES_IN_FLIGHT;
+};
+
+void PopulateUIDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, VkDescriptorPoolCreateInfo* _createInfo){
+    
+    // Describes which discriptor sets are going to contain and how many
+    // We have one descriptor for each frame.
+    _poolSize->type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    _poolSize->descriptorCount = 100;
+
+    _createInfo->sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    _createInfo->poolSizeCount = 1;
+    _createInfo->pPoolSizes = _poolSize;
+    _createInfo->maxSets = 100;
 };
 
 VkDescriptorSet* SetupDescriptorSets(VkDevice _device){

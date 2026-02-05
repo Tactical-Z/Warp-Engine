@@ -1,6 +1,6 @@
 #pragma once
 
-void InitUI();
+void InitUI(void* _glfwWindow);
 
 void DrawUI();
 

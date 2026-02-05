@@ -72,7 +72,8 @@ typedef struct {
     VkDeviceMemory* mUniformBuffersMemory;
     void** mUniformBuffersMapped;
     /*---*/
-    VkDescriptorPool mDescriptorPool;
+    VkDescriptorPool mDescriptorPool; // Uses uniform buffer type
+    VkDescriptorPool mUiDescriptorPool; // Uses image sampler type
     VkCommandBuffer* mCommandBuffers;
     
     // sync objects

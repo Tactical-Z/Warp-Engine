@@ -1,4 +1,4 @@
-ToDO:
+ToDo:
 - Auto shader compile and copy (DONE)
 - Resize glfw (DONE)
 - import ImGUi

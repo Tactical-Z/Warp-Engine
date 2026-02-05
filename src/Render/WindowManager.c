@@ -38,8 +38,7 @@ void Run(GLFWwindow* _glfwWindow){
         glfwPollEvents();
 
         DrawFrame(_glfwWindow);
-        DrawUI();
-
+        
         // TEMP CAN BE REMOVED
         frames++;
         if (frames > 500000){

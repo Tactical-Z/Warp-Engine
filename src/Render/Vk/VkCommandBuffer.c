@@ -1,5 +1,6 @@
 
 #include "VKManager.h"
+#include "UIManager.h"
 #include "VkCommandBuffer.h"
 #include "VkRenderPass.h"
 #include "VkGraphicsPipeline.h"
@@ -68,6 +69,40 @@ void PopulateCommandBuffer(VkCommandBufferAllocateInfo* _createInfo, VkCommandPo
 
 };
 
+VkCommandBuffer BeginSingleTimeCommands(VkDevice _device, VkCommandPool _commandPool){
+    
+    VkCommandBufferAllocateInfo allocInfo = {0};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = _commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(_device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo = {0};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+};
+
+void EndSingleTimeCommands(VkDevice _device, VkCommandPool _commandPool, VkQueue _queue, VkCommandBuffer _commandBuffer){
+    vkEndCommandBuffer(_commandBuffer);
+
+    VkSubmitInfo submitInfo = {0};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &_commandBuffer;
+
+    vkQueueSubmit(_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(_queue);
+
+    vkFreeCommandBuffers(_device, _commandPool, 1, &_commandBuffer);
+};
+
 /* --------------- Command buffer recording --------------------- */
 void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageIndex){
 
@@ -110,6 +145,9 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     // Issue draw command -----
     uint32_t numIndices = sizeof(testIndices) / sizeof(testIndices[0]);
     vkCmdDrawIndexed(_commandBuffer, numIndices, 1, 0, 0, 0);
+
+    // Draw ui from ImGui
+    DrawUI();
 
     // End render pass ---- 
     vkCmdEndRenderPass(_commandBuffer);

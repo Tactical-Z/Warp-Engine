@@ -1,4 +1,3 @@
-
 #include "VKManager.h"
 #include "VkInstance.h"
 #include "VkDebugMessenger.h"
@@ -42,6 +41,7 @@ void InitVolk(GLFWwindow* _window){
     SetupIndexBuffer(gVkContext.mDevice);
     SettupUniformBuffers(gVkContext.mDevice);
     gVkContext.mDescriptorPool = SetupDescriptorPool(gVkContext.mDevice);
+    gVkContext.mUiDescriptorPool = SetupUIDescriptorPool(gVkContext.mDevice);
     gVkContext.mDescriptorSets = SetupDescriptorSets(gVkContext.mDevice);
     SetupCommandBuffers(gVkContext.mDevice, gVkContext.mCommandPool);
     SetupSyncObjects(gVkContext.mDevice);

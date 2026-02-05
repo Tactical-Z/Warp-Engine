@@ -1,7 +1,5 @@
 build/Render/UI/imgui_c.o: src/Render/UI/imgui_c.cpp \
- headers/Render/UI/imgui_c.h libs/imgui/include/imgui.h \
- libs/imgui/include/imconfig.h libs/imgui/include/imgui_impl_vulkan.h \
- libs/VulkanSDK/include/vulkan/vulkan.h \
+ headers/Render/UI/imgui_c.h libs/VulkanSDK/include/vulkan/vulkan.h \
  libs/VulkanSDK/include/vulkan/vk_platform.h \
  libs/VulkanSDK/include/vulkan/vulkan_core.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std.h \
@@ -20,11 +18,12 @@ build/Render/UI/imgui_c.o: src/Render/UI/imgui_c.cpp \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
- libs/imgui/include/imgui_impl_glfw.h
+ libs/imgui-1.89.9/include/imgui.h libs/imgui-1.89.9/include/imconfig.h \
+ libs/imgui-1.89.9/include/imgui_impl_vulkan.h \
+ libs/VulkanSDK/include/vulkan/vulkan.h \
+ libs/imgui-1.89.9/include/imgui_impl_glfw.h \
+ libs/glfw-lib-vc2022/include/glfw3.h
 headers/Render/UI/imgui_c.h:
-libs/imgui/include/imgui.h:
-libs/imgui/include/imconfig.h:
-libs/imgui/include/imgui_impl_vulkan.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
 libs/VulkanSDK/include/vulkan/vk_platform.h:
 libs/VulkanSDK/include/vulkan/vulkan_core.h:
@@ -44,4 +43,9 @@ libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
-libs/imgui/include/imgui_impl_glfw.h:
+libs/imgui-1.89.9/include/imgui.h:
+libs/imgui-1.89.9/include/imconfig.h:
+libs/imgui-1.89.9/include/imgui_impl_vulkan.h:
+libs/VulkanSDK/include/vulkan/vulkan.h:
+libs/imgui-1.89.9/include/imgui_impl_glfw.h:
+libs/glfw-lib-vc2022/include/glfw3.h:

@@ -40,19 +40,19 @@ int main(int argc, char *argv[]){
 
    InitVolk(glfwWindow);
 
-   InitUI();
+   InitUI(glfwWindow);
 
-   CPPTest_testLogFunc(); // C++ Testing
+   //CPPTest_testLogFunc(); // C++ Testing
 
    Run(glfwWindow);
 
    LOG_INFO("Starting Cleanup");
 
-   if(CleanupVolk())
-     LOG_ERROR("Volkan Cleanup Faild");
-
    if(ShutdownUI())
       LOG_ERROR("UI Cleanup Faild");
+
+   if(CleanupVolk())
+     LOG_ERROR("Volkan Cleanup Faild");
 
    if(CleanupThreads(&threadData))
       LOG_ERROR("Thread Cleanup Faild");

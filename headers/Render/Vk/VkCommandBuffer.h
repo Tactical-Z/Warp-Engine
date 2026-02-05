@@ -22,6 +22,11 @@ void PopulateCommandBuffer(VkCommandBufferAllocateInfo* _createInfo, VkCommandPo
 
 // Does not need explicit cleanup
 
+// Single time ocmmands for command buffers
+VkCommandBuffer BeginSingleTimeCommands(VkDevice _device, VkCommandPool _commandPool);
+
+void EndSingleTimeCommands(VkDevice _device, VkCommandPool _commandPool, VkQueue _queue, VkCommandBuffer _commandBuffer);
+
 /* --------------- Command buffer recording --------------------- */
 // This record funciton actually writes the command we want to execute to the command buffer inputed.
 // Since we are recoding a draw call we need to specify the swapchain image we want to write to.

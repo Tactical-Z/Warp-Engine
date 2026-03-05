@@ -4,7 +4,7 @@
 #include "VkCommandBuffer.h"
 #include "VkRenderPass.h"
 #include "VkGraphicsPipeline.h"
-#include "Vertex.h"
+#include "ComponentSystems.h"
 
 /* --------------- Command pool --------------------- */
 
@@ -127,13 +127,9 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     // Bind graphics pipeline ----
     vkCmdBindPipeline(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gVkContext.mGraphicsPipeline);
 
-    // Bind vertex buffers
-    VkBuffer vertexBuffers[] = {gVkContext.mVertexBuffer};
-    VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(_commandBuffer, 0, 1, vertexBuffers, offsets);
+    // Bind Descriptor set ----
     vkCmdBindDescriptorSets(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gVkContext.mPipelineLayout, 0, 1, &gVkContext.mDescriptorSets[gCurrentFrame], 0, NULL);
-    vkCmdBindIndexBuffer(_commandBuffer, gVkContext.mIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-
+    
     // Set dynamic variables ----
     VkViewport viewport = {0};
     PopulateViewPort(&viewport);
@@ -142,9 +138,18 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     PopulateScissor(&scissor);
     vkCmdSetScissor(_commandBuffer, 0, 1, &scissor);
 
-    // Issue draw command -----
-    uint32_t numIndices = sizeof(testIndices) / sizeof(testIndices[0]);
-    vkCmdDrawIndexed(_commandBuffer, numIndices, 1, 0, 0, 0);
+    // Render all Meshses
+    for (int i = 0; i < gNumMeshComponents; i++) {
+
+        MeshComponent* mesh = &gMeshComponentSystem[i];
+        VkBuffer vertexBuffers[] = { mesh->mVertexBuffer };
+        VkDeviceSize offsets[] = {0};
+
+        vkCmdBindVertexBuffers(_commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(_commandBuffer, mesh->mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+        vkCmdDrawIndexed(_commandBuffer, mesh->mIndexCount, 1, 0, 0, 0);
+    }
 
     // Draw ui from ImGui
     DrawUI();

@@ -1,7 +1,13 @@
 
 #include "WindowManager.h"
-#include "VKManager.h"
-#include "UIManager.h"
+#include "VkManager.h"
+#include "SceneManager.h"
+
+#include "Windows.h"
+
+double gDeltaTime = 0.0;
+static LARGE_INTEGER gFrequency;
+static LARGE_INTEGER gLastTime;
 
 GLFWwindow* InitWindow(int _width, int _height, const char* _name){
     return InitGLFW(_width, _height, _name);
@@ -32,20 +38,33 @@ GLFWwindow* InitGLFWWindow(int _width, int _height, const char* _name){
 void Run(GLFWwindow* _glfwWindow){
 
     int frames = 0;
+    SceneBegin();
     while (!glfwWindowShouldClose(_glfwWindow))
     {
         glfwSwapBuffers(_glfwWindow);
         glfwPollEvents();
 
-        DrawFrame(_glfwWindow);
-        
-        // TEMP CAN BE REMOVED
-        frames++;
-        if (frames > 500000){
-            LOG_INFO("Window still ticking...");
-            frames = 0;
-        }
+        double dt = UpdateDeltatime();
+        SceneUpdate(dt);
+        SceneRender(_glfwWindow);
     }
+    SceneCleanup();
+}
+
+void InitTimer(){
+    QueryPerformanceFrequency(&gFrequency);
+    QueryPerformanceCounter(&gLastTime);
+}
+
+double UpdateDeltatime(){
+    LARGE_INTEGER currentTime;
+    QueryPerformanceCounter(&currentTime);
+
+    gDeltaTime = (double)(currentTime.QuadPart - gLastTime.QuadPart) /
+                 (double)gFrequency.QuadPart;
+
+    gLastTime = currentTime;
+    return (double)currentTime.QuadPart / (double)gFrequency.QuadPart;
 }
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {

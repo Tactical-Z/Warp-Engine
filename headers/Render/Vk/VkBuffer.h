@@ -2,11 +2,11 @@
 
 #include "vulkan.h"
 
-void SetupVertexBuffer(VkDevice _device);
+void SetupBuffer(VkDevice _device, void* _data, VkBuffer* _buffer, VkDeviceMemory* _bufferMem, VkDeviceSize _size, VkBufferUsageFlags _usage);
 
-void PopulateVertexBufferCreateInfo(VkBufferCreateInfo* _createInfo, int _numVertices);
+void CreateBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer* _buffer, VkDeviceMemory* _bufferMemory);
 
-void PopulateVertexMemoryAllocateInfo(VkMemoryAllocateInfo* _createInfo, VkMemoryRequirements _memRequirements);
+void CopyBuffer(VkBuffer _srcBuffer, VkBuffer _dstBuffer, VkDeviceSize _size);
 
 // Finds the memory type in the vk physical device if it is available.
 // @param _typeFilter is a bit field filter, used to itterate through athe bits of memproperties to find 
@@ -15,4 +15,4 @@ void PopulateVertexMemoryAllocateInfo(VkMemoryAllocateInfo* _createInfo, VkMemor
 // @return The index of the memory type we want to use, -1 if failed to find approprtiate type. 
 uint32_t FindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _properties);
 
-void CleanupVertexBuffer();
+void CleanupBuffer(VkBuffer _buffer, VkDeviceMemory _bufferMem);

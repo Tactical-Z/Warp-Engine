@@ -1,7 +1,8 @@
 
 #include "VkDescriptorSetBuffer.h"
-#include "Vertex.h"
-#include "VKManager.h"  
+#include "ComponentSystems.h"
+#include "VkManager.h"
+#include "VkBuffer.h"  
 #include <stdint.h>
 #include <time.h>
 #include <cglm.h>

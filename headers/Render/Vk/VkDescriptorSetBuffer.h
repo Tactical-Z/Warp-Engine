@@ -2,8 +2,6 @@
 
 #include "vulkan.h"
 
-
-
 VkDescriptorPool SetupDescriptorPool(VkDevice _device); 
 
 VkDescriptorPool SetupUIDescriptorPool(VkDevice _device);

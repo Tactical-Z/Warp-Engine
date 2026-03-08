@@ -17,3 +17,12 @@ typedef struct{
     VkDeviceMemory mIndexBufferMemory;
 
 } MeshComponent;
+
+typedef struct{
+
+    int mID;
+    vec3 mPosition;
+    vec3 mRotation;
+    vec3 mScale;
+
+} TransformComponent;

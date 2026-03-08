@@ -38,6 +38,7 @@ GLFWwindow* InitGLFWWindow(int _width, int _height, const char* _name){
 void Run(GLFWwindow* _glfwWindow){
 
     int frames = 0;
+    InitTimer();
     SceneBegin();
     while (!glfwWindowShouldClose(_glfwWindow))
     {
@@ -64,7 +65,7 @@ double UpdateDeltatime(){
                  (double)gFrequency.QuadPart;
 
     gLastTime = currentTime;
-    return (double)currentTime.QuadPart / (double)gFrequency.QuadPart;
+    return gDeltaTime;
 }
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {

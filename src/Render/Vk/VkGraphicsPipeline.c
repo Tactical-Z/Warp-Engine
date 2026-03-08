@@ -354,7 +354,8 @@ void PopulatePipelineDynamicStateCreateInfo(VkPipelineDynamicStateCreateInfo* _c
 void SetupPipelineLayout(VkDevice _device){
 
     VkPipelineLayout pipelineLayout = {0};
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = GetPipelineLayoutCreateInfo();
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {0};
+    PopulatePipelineLayoutCreateInfo(&pipelineLayoutInfo);
 
     if (vkCreatePipelineLayout(_device, &pipelineLayoutInfo, NULL, &pipelineLayout) != VK_SUCCESS) {
         LOG_ERROR("Pipeline layout creation faild");
@@ -364,16 +365,23 @@ void SetupPipelineLayout(VkDevice _device){
     gVkContext.mPipelineLayout = pipelineLayout;
 };
 
-VkPipelineLayoutCreateInfo GetPipelineLayoutCreateInfo(){
+void PopulatePipelineLayoutCreateInfo(VkPipelineLayoutCreateInfo* _createInfo){
 
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {0};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &gVkContext.mDescriptorSetLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-    pipelineLayoutInfo.pPushConstantRanges = NULL; // Optional
+    VkPushConstantRange pushConstantRange = {0};
+    PopulatePipelinePushConstantRangeCreateInfo(&pushConstantRange);
 
-    return pipelineLayoutInfo;
+    _createInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    _createInfo->setLayoutCount = 1;
+    _createInfo->pSetLayouts = &gVkContext.mDescriptorSetLayout;
+    _createInfo->pushConstantRangeCount = 1;
+    _createInfo->pPushConstantRanges = &pushConstantRange;
+};
+
+void PopulatePipelinePushConstantRangeCreateInfo(VkPushConstantRange* _createInfo){
+
+    _createInfo->stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    _createInfo->offset = 0;
+    _createInfo->size = sizeof(mat4);
 };
 
 void CleanupGraphicsPipeline(){

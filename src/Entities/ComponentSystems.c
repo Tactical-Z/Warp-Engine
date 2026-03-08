@@ -8,17 +8,20 @@
 /* --- MESH --- */
 MeshComponent* gMeshComponentSystem = {0};
 int gNumMeshComponents = 0;
+TransformComponent* gTransformComponentSystem = {0};
+int gNumTransformComponents = 0;
 
 void InitMeshSystem(){
 
     gMeshComponentSystem = malloc(sizeof(MeshComponent) * gNumMeshComponents);
 };
 
-void AddMesh(MeshComponent _mesh){
+void AddMeshComponent(MeshComponent _mesh){
 
     // TODO:
     // verry inneficient, update to allocate more room and track actual vs max size.
     // make a sparse set to manage indexing vs components. 
+    // create a general function for adding components that works for all types
 
     // Allocate temp memory and make temporary array.
     MeshComponent* tempMeshSys = malloc(sizeof(MeshComponent) * gNumMeshComponents);
@@ -58,10 +61,10 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
     case MESHTYPE_PLANE:
       
         Vertex planeVertices[] = {
-            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+            {{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f, 0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}
         };
         numVertices = sizeof(planeVertices) / sizeof(Vertex);
         newMesh.mVertexCount = numVertices;
@@ -122,7 +125,7 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
         newMesh.mVertices = malloc(sizeof(Vertex) * numVertices);
         memcpy(newMesh.mVertices, cubeVertices, sizeof(Vertex) * numVertices);
 
-        uint32_t cubeIndices[] = {
+        Index cubeIndices[] = {
              0, 1, 2, 2, 3, 0,        // Front
              4, 5, 6, 6, 7, 4,        // Back
              8, 9,10,10,11, 8,        // Left
@@ -166,3 +169,110 @@ void CleanupMesh(){
     free(gMeshComponentSystem);
 };
 /* --- MESH --- */
+
+/* --- TRANSFORM --- */
+void InitTransformSystem(){
+
+    gTransformComponentSystem = malloc(sizeof(TransformComponent) * gNumTransformComponents);
+};
+
+void AddTransformComponent(TransformComponent _transformComp){
+        // TODO:
+    // verry inneficient, update to allocate more room and track actual vs max size.
+    // make a sparse set to manage indexing vs components. 
+    // create a general function for adding components that works for all types
+
+    // Allocate temp memory and make temporary array.
+    TransformComponent* tempTransSys = malloc(sizeof(TransformComponent) * gNumTransformComponents);
+    if(!tempTransSys)
+        LOG_ERROR("Faild to allocate memory for temporary TransformComponentSystem");
+    
+    // copy actual into temp
+    for(int i = 0; i < gNumTransformComponents; i++)
+        tempTransSys[i] = gTransformComponentSystem[i];
+    
+    // Itterate transform system and re allocate mesh array
+    free(gTransformComponentSystem);
+    gNumTransformComponents += 1;
+    gTransformComponentSystem = malloc(sizeof(TransformComponent) * gNumTransformComponents);
+    if(!gTransformComponentSystem)
+        LOG_ERROR("Faild to allocate memory for TransformComponentSystem");
+
+    // repopulate transform array
+    for(int i = 0; i < gNumTransformComponents -1; i++){
+        gTransformComponentSystem[i] = tempTransSys[i];
+    }
+
+    // Add the new transform and dealocate temp
+    gTransformComponentSystem[gNumTransformComponents - 1] = _transformComp;
+    free(tempTransSys);
+};
+
+TransformComponent CreateTransformComponent(int _id){
+
+    TransformComponent transformComp = {0};
+    transformComp.mID = _id;
+    glm_vec3_one(transformComp.mScale);
+    return transformComp;
+};
+
+void SetPosition(int _id, vec3 _pos){
+    if((_id >= gNumTransformComponents) || (_id < 0)){
+        LOG_WARN("SetPosition ID out of bounds.");
+        return;
+    }
+        
+    memcpy(gTransformComponentSystem[_id].mPosition, _pos, sizeof(vec3));
+};
+
+void SetRotation(int _id, vec3 _rot){
+    if((_id >= gNumTransformComponents) || (_id < 0)){
+        LOG_WARN("SetRotation ID out of bounds.");
+        return;
+    }
+        
+    memcpy(gTransformComponentSystem[_id].mRotation, _rot, sizeof(vec3));
+};
+
+void SetScale(int _id, vec3 _scale){
+    if((_id >= gNumTransformComponents) || (_id < 0)){
+        LOG_WARN("SetScale ID out of bounds.");
+        return;
+    }
+        
+    memcpy(gTransformComponentSystem[_id].mScale, _scale, sizeof(vec3));
+};
+
+float* GetPosition(int _id){
+     if((_id >= gNumTransformComponents) || (_id < 0)){
+        LOG_WARN("GetPosition ID out of bounds.");
+        return NULL;
+    }
+        
+    return gTransformComponentSystem[_id].mPosition;
+};
+
+float* GetRotation(int _id){
+    if((_id >= gNumTransformComponents) || (_id < 0)){
+        LOG_WARN("GetRotation ID out of bounds.");
+        return NULL;
+    }
+        
+    return gTransformComponentSystem[_id].mRotation;
+};
+
+float* GetScale(int _id){
+     if((_id >= gNumTransformComponents) || (_id < 0)){
+        LOG_WARN("GetScale ID out of bounds.");
+        return NULL;
+    }
+        
+    return gTransformComponentSystem[_id].mScale;
+};
+
+
+void CleanupTransform(){
+    free(gTransformComponentSystem);
+};
+
+/* --- TRANSFORM --- */

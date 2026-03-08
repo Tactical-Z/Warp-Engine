@@ -173,43 +173,27 @@ void SettupUniformBuffers(VkDevice _device){
 
 void UpdateUniformBuffer(uint32_t _currentImage){
 
-    // TODO: Copy 'ubo' to your uniform buffer for _currentImage
-
-    // Static start time
-    static struct timespec startTime;
-    static int initialized = 0;
-
-    if (!initialized) {
-        clock_gettime(CLOCK_MONOTONIC, &startTime);
-        initialized = 1;
-    }
-
-    struct timespec currentTime;
-    clock_gettime(CLOCK_MONOTONIC, &currentTime);
-
-    float time = (float)(currentTime.tv_sec - startTime.tv_sec)
-               + (float)(currentTime.tv_nsec - startTime.tv_nsec) / 1e9f;
-
-
     UniformBufferObject ubo = {0};
 
-    // MODEL — rotate 90 degrees per second around Z axis
-    glm_mat4_identity(ubo.model);
-    glm_rotate(ubo.model, glm_rad(90.0f) * time, (vec3){0.0f, 0.0f, 1.0f});
-
-    // VIEW — look at (0,0,0) from (2,2,2), up is +Z
-    glm_lookat((vec3){2.0f, 2.0f, 2.0f}, (vec3){0.0f, 0.0f, 0.0f}, (vec3){0.0f, 0.0f, 1.0f}, ubo.view);
+    // TODO: Change for camera veriables here!
+    // VIEW - Camera look veriables
+    glm_lookat(
+        (vec3){2.0f,2.0f,2.0f}, // camera position
+        (vec3){0.0f,0.0f,0.0f}, // camera look direction
+        (vec3){0.0f,0.0f,1.0f}, // up vector
+        ubo.view
+    );
 
     // PROJECTION — perspective with 45° vertical FOV, near=0.1, far=10
     float aspect = (float) gVkSwapChainHandles.mSwapChainExtent.width /
                    (float) gVkSwapChainHandles.mSwapChainExtent.height;
+
     glm_perspective(glm_rad(45.0f), aspect, 0.1f, 10.0f, ubo.proj);
 
     // Flip Y axis for Vulkan
     ubo.proj[1][1] *= -1.0f;
 
     memcpy(gVkContext.mUniformBuffersMapped[_currentImage], &ubo, sizeof(ubo));
-
 };
 
 void CleanupDescriptorSetLayout(){

@@ -112,7 +112,9 @@ void PopulatePipelineDynamicStateCreateInfo(VkPipelineDynamicStateCreateInfo* _c
 void SetupPipelineLayout(VkDevice _device);
 
 // Gets the create info for the pipeline layout 
-VkPipelineLayoutCreateInfo GetPipelineLayoutCreateInfo();
+void PopulatePipelineLayoutCreateInfo(VkPipelineLayoutCreateInfo* _createInfo);
+
+void PopulatePipelinePushConstantRangeCreateInfo(VkPushConstantRange* _createInfo);
 
 // Cleans up the Vk Graphics pipeline
 void CleanupGraphicsPipeline();

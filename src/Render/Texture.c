@@ -18,7 +18,7 @@ VkTexture* LoadTexture(const char* _filePath){
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    LoadImageBuffer(_filePath, gVkContext.mDevice, &stagingBuffer, &stagingBufferMemory, &bufferTexture);
+    LoadImageBufferFromSrc(_filePath, gVkContext.mDevice, &stagingBuffer, &stagingBufferMemory, &bufferTexture);
 
     texture->mImageView = SetupTextureImageView(gVkContext.mDevice, bufferTexture.mBufferTextureImage);
     texture->mSampler = SetupTextureSampler(gVkContext.mDevice, gVkContext.mPhysicalDevice);
@@ -29,11 +29,29 @@ VkTexture* LoadTexture(const char* _filePath){
     return texture;
 };
 
-void LoadImageBuffer(const char* _fileLocation, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture){
+VkTexture* CreateTexture(uint8_t* _pixels){
+    VkTexture* texture = malloc(sizeof(VkTexture));
+    VkBufferTexture bufferTexture = {0};
+    
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    LoadImageBufferFromPixels(_pixels, gVkContext.mDevice, &stagingBuffer, &stagingBufferMemory, &bufferTexture);
+
+    texture->mImageView = SetupTextureImageView(gVkContext.mDevice, bufferTexture.mBufferTextureImage);
+    texture->mSampler = SetupTextureSampler(gVkContext.mDevice, gVkContext.mPhysicalDevice);
+
+    texture->mImage = bufferTexture.mBufferTextureImage;
+    texture->mMemory = bufferTexture.mBufferTextureImageMemory;
+
+    return texture;
+};
+
+void LoadImageBufferFromSrc(const char* _fileLocation, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture){
 
     ImageSize imageSize = {0};
     stbi_uc* pixels = LoadImage(_fileLocation, &imageSize);
     if (!pixels) {
+        LOG_ERROR("Pixel buffer is 0");
         return;
     };
     
@@ -42,8 +60,6 @@ void LoadImageBuffer(const char* _fileLocation, VkDevice _device, VkBuffer* _sta
     stbi_image_free(pixels);
     
     
-    // VK PART HERE -------------------
-    // THESE NEED TO BE MOVED TO any spesific TEXTURE ????
     SetupVkImage(_device, imageSize.mImageWidth, imageSize.mImageHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _bufferTexture);
     
     TransitionImageLayout(_bufferTexture->mBufferTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -67,6 +83,33 @@ stbi_uc* LoadImage(const char* _fileLocation, ImageSize* _imageSize){
         return NULL;
     }
     return pixels;
+};
+
+void LoadImageBufferFromPixels(uint8_t* _pixels, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture){
+
+    ImageSize imageSize = {0};
+    imageSize.mImageWidth = 127;
+    imageSize.mImageHeight = 127;
+    imageSize.mImageDeviceSize = imageSize.mImageWidth * imageSize.mImageHeight * 4;
+
+    if (!_pixels) {
+        LOG_ERROR("Pixel buffer is 0");
+        return;
+    };
+    
+    CreateBuffer(imageSize.mImageDeviceSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _stagingBuffer, _stagingBufferMemory);
+    UploadToMemory(_device, *_stagingBufferMemory, _pixels, (size_t)(imageSize.mImageDeviceSize));
+    
+    
+    SetupVkImage(_device, imageSize.mImageWidth, imageSize.mImageHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _bufferTexture);
+    
+    TransitionImageLayout(_bufferTexture->mBufferTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    CopyBufferToImage(*_stagingBuffer, _bufferTexture->mBufferTextureImage, imageSize);
+    TransitionImageLayout(_bufferTexture->mBufferTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    free(_pixels);
+    vkDestroyBuffer(_device, *_stagingBuffer, NULL);
+    vkFreeMemory(_device, *_stagingBufferMemory, NULL);
 };
 
 void TransitionImageLayout(VkImage _image, VkFormat _format, VkImageLayout _oldLayout, VkImageLayout _newLayout){

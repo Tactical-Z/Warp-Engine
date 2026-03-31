@@ -1,37 +1,14 @@
-build/Render/Vk/VkSwapChain.o: src/Render/Vk/VkSwapChain.c \
- headers/Render/VKManager.h headers/Render/WindowManager.h \
- headers/Utility/Logger.h libs/glfw-lib-vc2022/include/glfw3.h \
- libs/VulkanSDK/include/vulkan/vulkan.h \
- libs/VulkanSDK/include/vulkan/vk_platform.h \
- libs/VulkanSDK/include/vulkan/vulkan_core.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codecs_common.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std_encode.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std_encode.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std_decode.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std_decode.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_decode.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
- libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
- libs/VulkanSDK/include/vulkan/vulkan.h headers/Render/Vk/VkSwapChain.h \
- headers/Render/Vk/VkPhysicalDevice.h headers/Render/Vk/VkImageViewer.h \
- headers/Render/Vk/VkFrameBuffer.h headers/Utility/UtilMath.h \
- libs/cglm/include/cglm.h libs/cglm/include/common.h \
- libs/cglm/include/types.h libs/cglm/include/simd/intrin.h \
- libs/cglm/include/simd/x86.h libs/cglm/include/simd/intrin.h \
- libs/cglm/include/vec2.h libs/cglm/include/util.h \
- libs/cglm/include/vec2-ext.h libs/cglm/include/vec3.h \
- libs/cglm/include/vec4.h libs/cglm/include/vec4-ext.h \
- libs/cglm/include/vec3-ext.h libs/cglm/include/ivec2.h \
- libs/cglm/include/ivec3.h libs/cglm/include/ivec4.h \
- libs/cglm/include/mat4.h libs/cglm/include/simd/sse2/mat4.h \
+build/Utility/UtilMath.o: src/Utility/UtilMath.c \
+ headers/Utility/UtilMath.h libs/cglm/include/cglm.h \
+ libs/cglm/include/common.h libs/cglm/include/types.h \
+ libs/cglm/include/simd/intrin.h libs/cglm/include/simd/x86.h \
+ libs/cglm/include/simd/intrin.h libs/cglm/include/vec2.h \
+ libs/cglm/include/util.h libs/cglm/include/vec2-ext.h \
+ libs/cglm/include/vec3.h libs/cglm/include/vec4.h \
+ libs/cglm/include/vec4-ext.h libs/cglm/include/vec3-ext.h \
+ libs/cglm/include/ivec2.h libs/cglm/include/ivec3.h \
+ libs/cglm/include/ivec4.h libs/cglm/include/mat4.h \
+ libs/cglm/include/simd/sse2/mat4.h \
  libs/cglm/include/simd/sse2/../../common.h \
  libs/cglm/include/simd/sse2/../intrin.h libs/cglm/include/mat4x2.h \
  libs/cglm/include/mat4x3.h libs/cglm/include/mat3.h \
@@ -61,35 +38,8 @@ build/Render/Vk/VkSwapChain.o: src/Render/Vk/VkSwapChain.c \
  libs/cglm/include/clipspace/../vec4.h libs/cglm/include/sphere.h \
  libs/cglm/include/ease.h libs/cglm/include/curve.h \
  libs/cglm/include/bezier.h libs/cglm/include/ray.h \
- libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h
-headers/Render/VKManager.h:
-headers/Render/WindowManager.h:
-headers/Utility/Logger.h:
-libs/glfw-lib-vc2022/include/glfw3.h:
-libs/VulkanSDK/include/vulkan/vulkan.h:
-libs/VulkanSDK/include/vulkan/vk_platform.h:
-libs/VulkanSDK/include/vulkan/vulkan_core.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codecs_common.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std_encode.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std_encode.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h264std_decode.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_h265std_decode.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_decode.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h:
-libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
-libs/VulkanSDK/include/vulkan/vulkan.h:
-headers/Render/Vk/VkSwapChain.h:
-headers/Render/Vk/VkPhysicalDevice.h:
-headers/Render/Vk/VkImageViewer.h:
-headers/Render/Vk/VkFrameBuffer.h:
+ libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h \
+ headers/Utility/Logger.h
 headers/Utility/UtilMath.h:
 libs/cglm/include/cglm.h:
 libs/cglm/include/common.h:
@@ -159,3 +109,4 @@ libs/cglm/include/bezier.h:
 libs/cglm/include/ray.h:
 libs/cglm/include/affine2d.h:
 libs/cglm/include/affine2d-post.h:
+headers/Utility/Logger.h:

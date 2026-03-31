@@ -91,7 +91,7 @@ LIB_DIRS := $(sort $(dir $(LIB_FILES)))
 LIB_FLAGS := $(addprefix -L,$(LIB_DIRS))
 
 # 4. Update Flags to include libs
-LDFLAGS := $(LIB_FLAGS) -lglfw3 -lgdi32 -lopengl32 -luser32 -lkernel32 -lws2_32 -lpthread -lvulkan-1 -lm
+LDFLAGS := $(LIB_FLAGS) -lglfw3 -lgdi32 -lopengl32 -luser32 -lkernel32 -lws2_32 -lpthread -lvulkan-1 -lm -lhdf5 -lhdf5_hl
 
 # Conducting the compilation and build
 # ------------------------------------

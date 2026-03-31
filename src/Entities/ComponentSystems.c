@@ -178,6 +178,45 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
     return newMesh; 
 };
 
+MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, int _vectorSpacing){
+
+    size_t width = _vectorField.mWidth;
+    size_t height = _vectorField.mHeight;
+    size_t total = width * height;
+
+    float vectorLength = 0.01f;
+
+    //numVertices = sizeof(_vectorField[0]) / sizeof(vec2);
+    //numIndices = sizeof(planeIndices) / sizeof(Index);
+    Vertex* vertices;
+    Index* indices;
+
+    for(size_t i = 0; i < total; i++){
+    
+        vec2 startPosition = RECONSTRUCT FROM GRID LOCATIONS X AND Y
+        vec2 direction = _vectorField.mVectorField[i];
+        vec2 normDirection = NORMALIZE DIRECTION
+        vec2 endPosition = startPosition * normDirection;
+        ADD INDICES AND ARROW TIPS AS WELL
+        DONT FORGET TO CHANGE TO WIRE STRIP MODE OR WHATEVER VK
+    }   
+
+    MeshComponent newMesh = {0};
+    newMesh.mID = _id;
+    newMesh.mVertexCount = numVertices;
+    newMesh.mVertices = malloc(sizeof(Vertex) * numVertices);
+    memcpy(newMesh.mVertices, vertices, sizeof(Vertex) * numVertices);
+
+    newMesh.mIndexCount = numIndices;
+    newMesh.mIndices = malloc(sizeof(Index) * numIndices);
+    memcpy(newMesh.mIndices, planeIndices, sizeof(Index) * numIndices);
+    
+    SetupBuffer(gVkContext.mDevice, newMesh.mVertices, &newMesh.mVertexBuffer, &newMesh.mVertexBufferMemory, sizeof(Vertex) * newMesh.mVertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    SetupBuffer(gVkContext.mDevice, newMesh.mIndices, &newMesh.mIndexBuffer, &newMesh.mIndexBufferMemory, sizeof(Index) * newMesh.mIndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+    return newMesh;
+};
+
 void CleanupMesh(){
 
     vkDeviceWaitIdle(gVkContext.mDevice);

@@ -27,13 +27,13 @@ typedef struct VkTexture {
 
 VkTexture* LoadTexture(const char* _filePath);
 
-VkTexture* CreateTexture(uint8_t* _pixels);
+VkTexture* CreateTexture(uint8_t* _pixels, size_t _width, size_t _height);
 
 void LoadImageBufferFromSrc(const char* _fileLocation, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture);
 
 stbi_uc* LoadImage(const char* _fileLocation, ImageSize* _imageSize);
 
-void LoadImageBufferFromPixels(uint8_t* _pixels, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture);
+void LoadImageBufferFromPixels(uint8_t* _pixels, size_t _width, size_t _height, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture);
 
 void TransitionImageLayout(VkImage _image, VkFormat _format, VkImageLayout _oldLayout, VkImageLayout _newLayout);
 

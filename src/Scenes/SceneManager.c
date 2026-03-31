@@ -11,15 +11,16 @@
 void SceneBegin(){
 
     //vec2* vecField = Readhdf5File(AssetDir("VisData/isabel_2d.h5"), "/Velocity/X-comp", "/Velocity/Y-comp");
-    vec2* vecField = Readhdf5File(AssetDir("VisData/metsim1_2d.h5"), "/Velocity/X-comp", "/Velocity/Y-comp");
+    VectorField vecField = Readhdf5File(AssetDir("VisData/metsim1_2d.h5"), "/Velocity/X-comp", "/Velocity/Y-comp");
     
-    AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
+    //AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
+    AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField));
     AddTransformComponent(CreateTransformComponent(0));
     //gMeshComponentSystem[0].mTexture = LoadTexture(AssetDir("TestLeaf.jpg"));
-    gMeshComponentSystem[0].mTexture = CreateTexture(GenerateMagnitudeHeatmap(vecField, 127, 127));
+    gMeshComponentSystem[0].mTexture = CreateTexture(GenerateMagnitudeHeatmap(vecField),vecField.mWidth, vecField.mHeight);
     gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
-    free(vecField);
-
+    
+    free(vecField.mVectorField);
 }
 
 void SceneUpdate(float _dt){

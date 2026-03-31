@@ -29,13 +29,13 @@ VkTexture* LoadTexture(const char* _filePath){
     return texture;
 };
 
-VkTexture* CreateTexture(uint8_t* _pixels){
+VkTexture* CreateTexture(uint8_t* _pixels, size_t _width, size_t _height){
     VkTexture* texture = malloc(sizeof(VkTexture));
     VkBufferTexture bufferTexture = {0};
     
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    LoadImageBufferFromPixels(_pixels, gVkContext.mDevice, &stagingBuffer, &stagingBufferMemory, &bufferTexture);
+    LoadImageBufferFromPixels(_pixels, _width, _height, gVkContext.mDevice, &stagingBuffer, &stagingBufferMemory, &bufferTexture);
 
     texture->mImageView = SetupTextureImageView(gVkContext.mDevice, bufferTexture.mBufferTextureImage);
     texture->mSampler = SetupTextureSampler(gVkContext.mDevice, gVkContext.mPhysicalDevice);
@@ -85,12 +85,12 @@ stbi_uc* LoadImage(const char* _fileLocation, ImageSize* _imageSize){
     return pixels;
 };
 
-void LoadImageBufferFromPixels(uint8_t* _pixels, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture){
+void LoadImageBufferFromPixels(uint8_t* _pixels, size_t _width, size_t _height, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture){
 
     ImageSize imageSize = {0};
-    imageSize.mImageWidth = 127;
-    imageSize.mImageHeight = 127;
-    imageSize.mImageDeviceSize = imageSize.mImageWidth * imageSize.mImageHeight * 4;
+    imageSize.mImageWidth = _width;
+    imageSize.mImageHeight = _height;
+    imageSize.mImageDeviceSize = _width * _height * 4; //rgba
 
     if (!_pixels) {
         LOG_ERROR("Pixel buffer is 0");

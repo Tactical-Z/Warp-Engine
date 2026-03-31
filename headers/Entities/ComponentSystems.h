@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Components.h"
+#include "HDF5Reader.h"
 
 /* --- SHADER --- */
 typedef struct {
@@ -22,6 +24,7 @@ typedef enum{
 void InitMeshSystem();
 void AddMeshComponent(MeshComponent _mesh);
 MeshComponent CreateMeshComponent(int _id, MeshType _meshType);
+MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, int _vectorSpacing){
 void CleanupMesh();
 /* --- MESH --- */
 

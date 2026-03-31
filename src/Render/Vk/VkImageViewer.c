@@ -1,6 +1,7 @@
 
 #include "VKManager.h"
 #include "VkImageViewer.h"
+#include "Logger.h"
 
 VkImageView* SetupImageViews(VkDevice _device, uint32_t _numImageViews){
    
@@ -12,40 +13,49 @@ VkImageView* SetupImageViews(VkDevice _device, uint32_t _numImageViews){
     }
 
     // alocate memory and init all fields to 0;
-    VkImageView* VkImageView = malloc(sizeof(VkImageView) * _numImageViews);
-    memset(VkImageView, 0 , _numImageViews);
-    if(!VkImageView){
+    VkImageView* imageView = malloc(sizeof(imageView) * _numImageViews);
+    memset(imageView, 0, sizeof(imageView) * _numImageViews);
+    if(!imageView){
         LOG_ERROR("Image views memory allocation faild.");
     }
     
     for (size_t i = 0; i < _numImageViews; i++) {
 
         VkImageViewCreateInfo createInfo = {0};
-        PopulateImageView(&createInfo, i);
-
-        if (vkCreateImageView(_device, &createInfo, NULL, &VkImageView[i]) != VK_SUCCESS) {
-            LOG_ERROR("Image View %i, faild to create", i);
-        }
+    
+        imageView[i] = CreateImageView(_device, gVkSwapChainHandles.mSwapChainImages[i], gVkSwapChainHandles.mSwapChainImageFormat);
     }
-
-    return VkImageView;
+    return imageView;
 };
 
-void PopulateImageView(VkImageViewCreateInfo* _createInfo, size_t _it){
+VkImageView SetupTextureImageView(VkDevice _device, VkImage _textureImage){
 
-    if(!gVkSwapChainHandles.mSwapChainImages){
-        LOG_ERROR("Swap chain images in handle NULL");
-        return;
-    }
+    LOG_INFO("Setup VkTextureImageView");
+    return CreateImageView(_device, _textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+};
+
+VkImageView CreateImageView(VkDevice _device, VkImage _image, VkFormat _format) {
+    VkImageViewCreateInfo viewInfo = {0};
+    PopulateImageView(&viewInfo, _image, _format);
     
+    VkImageView imageView = {0};
+    if (vkCreateImageView(_device, &viewInfo, NULL, &imageView) != VK_SUCCESS) {
+        LOG_ERROR("failed to create image view");
+        return VK_NULL_HANDLE;
+    }
+    return imageView;
+}
+
+void PopulateImageView(VkImageViewCreateInfo* _createInfo, VkImage _image, VkFormat _format){
+
     // type and image specify how the imag eshould be interpreted. 
     _createInfo->sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    _createInfo->viewType = VK_IMAGE_VIEW_TYPE_2D;
     _createInfo->pNext = NULL;
     _createInfo->flags = 0;
-    _createInfo->image = gVkSwapChainHandles.mSwapChainImages[_it];
-    _createInfo->format = gVkSwapChainHandles.mSwapChainImageFormat;
-    _createInfo->viewType = VK_IMAGE_VIEW_TYPE_2D;
-
+    _createInfo->image = _image;
+    _createInfo->format = _format;
+   
     // Components allows to swizzle the color channels around.
     _createInfo->components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
     _createInfo->components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -61,6 +71,7 @@ void PopulateImageView(VkImageViewCreateInfo* _createInfo, size_t _it){
     _createInfo->subresourceRange.layerCount = 1;
 };
 
+
 void CleanupImageViews(){
 
     LOG_INFO("Cleanup VkSwapChain ImageViewers");
@@ -70,4 +81,7 @@ void CleanupImageViews(){
 
     free(gVkContext.mSwapChainImageViews);
     gVkContext.mSwapChainImageViews = NULL;
+
+    vkDestroySampler(gVkContext.mDevice, gVkContext.mTextureSampler, NULL);
+    vkDestroyImageView(gVkContext.mDevice, gVkContext.mTextureImageView, NULL);
 };

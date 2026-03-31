@@ -55,24 +55,28 @@ typedef struct {
     VkSwapchainKHR mSwapChain;
     VkRenderPass mRenderPass;
     VkDescriptorSetLayout mDescriptorSetLayout;
-    VkDescriptorSet* mDescriptorSets;
-    VkDescriptorSetLayout* mDescriptorSetLayouts; // array, stored here for cleanup
     VkPipelineLayout mPipelineLayout;
     VkPipeline mGraphicsPipeline;
     uint32_t mNumImageViews;
     VkImageView* mSwapChainImageViews;
     VkFramebuffer* mSwapChainFramebuffers;
     VkCommandPool mCommandPool;
+    VkImageView mTextureImageView;
+    VkSampler mTextureSampler;
 
     /*Arrays of buffers*/
     VkBuffer* mUniformBuffers;
     VkDeviceMemory* mUniformBuffersMemory;
     void** mUniformBuffersMapped;
+    
+    VkImage mDepthImage; 
+    VkDeviceMemory  mDepthImageMemory;
+    VkImageView mDepthImageView;
     /*---*/
     VkDescriptorPool mDescriptorPool; // Uses uniform buffer type
     VkDescriptorPool mUiDescriptorPool; // Uses image sampler type
     VkCommandBuffer* mCommandBuffers;
-    
+
     // sync objects
     VkSemaphore* mImageAvailableSemaphores;
     VkSemaphore* mRenderFinishedSemaphores;
@@ -83,6 +87,14 @@ extern VkContext gVkContext;
 
 // Initalizes all vulkan resources and loads all relevent information into global contexts.
 void InitVolk(GLFWwindow* _window);
+
+// void SetupDepthResources(VkInstance _vki); 
+
+// VkFormat FindSupportedFormat(const VkFormat* _candidates, VkImageTiling _tiling, VkFormatFeatureFlags _features);
+
+// int HasStencilComponent(VkFormat _format);
+
+// VkFormat FindDepthFormat();
 
 // Checks if imputed validation layers exist for the application.
 // @param _validationLayers Is a reference to the array of validation layers we are checking for.

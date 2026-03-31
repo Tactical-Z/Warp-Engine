@@ -61,10 +61,10 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
     case MESHTYPE_PLANE:
       
         Vertex planeVertices[] = {
-            {{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{0.5f, 0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}},
-            {{-0.5f, 0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}
+            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
         };
         numVertices = sizeof(planeVertices) / sizeof(Vertex);
         newMesh.mVertexCount = numVertices;
@@ -72,7 +72,7 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
         memcpy(newMesh.mVertices, planeVertices, sizeof(Vertex) * numVertices);
 
         Index planeIndices[] = {
-            0, 1, 2, 2, 3, 0
+            0, 2, 1, 2, 0, 3
         };
         numIndices = sizeof(planeIndices) / sizeof(Index);
         newMesh.mIndexCount = numIndices;
@@ -81,65 +81,88 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
         SetupBuffer(gVkContext.mDevice, newMesh.mVertices, &newMesh.mVertexBuffer, &newMesh.mVertexBufferMemory, sizeof(Vertex) * newMesh.mVertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         SetupBuffer(gVkContext.mDevice, newMesh.mIndices, &newMesh.mIndexBuffer, &newMesh.mIndexBufferMemory, sizeof(Index) * newMesh.mIndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
         break;
-    case MESHTYPE_CUBE:
-        Vertex cubeVertices[] = {
-            // Front (+Z)
-            {{-0.5f, -0.5f,  0.5f}, {1, 0, 0}},
-            {{ 0.5f, -0.5f,  0.5f}, {1, 0, 0}},
-            {{ 0.5f,  0.5f,  0.5f}, {1, 0, 0}},
-            {{-0.5f,  0.5f,  0.5f}, {1, 0, 0}},
-
-            // Back (-Z)
-            {{ 0.5f, -0.5f, -0.5f}, {0, 1, 0}},
-            {{-0.5f, -0.5f, -0.5f}, {0, 1, 0}},
-            {{-0.5f,  0.5f, -0.5f}, {0, 1, 0}},
-            {{ 0.5f,  0.5f, -0.5f}, {0, 1, 0}},
-
-            // Left (-X)
-            {{-0.5f, -0.5f, -0.5f}, {0, 0, 1}},
-            {{-0.5f, -0.5f,  0.5f}, {0, 0, 1}},
-            {{-0.5f,  0.5f,  0.5f}, {0, 0, 1}},
-            {{-0.5f,  0.5f, -0.5f}, {0, 0, 1}},
-
-            // Right (+X)
-            {{ 0.5f, -0.5f,  0.5f}, {1, 1, 0}},
-            {{ 0.5f, -0.5f, -0.5f}, {1, 1, 0}},
-            {{ 0.5f,  0.5f, -0.5f}, {1, 1, 0}},
-            {{ 0.5f,  0.5f,  0.5f}, {1, 1, 0}},
-
-            // Top (+Y)
-            {{-0.5f,  0.5f,  0.5f}, {0, 1, 1}},
-            {{ 0.5f,  0.5f,  0.5f}, {0, 1, 1}},
-            {{ 0.5f,  0.5f, -0.5f}, {0, 1, 1}},
-            {{-0.5f,  0.5f, -0.5f}, {0, 1, 1}},
-
-            // Bottom (-Y)
-            {{-0.5f, -0.5f, -0.5f}, {1, 0, 1}},
-            {{ 0.5f, -0.5f, -0.5f}, {1, 0, 1}},
-            {{ 0.5f, -0.5f,  0.5f}, {1, 0, 1}},
-            {{-0.5f, -0.5f,  0.5f}, {1, 0, 1}},
+    case MESHTYPE_PLANE_WINDOW:
+      
+         Vertex planeWindowVertices[] = {
+            {{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+            {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+            {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
         };
-
-        numVertices = sizeof(cubeVertices) / sizeof(Vertex);
+        numVertices = sizeof(planeWindowVertices) / sizeof(Vertex);
         newMesh.mVertexCount = numVertices;
         newMesh.mVertices = malloc(sizeof(Vertex) * numVertices);
-        memcpy(newMesh.mVertices, cubeVertices, sizeof(Vertex) * numVertices);
+        memcpy(newMesh.mVertices, planeWindowVertices, sizeof(Vertex) * numVertices);
 
-        Index cubeIndices[] = {
-             0, 1, 2, 2, 3, 0,        // Front
-             4, 5, 6, 6, 7, 4,        // Back
-             8, 9,10,10,11, 8,        // Left
-            12,13,14,14,15,12,        // Right
-            16,17,18,18,19,16,        // Top
-            20,21,22,22,23,20         // Bottom
+        Index planeWindowIndices[] = {
+            0, 2, 1, 2, 0, 3
         };
-
-        numIndices = sizeof(cubeIndices) / sizeof(Index);
+        numIndices = sizeof(planeWindowIndices) / sizeof(Index);
         newMesh.mIndexCount = numIndices;
         newMesh.mIndices = malloc(sizeof(Index) * numIndices);
-        memcpy(newMesh.mIndices, cubeIndices, sizeof(Index) * numIndices);
+        memcpy(newMesh.mIndices, planeWindowIndices, sizeof(Index) * numIndices);
         SetupBuffer(gVkContext.mDevice, newMesh.mVertices, &newMesh.mVertexBuffer, &newMesh.mVertexBufferMemory, sizeof(Vertex) * newMesh.mVertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         SetupBuffer(gVkContext.mDevice, newMesh.mIndices, &newMesh.mIndexBuffer, &newMesh.mIndexBufferMemory, sizeof(Index) * newMesh.mIndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        break;
+    case MESHTYPE_CUBE:
+    //     Vertex cubeVertices[] = {
+    //         // Front (+Z)
+    //         {{-0.5f, -0.5f,  0.5f}, {1, 0, 0}},
+    //         {{ 0.5f, -0.5f,  0.5f}, {1, 0, 0}},
+    //         {{ 0.5f,  0.5f,  0.5f}, {1, 0, 0}},
+    //         {{-0.5f,  0.5f,  0.5f}, {1, 0, 0}},
+
+    //         // Back (-Z)
+    //         {{ 0.5f, -0.5f, -0.5f}, {0, 1, 0}},
+    //         {{-0.5f, -0.5f, -0.5f}, {0, 1, 0}},
+    //         {{-0.5f,  0.5f, -0.5f}, {0, 1, 0}},
+    //         {{ 0.5f,  0.5f, -0.5f}, {0, 1, 0}},
+
+    //         // Left (-X)
+    //         {{-0.5f, -0.5f, -0.5f}, {0, 0, 1}},
+    //         {{-0.5f, -0.5f,  0.5f}, {0, 0, 1}},
+    //         {{-0.5f,  0.5f,  0.5f}, {0, 0, 1}},
+    //         {{-0.5f,  0.5f, -0.5f}, {0, 0, 1}},
+
+    //         // Right (+X)
+    //         {{ 0.5f, -0.5f,  0.5f}, {1, 1, 0}},
+    //         {{ 0.5f, -0.5f, -0.5f}, {1, 1, 0}},
+    //         {{ 0.5f,  0.5f, -0.5f}, {1, 1, 0}},
+    //         {{ 0.5f,  0.5f,  0.5f}, {1, 1, 0}},
+
+    //         // Top (+Y)
+    //         {{-0.5f,  0.5f,  0.5f}, {0, 1, 1}},
+    //         {{ 0.5f,  0.5f,  0.5f}, {0, 1, 1}},
+    //         {{ 0.5f,  0.5f, -0.5f}, {0, 1, 1}},
+    //         {{-0.5f,  0.5f, -0.5f}, {0, 1, 1}},
+
+    //         // Bottom (-Y)
+    //         {{-0.5f, -0.5f, -0.5f}, {1, 0, 1}},
+    //         {{ 0.5f, -0.5f, -0.5f}, {1, 0, 1}},
+    //         {{ 0.5f, -0.5f,  0.5f}, {1, 0, 1}},
+    //         {{-0.5f, -0.5f,  0.5f}, {1, 0, 1}},
+    //     };
+
+    //     numVertices = sizeof(cubeVertices) / sizeof(Vertex);
+    //     newMesh.mVertexCount = numVertices;
+    //     newMesh.mVertices = malloc(sizeof(Vertex) * numVertices);
+    //     memcpy(newMesh.mVertices, cubeVertices, sizeof(Vertex) * numVertices);
+
+    //     Index cubeIndices[] = {
+    //          0, 1, 2, 2, 3, 0,        // Front
+    //          4, 5, 6, 6, 7, 4,        // Back
+    //          8, 9,10,10,11, 8,        // Left
+    //         12,13,14,14,15,12,        // Right
+    //         16,17,18,18,19,16,        // Top
+    //         20,21,22,22,23,20         // Bottom
+    //     };
+
+    //     numIndices = sizeof(cubeIndices) / sizeof(Index);
+    //     newMesh.mIndexCount = numIndices;
+    //     newMesh.mIndices = malloc(sizeof(Index) * numIndices);
+    //     memcpy(newMesh.mIndices, cubeIndices, sizeof(Index) * numIndices);
+    //     SetupBuffer(gVkContext.mDevice, newMesh.mVertices, &newMesh.mVertexBuffer, &newMesh.mVertexBufferMemory, sizeof(Vertex) * newMesh.mVertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    //     SetupBuffer(gVkContext.mDevice, newMesh.mIndices, &newMesh.mIndexBuffer, &newMesh.mIndexBufferMemory, sizeof(Index) * newMesh.mIndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
         break;
     case MESHTYPE_PYRAMID:
         
@@ -148,7 +171,7 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
         
         break;
     default:
-        LOG_WARN("MeshType Does not exist.");
+        LOG_WARN("MeshType Does not exist");
         break;
     }
 
@@ -164,6 +187,9 @@ void CleanupMesh(){
         
         CleanupBuffer(gMeshComponentSystem[i].mVertexBuffer, gMeshComponentSystem[i].mVertexBufferMemory);
         CleanupBuffer(gMeshComponentSystem[i].mIndexBuffer, gMeshComponentSystem[i].mIndexBufferMemory);
+        
+        CleanupTexture(gMeshComponentSystem[i].mTexture);
+        free(gMeshComponentSystem[i].mTexture);
     }
     
     free(gMeshComponentSystem);

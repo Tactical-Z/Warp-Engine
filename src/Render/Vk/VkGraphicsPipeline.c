@@ -215,8 +215,9 @@ VkVertexInputBindingDescription GetBindingDescription(){
 VkVertexInputAttributeDescription* GetAttributeDescriptions(){
 
     VkVertexInputAttributeDescription* attributeDescriptions = malloc(sizeof(VkVertexInputAttributeDescription) * NUM_VERTEX_ATTRIBUTES);
-    memset(attributeDescriptions, 0, NUM_VERTEX_ATTRIBUTES);
+    memset(attributeDescriptions, 0, sizeof(VkVertexInputAttributeDescription) * NUM_VERTEX_ATTRIBUTES);
 
+    // -- VERTEX POSITION -- 
     // binding tells vulkan from which binding the per vertex data comes
     attributeDescriptions[0].binding = 0;
     // location references the location in the vertex shader
@@ -230,10 +231,16 @@ VkVertexInputAttributeDescription* GetAttributeDescriptions(){
     // num bytes to tead for this attribute
     attributeDescriptions[0].offset = offsetof(Vertex, mPosition);
 
+    // -- VERTEX COLOR -- 
     attributeDescriptions[1].binding = 0;
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, mColor);
+    // -- VERTEX UV -- 
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[2].offset = offsetof(Vertex, mUV);
 
     return attributeDescriptions;
 };

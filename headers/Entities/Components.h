@@ -2,6 +2,7 @@
 
 #include "VkBuffer.h"
 #include "Vertex.h"
+#include "Texture.h"
 
 typedef struct{
 
@@ -15,6 +16,9 @@ typedef struct{
     unsigned int mIndexCount;
     VkBuffer mIndexBuffer;
     VkDeviceMemory mIndexBufferMemory;
+
+    VkTexture* mTexture;
+    VkDescriptorSet mDescriptorSet;
 
 } MeshComponent;
 

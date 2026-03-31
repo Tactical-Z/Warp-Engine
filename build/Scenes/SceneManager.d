@@ -60,8 +60,10 @@ build/Scenes/SceneManager.o: src/Scenes/SceneManager.c \
  libs/cglm/include/ease.h libs/cglm/include/curve.h \
  libs/cglm/include/bezier.h libs/cglm/include/ray.h \
  libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h \
+ headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  headers/Render/VKManager.h headers/Render/WindowManager.h \
- headers/Utility/Logger.h
+ headers/Utility/Logger.h headers/Render/Vk/VkDescriptorSetBuffer.h \
+ headers/Utility/FileSystem.h
 headers/Scenes/SceneManager.h:
 libs/glfw-lib-vc2022/include/glfw3.h:
 headers/Entities/ComponentSystems.h:
@@ -155,6 +157,10 @@ libs/cglm/include/bezier.h:
 libs/cglm/include/ray.h:
 libs/cglm/include/affine2d.h:
 libs/cglm/include/affine2d-post.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
+headers/Render/Vk/VkDescriptorSetBuffer.h:
+headers/Utility/FileSystem.h:

@@ -73,15 +73,16 @@ VkPhysicalDevice GetBestSuitedPhysicalDevice(VkInstance _vki, VkSurfaceKHR _surf
 
 int isDeviceSuitable(VkPhysicalDevice _physicalDevice, VkSurfaceKHR _surface){
 
-    int suitable = 0;
-
     // Querry to se if this device and surface can make an adaquate swapchain
     SwapChainSupportDetails swapChainForDevice = QuerySwapChainSupport(_physicalDevice, _surface);
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(_physicalDevice, &supportedFeatures);
 
     QueueFamilyIndices queueFamily = {0};
     if(FindQueueFamilies(_physicalDevice, _surface, &queueFamily) &&
         isDeviceExtensionSupportAvailable(_physicalDevice) &&
-        isSwapChainAdaquate(&swapChainForDevice)){
+        isSwapChainAdaquate(&swapChainForDevice) && 
+        supportedFeatures.samplerAnisotropy){
         return 1;
     }
 
@@ -160,6 +161,10 @@ int RateDevice(VkPhysicalDevice _physicalDevice){
     if(!deviceFeatures.geometryShader){
         return score;
     }
+
+    if (!deviceFeatures.samplerAnisotropy) {
+        return score;
+    } 
 
     if(deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU){
         score += 1000;

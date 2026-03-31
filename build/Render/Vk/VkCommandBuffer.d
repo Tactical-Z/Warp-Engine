@@ -63,7 +63,8 @@ build/Render/Vk/VkCommandBuffer.o: src/Render/Vk/VkCommandBuffer.c \
  libs/cglm/include/clipspace/../vec4.h libs/cglm/include/sphere.h \
  libs/cglm/include/ease.h libs/cglm/include/curve.h \
  libs/cglm/include/bezier.h libs/cglm/include/ray.h \
- libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h
+ libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h \
+ headers/Render/Texture.h libs/stb_image/include/stb_image.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -164,3 +165,5 @@ libs/cglm/include/bezier.h:
 libs/cglm/include/ray.h:
 libs/cglm/include/affine2d.h:
 libs/cglm/include/affine2d-post.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:

@@ -5,6 +5,8 @@
 #include "imgui_impl_glfw.h"
 #include "glfw3.h"
 
+#include "Logger.h"
+
 extern "C" {
 
 // All the c++ code can be written here for ImGui, but called through C wrapper. 
@@ -128,7 +130,7 @@ void ImGuiC_BeginWindow(const char* name)
     if(ImGui::Begin(name)){
         
         if(ImGui::Button("Lessgoo")){
-            
+            LOG_DEBUG("LESSSGOOO");
         };
 
         ImGui::End();

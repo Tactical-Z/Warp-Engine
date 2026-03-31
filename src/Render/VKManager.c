@@ -35,10 +35,11 @@ void InitVolk(GLFWwindow* _window){
     gVkContext.mGraphicsPipeline = SetupGraphicsPipeline(gVkContext.mDevice);
     gVkContext.mSwapChainFramebuffers = SetupFrameBuffers(gVkContext.mDevice, gVkContext.mNumImageViews);
     gVkContext.mCommandPool = SetupCommandPool(gVkContext.mDevice);
+    //SetupDepthResources(gVkContext.mInstance);
     SettupUniformBuffers(gVkContext.mDevice);
     gVkContext.mDescriptorPool = SetupDescriptorPool(gVkContext.mDevice);
     gVkContext.mUiDescriptorPool = SetupUIDescriptorPool(gVkContext.mDevice);
-    gVkContext.mDescriptorSets = SetupDescriptorSets(gVkContext.mDevice);
+    //gVkContext.mDescriptorSets = SetupDescriptorSets(gVkContext.mDevice);
     SetupCommandBuffers(gVkContext.mDevice, gVkContext.mCommandPool);
     SetupSyncObjects(gVkContext.mDevice);
     
@@ -46,6 +47,45 @@ void InitVolk(GLFWwindow* _window){
 };
 
 /*------------------------------------------------------------------------------*/
+
+// void SetupDepthResources(VkInstance _vki){
+
+//     VkFormat depthFormat = FindDepthFormat();
+
+//     createImage(gVkSwapChainHandles.mSwapChainExtent.width, gVkSwapChainHandles.mSwapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, gVkContext.mDepthImage, gVkContext.mDepthImageMemory);
+//     gVkContext.mDepthImageView = SetupImageViews(gVkContext.mDepthImage, depthFormat);
+// };
+
+// VkFormat FindSupportedFormat(const VkFormat* _candidates, VkImageTiling _tiling, VkFormatFeatureFlags _features) {
+
+//     int numCandidates = sizeof(_candidates) / sizeof(VkFormat);
+//     for (int i = 0; i < numCandidates; i++) {
+//         VkFormat format = _candidate[i];
+//         VkFormatProperties props;
+//         vkGetPhysicalDeviceFormatProperties(gVkContext.mPhysicalDevice, format, &props);
+
+//         if (_tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & _features) == _features) {
+//             return format;
+//         } else if (_tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & _features) == _features) {
+//             return format;
+//         }
+//     }
+//     LOG_ERROR("Could not find supported VkFormat");
+//     return VK_NULL_HANDLE;
+// };
+
+// int HasStencilComponent(VkFormat _format) {
+//     return _format == VK_FORMAT_D32_SFLOAT_S8_UINT || _format == VK_FORMAT_D24_UNORM_S8_UINT;
+// }
+
+// VkFormat FindDepthFormat() {
+//     return findSupportedFormat(
+//         {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+//         VK_IMAGE_TILING_OPTIMAL,
+//         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+//     );
+// };
+
 
 // debuggers
 int IsValidationLayersSupported(const char* const* _validationLayersSupported){

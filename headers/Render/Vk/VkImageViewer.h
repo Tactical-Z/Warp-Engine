@@ -6,10 +6,15 @@
 // @return An array of image views equal to the size of the swapchain image amount. 
 VkImageView* SetupImageViews(VkDevice _device, uint32_t _numImageViews);
 
+VkImageView SetupTextureImageView(VkDevice _device, VkImage _textureImage);
+
+VkImageView CreateImageView(VkDevice _device, VkImage _image, VkFormat _format);
+
 // Populates the construction info for each iteration of image viwer.
 // @param _createInfo the create info to fill
 // @param _it the current itteration of image viewer
-void PopulateImageView(VkImageViewCreateInfo* _createInfo, size_t _it);
+void PopulateImageView(VkImageViewCreateInfo* _createInfo, VkImage _image, VkFormat _format);
+
 
 // Cleans up the VkInstance
 void CleanupImageViews();

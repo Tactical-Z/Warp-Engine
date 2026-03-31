@@ -2,11 +2,17 @@
 
 #include "vulkan.h"
 
+// TODO Add vkDevice to all functions that need it like copy and create buffer.
+
 void SetupBuffer(VkDevice _device, void* _data, VkBuffer* _buffer, VkDeviceMemory* _bufferMem, VkDeviceSize _size, VkBufferUsageFlags _usage);
+
+VkResult UploadToMemory(VkDevice _device, VkDeviceMemory _memory, const void* _srcData, VkDeviceSize _size);
 
 void CreateBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer* _buffer, VkDeviceMemory* _bufferMemory);
 
 void CopyBuffer(VkBuffer _srcBuffer, VkBuffer _dstBuffer, VkDeviceSize _size);
+
+void AllocateMemory(VkDevice _device, VkMemoryRequirements _memRequirements, VkMemoryPropertyFlags _properties, VkDeviceMemory* _bindMemory);
 
 // Finds the memory type in the vk physical device if it is available.
 // @param _typeFilter is a bit field filter, used to itterate through athe bits of memproperties to find 

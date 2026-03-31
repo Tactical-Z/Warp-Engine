@@ -11,9 +11,10 @@ VkDescriptorPool SetupDescriptorPool(VkDevice _device){
 
     LOG_INFO("Setup VkDescriptorPool");
     VkDescriptorPool descriptorPool = {0};
-    VkDescriptorPoolSize poolSize = {0};
+    VkDescriptorPoolSize poolSize[2] = {0};
+    size_t numPoolsizes = sizeof(poolSize) / sizeof(poolSize[0]);
     VkDescriptorPoolCreateInfo poolInfo = {0};
-    PopulateDescriptorPoolCreateInfo(&poolSize, &poolInfo);
+    PopulateDescriptorPoolCreateInfo(poolSize, numPoolsizes, &poolInfo);
 
     if (vkCreateDescriptorPool(_device, &poolInfo, NULL, &descriptorPool) != VK_SUCCESS) {
         LOG_ERROR("Failed to create descriptor pool");
@@ -37,15 +38,20 @@ VkDescriptorPool SetupUIDescriptorPool(VkDevice _device){
     return descriptorPool;
 };
 
-void PopulateDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, VkDescriptorPoolCreateInfo* _createInfo){
+void PopulateDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, size_t _poolSizeCount, VkDescriptorPoolCreateInfo* _createInfo){
     
     // Describes which discriptor sets are going to contain and how many
-    // We have one descriptor for each frame.
-    _poolSize->type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    _poolSize->descriptorCount = (uint32_t)MAX_FRAMES_IN_FLIGHT;
+    // We have two descriptiors
+    // UBO
+    _poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    _poolSize[0].descriptorCount = MAX_FRAMES_IN_FLIGHT;
+
+    // Combined image sampler
+    _poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    _poolSize[1].descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
     _createInfo->sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    _createInfo->poolSizeCount = 1;
+    _createInfo->poolSizeCount = _poolSizeCount;
     _createInfo->pPoolSizes = _poolSize;
     _createInfo->maxSets = (uint32_t)MAX_FRAMES_IN_FLIGHT;
 };
@@ -63,59 +69,123 @@ void PopulateUIDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, VkDescr
     _createInfo->maxSets = 100;
 };
 
-VkDescriptorSet* SetupDescriptorSets(VkDevice _device){
+VkDescriptorSet SetupMeshDescriptorSet(VkDevice _device, MeshComponent* _mesh){
 
-    LOG_INFO("Setup VkDescriptorSets");
+    if(!_mesh){
+        LOG_ERROR("No valid mesh for Descrptor set setup");
+        return VK_NULL_HANDLE;
+    }
 
-    VkDescriptorSet* descriptorSets = malloc(sizeof(VkDescriptorSetLayout) * MAX_FRAMES_IN_FLIGHT);
+    if(!_mesh->mTexture){
+        LOG_ERROR("No texture availible for setting up descriptor set");
+        return VK_NULL_HANDLE;
+    }
 
+    VkDescriptorSet descriptorSet = {0};
     VkDescriptorSetAllocateInfo allocInfo = {0};
-    gVkContext.mDescriptorSetLayouts = malloc(sizeof(VkDescriptorSetLayout) * MAX_FRAMES_IN_FLIGHT);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        gVkContext.mDescriptorSetLayouts[i] = gVkContext.mDescriptorSetLayout;
-    }
-    PopulateDescriptorSetsCreateInfo(&allocInfo, gVkContext.mDescriptorSetLayouts);
-
-    if (vkAllocateDescriptorSets(_device, &allocInfo, descriptorSets) != VK_SUCCESS) {
-        LOG_ERROR("failed to allocate descriptor sets");
+    PopulateDescriptorSetsCreateInfo(&allocInfo, gVkContext.mDescriptorPool, 1, &gVkContext.mDescriptorSetLayout);
+    if (vkAllocateDescriptorSets(_device, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+        LOG_ERROR("Failed to allocate descriptor set");
+        return VK_NULL_HANDLE;
     }
 
-    // now populate each descriptor after it has been allocated.
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        // specifies the buffer and region within that contains data for the descriptor
-        VkDescriptorBufferInfo bufferInfo = {0};
-        bufferInfo.buffer = gVkContext.mUniformBuffers[i];
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+    // UBO
+    VkDescriptorBufferInfo UBOBufferInfo = {0};
+    UBOBufferInfo.buffer = gVkContext.mUniformBuffers[0]; // or current frame
+    UBOBufferInfo.offset = 0;
+    UBOBufferInfo.range = sizeof(UniformBufferObject);
 
-        // The update function also takes a write info struct that contains additional info
-        VkWriteDescriptorSet descriptorWrite = {0};
-        // defines the update and binding. 
-        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = descriptorSets[i];
-        descriptorWrite.dstBinding = 0;
-        descriptorWrite.dstArrayElement = 0;
-        // Specify descriptor type and how many array elements we want to update
-        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrite.descriptorCount = 1;
-        // configures descriptor with buffer data, fill the right one for the use case:
-            // The pBufferInfo field is used for descriptors that refer to buffer data
-            // pImageInfo is used for descriptors that refer to image data
-            // pTexelBufferView is used for descriptors that refer to buffer view
-        descriptorWrite.pBufferInfo = &bufferInfo;
-        descriptorWrite.pImageInfo = NULL;
-        descriptorWrite.pTexelBufferView = NULL;
+    // TEXTURE
+    VkDescriptorImageInfo textureInfo = {0};
+    textureInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    textureInfo.imageView = _mesh->mTexture->mImageView;
+    textureInfo.sampler = _mesh->mTexture->mSampler;
 
-        vkUpdateDescriptorSets(_device, 1, &descriptorWrite, 0, NULL);
-    }
+    VkWriteDescriptorSet writes[2] = {0};
 
-    return descriptorSets;
+    writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writes[0].dstSet = descriptorSet;
+    writes[0].dstBinding = 0;
+    writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    writes[0].descriptorCount = 1;
+    writes[0].pBufferInfo = &UBOBufferInfo;
+
+    writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writes[1].dstSet = descriptorSet;
+    writes[1].dstBinding = 1;
+    writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    writes[1].descriptorCount = 1;
+    writes[1].pImageInfo = &textureInfo;
+
+    vkUpdateDescriptorSets(gVkContext.mDevice, 2, writes, 0, NULL);
+
+    return descriptorSet;
 };
 
-void PopulateDescriptorSetsCreateInfo(VkDescriptorSetAllocateInfo* _createInfo, VkDescriptorSetLayout* _layouts){
+// GLOBAL SETUP FUNCTION FOR MAX FRAMES IN FLIGHT
+// VkDescriptorSet* SetupDescriptorSets(VkDevice _device){
+
+//     LOG_INFO("Setup VkDescriptorSets");
+
+//     VkDescriptorSet* descriptorSets = malloc(sizeof(VkDescriptorSetLayout) * MAX_FRAMES_IN_FLIGHT);
+
+//     VkDescriptorSetAllocateInfo allocInfo = {0};
+//     gVkContext.mDescriptorSetLayouts = malloc(sizeof(VkDescriptorSetLayout) * MAX_FRAMES_IN_FLIGHT);
+//     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+//         gVkContext.mDescriptorSetLayouts[i] = gVkContext.mDescriptorSetLayout;
+//     }
+//     PopulateDescriptorSetsCreateInfo(&allocInfo, gVkContext.mDescriptorSetLayouts);
+
+//     if (vkAllocateDescriptorSets(_device, &allocInfo, descriptorSets) != VK_SUCCESS) {
+//         LOG_ERROR("failed to allocate descriptor sets");
+//     }
+
+//     // now populate each descriptor after it has been allocated.
+//     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+//         // specifies the buffer and region within that contains data for the descriptor
+//         // UBO -------
+//         VkDescriptorBufferInfo UBOBufferInfo = {0};
+//         UBOBufferInfo.buffer = gVkContext.mUniformBuffers[i];
+//         UBOBufferInfo.offset = 0;
+//         UBOBufferInfo.range = sizeof(UniformBufferObject);
+
+//         // Combined image sampler -------
+//         VkDescriptorImageInfo CISBufferInfo = {0};
+//         CISBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+//         CISBufferInfo.imageView = gVkContext.mTextureImageView; // your VkImageView for the texture
+//         CISBufferInfo.sampler = gVkContext.mTextureSampler;     // your VkSampler
+
+//         // The update function also takes a write info struct that contains additional info
+//         VkWriteDescriptorSet descriptorWrites[2] = {0};
+//         size_t descriptorWriteSize = sizeof(descriptorWrites) / sizeof(descriptorWrites[0]);
+
+//         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//         descriptorWrites[0].dstSet = descriptorSets[i];
+//         descriptorWrites[0].dstBinding = 0;
+//         descriptorWrites[0].dstArrayElement = 0;
+//         descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//         descriptorWrites[0].descriptorCount = 1;
+//         descriptorWrites[0].pBufferInfo = &UBOBufferInfo;
+
+//         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//         descriptorWrites[1].dstSet = descriptorSets[i];
+//         descriptorWrites[1].dstBinding = 1;
+//         descriptorWrites[1].dstArrayElement = 0;
+//         descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//         descriptorWrites[1].descriptorCount = 1;
+//         descriptorWrites[1].pImageInfo = &CISBufferInfo;
+
+//         vkUpdateDescriptorSets(_device, descriptorWriteSize, descriptorWrites, 0, NULL);
+//     }
+
+//     return descriptorSets;
+// };
+
+void PopulateDescriptorSetsCreateInfo(VkDescriptorSetAllocateInfo* _createInfo, VkDescriptorPool _descriptorPool, uint32_t _descriptorSetCount, VkDescriptorSetLayout* _layouts){
+    
     _createInfo->sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    _createInfo->descriptorPool = gVkContext.mDescriptorPool;
-    _createInfo->descriptorSetCount = (uint32_t)MAX_FRAMES_IN_FLIGHT;
+    _createInfo->descriptorPool = _descriptorPool;
+    _createInfo->descriptorSetCount = _descriptorSetCount;
     _createInfo->pSetLayouts = _layouts;
 };
 
@@ -123,12 +193,23 @@ VkDescriptorSetLayout SetupDescriptorSetLayout(VkDevice _device){
     LOG_INFO("Setup VkDescriptorSetLayout");
 
     VkDescriptorSetLayout descriptorSetLayout = {0};
-
+    
+    // Binding 0: Uniform Buffer
     VkDescriptorSetLayoutBinding uboLayoutBinding = {0};
     PopulateDescriptorSetBindingUBO(&uboLayoutBinding);
 
+    // Binding 1: Combined Image Sampler (Texture)
+    VkDescriptorSetLayoutBinding samplerLayoutBinding = {0};
+    PopulateDescriptorSetBindingCombinedImageSampler(&samplerLayoutBinding);
+
+    // Combine Bindings
+    VkDescriptorSetLayoutBinding bindings[2] = {0};
+    size_t bindingCount = sizeof(bindings) / sizeof(bindings[0]);
+    bindings[0] = uboLayoutBinding;
+    bindings[1] = samplerLayoutBinding;
+
     VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
-    PopulateDescriptorSetLayout(&layoutInfo, &uboLayoutBinding);
+    PopulateDescriptorSetLayout(&layoutInfo, bindings, bindingCount);
 
     if (vkCreateDescriptorSetLayout(_device, &layoutInfo, NULL, &descriptorSetLayout) != VK_SUCCESS) {
         LOG_ERROR("failed to create descriptor set layout!");
@@ -149,11 +230,21 @@ void PopulateDescriptorSetBindingUBO(VkDescriptorSetLayoutBinding* _createInfoUB
     _createInfoUBO->pImmutableSamplers = NULL;
 };
 
-void PopulateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo* _createInfo, VkDescriptorSetLayoutBinding* _uboCreateInfo){
+void PopulateDescriptorSetBindingCombinedImageSampler(VkDescriptorSetLayoutBinding* _createInfoCIS){
+
+    _createInfoCIS->binding = 1;
+    _createInfoCIS->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    _createInfoCIS->descriptorCount = 1;
+    _createInfoCIS->stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    _createInfoCIS->pImmutableSamplers = NULL;
+
+};
+
+void PopulateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo* _createInfo, VkDescriptorSetLayoutBinding* _bindings, size_t _bindingCount){
 
     _createInfo->sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    _createInfo->bindingCount = 1;
-    _createInfo->pBindings = _uboCreateInfo;
+    _createInfo->bindingCount = _bindingCount;
+    _createInfo->pBindings = _bindings;
 }
 
 void SettupUniformBuffers(VkDevice _device){
@@ -178,17 +269,17 @@ void UpdateUniformBuffer(uint32_t _currentImage){
     // TODO: Change for camera veriables here!
     // VIEW - Camera look veriables
     glm_lookat(
-        (vec3){2.0f,2.0f,2.0f}, // camera position
+        (vec3){0.0f,0.0f,2.0f}, // camera position
         (vec3){0.0f,0.0f,0.0f}, // camera look direction
-        (vec3){0.0f,0.0f,1.0f}, // up vector
+        (vec3){0.0f,1.0f,0.0f}, // up vector
         ubo.view
     );
-
+    
     // PROJECTION — perspective with 45° vertical FOV, near=0.1, far=10
     float aspect = (float) gVkSwapChainHandles.mSwapChainExtent.width /
                    (float) gVkSwapChainHandles.mSwapChainExtent.height;
-
-    glm_perspective(glm_rad(45.0f), aspect, 0.1f, 10.0f, ubo.proj);
+    
+    glm_perspective(glm_rad(45.f), aspect, 0.1f, 10.0f, ubo.proj);
 
     // Flip Y axis for Vulkan
     ubo.proj[1][1] *= -1.0f;
@@ -210,8 +301,7 @@ void CleanupDescriptorSetLayout(){
     free(gVkContext.mUniformBuffers);
     free(gVkContext.mUniformBuffersMemory);
     free(gVkContext.mUniformBuffersMapped);
-    free(gVkContext.mDescriptorSetLayouts);
-    free(gVkContext.mDescriptorSets);
+    //free(gVkContext.mDescriptorSetLayouts);
 
     vkDestroyDescriptorSetLayout(gVkContext.mDevice, gVkContext.mDescriptorSetLayout, NULL);
 };

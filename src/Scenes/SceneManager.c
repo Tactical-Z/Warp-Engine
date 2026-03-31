@@ -2,17 +2,16 @@
 #include "SceneManager.h"
 #include "ComponentSystems.h"
 #include "VKManager.h"
+#include "VkDescriptorSetBuffer.h"
+#include "Texture.h"
+#include "FileSystem.h"
 
 void SceneBegin(){
-    AddMeshComponent(CreateMeshComponent(0, MESHTYPE_CUBE));
-    //AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE));
+
+    AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
     AddTransformComponent(CreateTransformComponent(0));
-    //vec3 pos;
-    //pos[0] = 2;
-    //pos[1] = 2;
-    //pos[2] = 2;
-    //SetPosition(0, pos);
-    //AddTransformComponent(CreateTransformComponent(0));
+    gMeshComponentSystem[0].mTexture = LoadTexture(AssetDir("TestLeaf.jpg"));
+    gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
 }
 
 void SceneUpdate(float _dt){

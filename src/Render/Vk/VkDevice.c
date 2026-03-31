@@ -71,6 +71,7 @@ VkPhysicalDeviceFeatures GetVkPhysicalDeviceFeatures(){
 
     // returns the features the physical device can use like geometry shaders.
     static VkPhysicalDeviceFeatures deviceFeatures = {0};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
     return deviceFeatures;
 };
 

@@ -127,9 +127,6 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     // Bind graphics pipeline ----
     vkCmdBindPipeline(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gVkContext.mGraphicsPipeline);
 
-    // Bind Descriptor set ----
-    vkCmdBindDescriptorSets(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gVkContext.mPipelineLayout, 0, 1, &gVkContext.mDescriptorSets[gCurrentFrame], 0, NULL);
-    
     // Set dynamic variables ----
     VkViewport viewport = {0};
     PopulateViewPort(&viewport);
@@ -141,26 +138,30 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     // Render all Meshses
     for (int i = 0; i < gNumMeshComponents; i++) {
 
-        MeshComponent* mesh = &gMeshComponentSystem[i];
-        TransformComponent* transform  = &gTransformComponentSystem[i];
+        if(TransformComponent* transform  = &gTransformComponentSystem[i]){
+            mat4 model;
+            glm_mat4_identity(model);
+            glm_translate(model, transform->mPosition);
+            glm_rotate(model, transform->mRotation[0], (vec3){1,0,0});
+            glm_rotate(model, transform->mRotation[1], (vec3){0,1,0});
+            glm_rotate(model, transform->mRotation[2], (vec3){0,0,1});
+            glm_scale(model, transform->mScale);
 
-        mat4 model;
-        glm_mat4_identity(model);
-        glm_translate(model, transform->mPosition);
-        glm_rotate(model, transform->mRotation[0], (vec3){1,0,0});
-        glm_rotate(model, transform->mRotation[1], (vec3){0,1,0});
-        glm_rotate(model, transform->mRotation[2], (vec3){0,0,1});
-        glm_scale(model, transform->mScale);
+            vkCmdPushConstants(_commandBuffer, gVkContext.mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4), model);
+        }
+       
+        if(MeshComponent* mesh = &gMeshComponentSystem[i]){
+            
+            VkBuffer vertexBuffers[] = { mesh->mVertexBuffer };
+            VkDeviceSize offsets[] = {0};
 
-        vkCmdPushConstants(_commandBuffer, gVkContext.mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4), model);
-        LOG_DEBUG("index cout : %i", mesh->mIndexCount);
-        VkBuffer vertexBuffers[] = { mesh->mVertexBuffer };
-        VkDeviceSize offsets[] = {0};
+            vkCmdBindDescriptorSets(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gVkContext.mPipelineLayout, 0, 1, &mesh->mDescriptorSet, 0, NULL);
 
-        vkCmdBindVertexBuffers(_commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(_commandBuffer, mesh->mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindVertexBuffers(_commandBuffer, 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(_commandBuffer, mesh->mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdDrawIndexed(_commandBuffer, mesh->mIndexCount, 1, 0, 0, 0);
+            vkCmdDrawIndexed(_commandBuffer, mesh->mIndexCount, 1, 0, 0, 0);
+        }
     }
 
     // Draw ui from ImGui

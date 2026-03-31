@@ -13,6 +13,7 @@ extern MeshComponent* gMeshComponentSystem;
 extern int gNumMeshComponents;
 typedef enum{
     MESHTYPE_PLANE,
+    MESHTYPE_PLANE_WINDOW,
     MESHTYPE_CUBE,
     MESHTYPE_SPHERE,
     MESHTYPE_PYRAMID

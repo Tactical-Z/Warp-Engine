@@ -24,7 +24,7 @@ typedef enum{
 void InitMeshSystem();
 void AddMeshComponent(MeshComponent _mesh);
 MeshComponent CreateMeshComponent(int _id, MeshType _meshType);
-MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, int _vectorSpacing){
+MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, float _vectorLength, float _resolutionScale, int _showMagnitude);
 void CleanupMesh();
 /* --- MESH --- */
 

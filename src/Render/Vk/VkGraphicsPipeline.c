@@ -248,7 +248,7 @@ VkVertexInputAttributeDescription* GetAttributeDescriptions(){
 void PopulatePipelineInputAssemblyStateCreateInfo(VkPipelineInputAssemblyStateCreateInfo* _createInfo){
   
     _createInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    _createInfo->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    _createInfo->topology = VK_TOPOLOGY;
     _createInfo->primitiveRestartEnable = VK_FALSE;
 
 };

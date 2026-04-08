@@ -113,7 +113,7 @@ void PrintVectorField(vec2* _vecField, hdf5MetaData* _metaData) {
     }
 }
 
-VectorField Readhdf5File(const char* _file, const char* _datasetX, const char* _datasetY){
+VectorField Readhdf5File(const char* _file, DatasetType _type, const char* _datasetX, const char* _datasetY){
 
     // File manipulation ---
     VectorField vectorField = {0};
@@ -138,6 +138,7 @@ VectorField Readhdf5File(const char* _file, const char* _datasetX, const char* _
     vectorField.mVectorField = malloc(sizeof(vec2) * totalSize);
     vectorField.mWidth = metaData.mDimensions[0];
     vectorField.mHeight = metaData.mDimensions[1];
+    vectorField.mDatasetType = _type;
 
     if (!vectorField.mVectorField) {
         free(xData);
@@ -146,9 +147,24 @@ VectorField Readhdf5File(const char* _file, const char* _datasetX, const char* _
         return vectorField;
     }
 
-    for (size_t i = 0; i < totalSize; i++) {
-        vectorField.mVectorField[i][0] = xData[i];
-        vectorField.mVectorField[i][1] = yData[i];
+    for (size_t y = 0; y < vectorField.mHeight; y++) {
+        for (size_t x = 0; x < vectorField.mWidth; x++) {
+
+            size_t idx;
+
+            if (_type == DATASET_METSIM) {
+                // x + y * width
+                idx = x + y * vectorField.mWidth;
+            } else {
+                // y + x * height
+                idx = y + x * vectorField.mHeight;
+            }
+
+            size_t out = y * vectorField.mWidth + x;
+
+            vectorField.mVectorField[out][0] = xData[idx];
+            vectorField.mVectorField[out][1] = yData[idx];
+        }
     }
 
     //LOG_DEBUG("First vector: (%f, %f)", vecField[0][0], vecField[0][1]);

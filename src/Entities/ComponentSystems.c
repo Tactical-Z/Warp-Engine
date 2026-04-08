@@ -2,6 +2,8 @@
 #include "Logger.h"
 #include "VKManager.h"
 #include "VkBuffer.h"
+#include "HDF5Reader.h"
+#include "UtilMath.h"
 
 #include "stdlib.h"
 
@@ -84,10 +86,10 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
     case MESHTYPE_PLANE_WINDOW:
       
          Vertex planeWindowVertices[] = {
-            {{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-            {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-            {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-            {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
         };
         numVertices = sizeof(planeWindowVertices) / sizeof(Vertex);
         newMesh.mVertexCount = numVertices;
@@ -178,27 +180,219 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
     return newMesh; 
 };
 
-MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, int _vectorSpacing){
+// MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField){
+
+//     size_t width = _vectorField.mWidth;
+//     size_t height = _vectorField.mHeight;
+//     size_t total = width * height;
+//     size_t numVertices = total * 2;
+//     size_t numIndices = total * 2;
+
+//     float vectorLength = 0.01f;
+
+//     Vertex* vertices = malloc(sizeof(Vertex) * numVertices);
+//     Index* indices = malloc(sizeof(Index) * numIndices);
+
+//     int numCurrentVertices = 0;
+//     int numCurrentIndices = 0;
+
+//     int itx = 0;
+//     int ity = 0;
+//     float stepSizex = 2.0f / width;
+//     float stepSizey = 2.0f / height;
+//     for(size_t i = 0; i < total; i++){
+
+//         float posX = -1.0f + stepSizex * itx;
+//         float posY = -1.0f + stepSizey * ity;
+//         vec2 startPosition = {posX, posY};
+//         itx++;
+//         if(itx >= _vectorField.mWidth){
+//             itx = 0;
+//             ity ++;
+//         }
+
+//         vec2 direction;
+//         glm_vec2_copy(_vectorField.mVectorField[i], direction);
+//         glm_vec2_normalize(direction);
+
+//         // scale direction
+//         vec2 scaledDir;
+//         glm_vec2_scale(direction, vectorLength, scaledDir);
+
+//         // end = start + scaledDir
+//         vec2 endPosition;
+//         glm_vec2_add(startPosition, scaledDir, endPosition);
+        
+//         Vertex startPos = {0};
+//         glm_vec2_copy(startPosition, startPos.mPosition);
+//         glm_vec3_copy((vec3){1.0f, 1.0f, 1.0f}, startPos.mColor);
+
+//         Vertex endPos = {0};
+//         glm_vec2_copy(endPosition, endPos.mPosition);
+//         glm_vec3_copy((vec3){1.0f, 1.0f, 1.0f}, endPos.mColor);
+
+//         vertices[numCurrentVertices] = startPos;
+//         indices[numCurrentIndices] = numCurrentVertices;
+//         numCurrentIndices++;
+//         numCurrentVertices++;
+
+//         vertices[numCurrentVertices] = endPos;
+//         indices[numCurrentIndices] = numCurrentVertices;
+//         numCurrentIndices++;
+//         numCurrentVertices++;
+
+//         // ADD INDICES AND ARROW TIPS AS WELL
+//         // DONT FORGET TO CHANGE TO WIRE STRIP MODE OR WHATEVER VK
+//     }   
+
+
+//     MeshComponent newMesh = {0};
+//     newMesh.mID = _id;
+//     newMesh.mVertexCount = numVertices;
+//     newMesh.mVertices = malloc(sizeof(Vertex) * numVertices);
+//     memcpy(newMesh.mVertices, vertices, sizeof(Vertex) * numVertices);
+
+//     newMesh.mIndexCount = numIndices;
+//     newMesh.mIndices = malloc(sizeof(Index) * numIndices);
+//     memcpy(newMesh.mIndices, indices, sizeof(Index) * numIndices);
+    
+//     SetupBuffer(gVkContext.mDevice, newMesh.mVertices, &newMesh.mVertexBuffer, &newMesh.mVertexBufferMemory, sizeof(Vertex) * newMesh.mVertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+//     SetupBuffer(gVkContext.mDevice, newMesh.mIndices, &newMesh.mIndexBuffer, &newMesh.mIndexBufferMemory, sizeof(Index) * newMesh.mIndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+//     return newMesh;
+// };
+
+MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, float _vectorLength, float _resolutionScale, int _showMagnitude){
+
+    float resolutionScale = _resolutionScale;
+    CLAMP(resolutionScale, 0.001f, 1.f);
+    float vectorLength = _vectorLength;
+    CLAMP(vectorLength, 0.001f, 1.f);
+    float tipSize = vectorLength * 0.3f;
+    CLAMP(tipSize, 0.001f, 1.f);
 
     size_t width = _vectorField.mWidth;
     size_t height = _vectorField.mHeight;
     size_t total = width * height;
 
-    float vectorLength = 0.01f;
+    float stepSizex = 2.0f / width;
+    float stepSizey = 2.0f / height;
 
-    //numVertices = sizeof(_vectorField[0]) / sizeof(vec2);
-    //numIndices = sizeof(planeIndices) / sizeof(Index);
-    Vertex* vertices;
-    Index* indices;
+    size_t blockSize = (size_t)(1.0f / resolutionScale);
+    blockSize = blockSize < 1 ? 1 : blockSize;
+ 
+    size_t maxBlocksX = (width  + blockSize - 1) / blockSize;
+    size_t maxBlocksY = (height + blockSize - 1) / blockSize;
+    size_t maxSamples = maxBlocksX * maxBlocksY;
 
-    for(size_t i = 0; i < total; i++){
-    
-        vec2 startPosition = RECONSTRUCT FROM GRID LOCATIONS X AND Y
-        vec2 direction = _vectorField.mVectorField[i];
-        vec2 normDirection = NORMALIZE DIRECTION
-        vec2 endPosition = startPosition * normDirection;
-        ADD INDICES AND ARROW TIPS AS WELL
-        DONT FORGET TO CHANGE TO WIRE STRIP MODE OR WHATEVER VK
+    size_t numVertices = maxSamples * 6;
+    size_t numIndices = maxSamples * 6;
+
+    Vertex* vertices = malloc(sizeof(Vertex) * numVertices);
+    Index* indices = malloc(sizeof(Index) * numIndices);
+
+    int numCurrentVertices = 0;
+    int numCurrentIndices = 0;
+    size_t v = 0;
+    size_t i = 0;
+
+    for (size_t by = 0; by < height; by += blockSize) {
+        for (size_t bx = 0; bx < width; bx += blockSize) {
+
+            // ---- AVERAGE ----
+            vec2 avg = {0.0f, 0.0f};
+            size_t count = 0;
+
+            for (size_t y = by; y < by + blockSize && y < height; y++) {
+                for (size_t x = bx; x < bx + blockSize && x < width; x++) {
+                    size_t idx = y * width + x;
+                    avg[0] += _vectorField.mVectorField[idx][0];
+                    avg[1] += _vectorField.mVectorField[idx][1];
+                    count++;
+                }
+            }
+
+            if (count == 0) continue;
+
+            avg[0] /= (float)count;
+            avg[1] /= (float)count;
+
+            float magnitude = glm_vec2_norm(avg);
+            if (magnitude < 1e-6f) continue;
+
+            glm_vec2_normalize(avg);
+
+            // ---- POSITION ----
+            size_t actualBlockWidth  = (bx + blockSize > width)  ? (width  - bx) : blockSize;
+            size_t actualBlockHeight = (by + blockSize > height) ? (height - by) : blockSize;
+
+            float centerX = (float)bx + (float)actualBlockWidth  * 0.5f;
+            float centerY = (float)by + (float)actualBlockHeight * 0.5f;
+
+            float posX = -1.0f + stepSizex * centerY; // X = centerY
+            float posY = -1.0f + stepSizey * centerX; // Y = 1 - centerX (flip vertically)
+
+            vec2 startPosition = {posX, posY};
+
+            // ---- MAIN LINE ----
+            vec2 scaledDir;
+            if(_showMagnitude)
+                glm_vec2_scale(avg, vectorLength * magnitude, scaledDir);
+            else 
+                glm_vec2_scale(avg, vectorLength, scaledDir);
+
+            vec2 endPosition;
+            glm_vec2_add(startPosition, scaledDir, endPosition);
+
+            // ---- PERPENDICULAR ----
+            vec2 perp = {-avg[1], avg[0]}; // 90° rotation
+
+            // tip base (slightly back from end)
+            vec2 back;
+            glm_vec2_scale(avg, -tipSize, back);
+
+            vec2 tipBase;
+            glm_vec2_add(endPosition, back, tipBase);
+
+            // left tip
+            vec2 leftOffset;
+            glm_vec2_scale(perp, tipSize * 0.5f, leftOffset);
+
+            vec2 leftTip;
+            glm_vec2_add(tipBase, leftOffset, leftTip);
+
+            // right tip
+            vec2 rightOffset;
+            glm_vec2_scale(perp, -tipSize * 0.5f, rightOffset);
+
+            vec2 rightTip;
+            glm_vec2_add(tipBase, rightOffset, rightTip);
+
+            // ---- CREATE VERTICES ----
+            Vertex s = {0}, e = {0}, l = {0}, r = {0};
+
+            glm_vec2_copy(startPosition, s.mPosition);
+            glm_vec2_copy(endPosition,   e.mPosition);
+            glm_vec2_copy(leftTip,       l.mPosition);
+            glm_vec2_copy(rightTip,      r.mPosition);
+
+            glm_vec3_copy((vec3){1,1,1}, s.mColor);
+            glm_vec3_copy((vec3){1,1,1}, e.mColor);
+            glm_vec3_copy((vec3){1,1,1}, l.mColor);
+            glm_vec3_copy((vec3){1,1,1}, r.mColor);
+
+            // main line
+            vertices[v] = s; indices[i++] = v++;
+            vertices[v] = e; indices[i++] = v++;
+
+            // left tip line
+            vertices[v] = e; indices[i++] = v++;
+            vertices[v] = l; indices[i++] = v++;
+
+            // right tip line
+            vertices[v] = e; indices[i++] = v++;
+            vertices[v] = r; indices[i++] = v++;
+        }
     }   
 
     MeshComponent newMesh = {0};
@@ -209,7 +403,7 @@ MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField
 
     newMesh.mIndexCount = numIndices;
     newMesh.mIndices = malloc(sizeof(Index) * numIndices);
-    memcpy(newMesh.mIndices, planeIndices, sizeof(Index) * numIndices);
+    memcpy(newMesh.mIndices, indices, sizeof(Index) * numIndices);
     
     SetupBuffer(gVkContext.mDevice, newMesh.mVertices, &newMesh.mVertexBuffer, &newMesh.mVertexBufferMemory, sizeof(Vertex) * newMesh.mVertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     SetupBuffer(gVkContext.mDevice, newMesh.mIndices, &newMesh.mIndexBuffer, &newMesh.mIndexBufferMemory, sizeof(Index) * newMesh.mIndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);

@@ -3,6 +3,11 @@
 #include "hdf5.h"
 #include "cglm.h"
 
+typedef enum {
+    DATASET_METSIM,
+    DATASET_ISABEL
+} DatasetType;
+
 typedef struct{
     hid_t mFile_id; 
     hid_t mDatasetX_id;
@@ -19,6 +24,7 @@ typedef struct{
 
 typedef struct{
     vec2* mVectorField;
+    DatasetType mDatasetType;
     size_t mWidth;
     size_t mHeight;
 } VectorField;
@@ -37,4 +43,4 @@ float* Readhdf5Dataset(hid_t _dataset_id, hdf5MetaData* _metaData);
 
 void PrintVectorField(vec2* _vecField, hdf5MetaData* _metaData);
 
-VectorField Readhdf5File(const char* _file, const char* _datasetX, const char* _datasetY);
+VectorField Readhdf5File(const char* _file, DatasetType _type, const char* _datasetX, const char* _datasetY);

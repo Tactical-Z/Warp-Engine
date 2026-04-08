@@ -62,7 +62,36 @@ build/Render/Vk/VkDescriptorSetBuffer.o: \
  libs/cglm/include/bezier.h libs/cglm/include/ray.h \
  libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h \
  headers/Render/Texture.h libs/stb_image/include/stb_image.h \
- headers/Entities/ComponentSystems.h headers/Render/VkManager.h \
+ headers/Entities/ComponentSystems.h headers/Utility/HDF5Reader.h \
+ libs/hdf5/include/hdf5.h libs/hdf5/include/H5public.h \
+ libs/hdf5/include/H5pubconf.h libs/hdf5/include/H5version.h \
+ libs/hdf5/include/H5api_adpt.h libs/hdf5/include/H5Apublic.h \
+ libs/hdf5/include/H5Ipublic.h libs/hdf5/include/H5Opublic.h \
+ libs/hdf5/include/H5Tpublic.h libs/hdf5/include/H5ACpublic.h \
+ libs/hdf5/include/H5Cpublic.h libs/hdf5/include/H5Dpublic.h \
+ libs/hdf5/include/H5Epublic.h libs/hdf5/include/H5Epubgen.h \
+ libs/hdf5/include/H5ESpublic.h libs/hdf5/include/H5Fpublic.h \
+ libs/hdf5/include/H5FDpublic.h libs/hdf5/include/H5Gpublic.h \
+ libs/hdf5/include/H5Lpublic.h libs/hdf5/include/H5Mpublic.h \
+ libs/hdf5/include/H5VLpublic.h libs/hdf5/include/H5VLconnector.h \
+ libs/hdf5/include/H5Rpublic.h libs/hdf5/include/H5MMpublic.h \
+ libs/hdf5/include/H5Ppublic.h libs/hdf5/include/H5Spublic.h \
+ libs/hdf5/include/H5Zpublic.h libs/hdf5/include/H5PLpublic.h \
+ libs/hdf5/include/H5ESdevelop.h libs/hdf5/include/H5FDdevelop.h \
+ libs/hdf5/include/H5Idevelop.h libs/hdf5/include/H5Ldevelop.h \
+ libs/hdf5/include/H5Tdevelop.h libs/hdf5/include/H5TSdevelop.h \
+ libs/hdf5/include/H5Zdevelop.h \
+ libs/hdf5/include/H5VLconnector_passthru.h \
+ libs/hdf5/include/H5VLnative.h libs/hdf5/include/H5FDcore.h \
+ libs/hdf5/include/H5FDdirect.h libs/hdf5/include/H5FDfamily.h \
+ libs/hdf5/include/H5FDhdfs.h libs/hdf5/include/H5FDlog.h \
+ libs/hdf5/include/H5FDmirror.h libs/hdf5/include/H5FDmpi.h \
+ libs/hdf5/include/H5FDmpio.h libs/hdf5/include/H5FDmulti.h \
+ libs/hdf5/include/H5FDonion.h libs/hdf5/include/H5FDros3.h \
+ libs/hdf5/include/H5FDsec2.h libs/hdf5/include/H5FDsplitter.h \
+ libs/hdf5/include/H5FDstdio.h libs/hdf5/include/H5FDwindows.h \
+ libs/hdf5/include/H5FDsubfiling.h libs/hdf5/include/H5FDioc.h \
+ libs/hdf5/include/H5VLpassthru.h headers/Render/VkManager.h \
  headers/Render/WindowManager.h headers/Utility/Logger.h \
  libs/glfw-lib-vc2022/include/glfw3.h \
  libs/VulkanSDK/include/vulkan/vulkan.h
@@ -160,6 +189,62 @@ libs/cglm/include/affine2d-post.h:
 headers/Render/Texture.h:
 libs/stb_image/include/stb_image.h:
 headers/Entities/ComponentSystems.h:
+headers/Utility/HDF5Reader.h:
+libs/hdf5/include/hdf5.h:
+libs/hdf5/include/H5public.h:
+libs/hdf5/include/H5pubconf.h:
+libs/hdf5/include/H5version.h:
+libs/hdf5/include/H5api_adpt.h:
+libs/hdf5/include/H5Apublic.h:
+libs/hdf5/include/H5Ipublic.h:
+libs/hdf5/include/H5Opublic.h:
+libs/hdf5/include/H5Tpublic.h:
+libs/hdf5/include/H5ACpublic.h:
+libs/hdf5/include/H5Cpublic.h:
+libs/hdf5/include/H5Dpublic.h:
+libs/hdf5/include/H5Epublic.h:
+libs/hdf5/include/H5Epubgen.h:
+libs/hdf5/include/H5ESpublic.h:
+libs/hdf5/include/H5Fpublic.h:
+libs/hdf5/include/H5FDpublic.h:
+libs/hdf5/include/H5Gpublic.h:
+libs/hdf5/include/H5Lpublic.h:
+libs/hdf5/include/H5Mpublic.h:
+libs/hdf5/include/H5VLpublic.h:
+libs/hdf5/include/H5VLconnector.h:
+libs/hdf5/include/H5Rpublic.h:
+libs/hdf5/include/H5MMpublic.h:
+libs/hdf5/include/H5Ppublic.h:
+libs/hdf5/include/H5Spublic.h:
+libs/hdf5/include/H5Zpublic.h:
+libs/hdf5/include/H5PLpublic.h:
+libs/hdf5/include/H5ESdevelop.h:
+libs/hdf5/include/H5FDdevelop.h:
+libs/hdf5/include/H5Idevelop.h:
+libs/hdf5/include/H5Ldevelop.h:
+libs/hdf5/include/H5Tdevelop.h:
+libs/hdf5/include/H5TSdevelop.h:
+libs/hdf5/include/H5Zdevelop.h:
+libs/hdf5/include/H5VLconnector_passthru.h:
+libs/hdf5/include/H5VLnative.h:
+libs/hdf5/include/H5FDcore.h:
+libs/hdf5/include/H5FDdirect.h:
+libs/hdf5/include/H5FDfamily.h:
+libs/hdf5/include/H5FDhdfs.h:
+libs/hdf5/include/H5FDlog.h:
+libs/hdf5/include/H5FDmirror.h:
+libs/hdf5/include/H5FDmpi.h:
+libs/hdf5/include/H5FDmpio.h:
+libs/hdf5/include/H5FDmulti.h:
+libs/hdf5/include/H5FDonion.h:
+libs/hdf5/include/H5FDros3.h:
+libs/hdf5/include/H5FDsec2.h:
+libs/hdf5/include/H5FDsplitter.h:
+libs/hdf5/include/H5FDstdio.h:
+libs/hdf5/include/H5FDwindows.h:
+libs/hdf5/include/H5FDsubfiling.h:
+libs/hdf5/include/H5FDioc.h:
+libs/hdf5/include/H5VLpassthru.h:
 headers/Render/VkManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:

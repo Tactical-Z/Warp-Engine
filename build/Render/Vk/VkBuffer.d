@@ -20,6 +20,7 @@ build/Render/Vk/VkBuffer.o: src/Render/Vk/VkBuffer.c \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
+ headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  libs/VulkanSDK/include/vulkan/vulkan.h headers/Render/Vk/VkBuffer.h \
  headers/Render/Vk/VkCommandBuffer.h
 headers/Render/VkManager.h:
@@ -45,6 +46,8 @@ libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
 headers/Render/Vk/VkBuffer.h:
 headers/Render/Vk/VkCommandBuffer.h:

@@ -421,8 +421,10 @@ void CleanupMesh(){
         CleanupBuffer(gMeshComponentSystem[i].mVertexBuffer, gMeshComponentSystem[i].mVertexBufferMemory);
         CleanupBuffer(gMeshComponentSystem[i].mIndexBuffer, gMeshComponentSystem[i].mIndexBufferMemory);
         
-        CleanupTexture(gMeshComponentSystem[i].mTexture);
-        free(gMeshComponentSystem[i].mTexture);
+        if(gMeshComponentSystem[i].mTexture){
+            CleanupTexture(gMeshComponentSystem[i].mTexture);
+            free(gMeshComponentSystem[i].mTexture);
+        }
     }
     
     free(gMeshComponentSystem);

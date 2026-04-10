@@ -8,6 +8,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragUV;
 
 layout(push_constant) uniform PushConstants {
+    int hasTexture;
     mat4 model;
 } pc;
 

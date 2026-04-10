@@ -20,6 +20,7 @@ build/Render/VKManager.o: src/Render/VKManager.c \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
+ headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  libs/VulkanSDK/include/vulkan/vulkan.h headers/Render/Vk/VkInstance.h \
  headers/Render/Vk/VkDebugMessenger.h headers/Render/Vk/VkSurface.h \
  headers/Render/Vk/VkPhysicalDevice.h headers/Render/Vk/VkDevice.h \
@@ -66,9 +67,9 @@ build/Render/VKManager.o: src/Render/VKManager.c \
  libs/cglm/include/ease.h libs/cglm/include/curve.h \
  libs/cglm/include/bezier.h libs/cglm/include/ray.h \
  libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h \
- headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  headers/Render/Vk/VkGraphicsPipeline.h headers/Render/Vk/VkFramebuffer.h \
- headers/Render/Vk/VkCommandBuffer.h headers/Render/Vk/VkSyncObjects.h
+ headers/Render/Vk/VkCommandBuffer.h headers/Render/Vk/VkSyncObjects.h \
+ headers/Utility/FileSystem.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -92,6 +93,8 @@ libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
 headers/Render/Vk/VkInstance.h:
 headers/Render/Vk/VkDebugMessenger.h:
@@ -173,9 +176,8 @@ libs/cglm/include/bezier.h:
 libs/cglm/include/ray.h:
 libs/cglm/include/affine2d.h:
 libs/cglm/include/affine2d-post.h:
-headers/Render/Texture.h:
-libs/stb_image/include/stb_image.h:
 headers/Render/Vk/VkGraphicsPipeline.h:
 headers/Render/Vk/VkFramebuffer.h:
 headers/Render/Vk/VkCommandBuffer.h:
 headers/Render/Vk/VkSyncObjects.h:
+headers/Utility/FileSystem.h:

@@ -76,10 +76,7 @@ VkDescriptorSet SetupMeshDescriptorSet(VkDevice _device, MeshComponent* _mesh){
         return VK_NULL_HANDLE;
     }
 
-    if(!_mesh->mTexture){
-        LOG_ERROR("No texture availible for setting up descriptor set");
-        return VK_NULL_HANDLE;
-    }
+    VkTexture* tex = _mesh->mTexture ? _mesh->mTexture : gVkContext.mDefaultTexture;
 
     VkDescriptorSet descriptorSet = {0};
     VkDescriptorSetAllocateInfo allocInfo = {0};
@@ -98,8 +95,8 @@ VkDescriptorSet SetupMeshDescriptorSet(VkDevice _device, MeshComponent* _mesh){
     // TEXTURE
     VkDescriptorImageInfo textureInfo = {0};
     textureInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    textureInfo.imageView = _mesh->mTexture->mImageView;
-    textureInfo.sampler = _mesh->mTexture->mSampler;
+    textureInfo.imageView = tex->mImageView;
+    textureInfo.sampler = tex->mSampler;
 
     VkWriteDescriptorSet writes[2] = {0};
 

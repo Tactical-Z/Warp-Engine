@@ -135,10 +135,25 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     PopulateScissor(&scissor);
     vkCmdSetScissor(_commandBuffer, 0, 1, &scissor);
 
+
+   
     // Render all Meshses
     for (int i = 0; i < gNumMeshComponents; i++) {
 
-        if(TransformComponent* transform  = &gTransformComponentSystem[i]){
+        MeshComponent* mesh = &gMeshComponentSystem[i];
+        TransformComponent* transform  = &gTransformComponentSystem[i];
+
+        if(transform){
+            int hasTexture = 0;
+            if(mesh){               
+                VkTexture* tex = mesh->mTexture;
+                if(tex){
+                    hasTexture = 1;
+                }
+            }
+
+            vkCmdPushConstants(_commandBuffer, gVkContext.mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(int), &hasTexture);
+
             mat4 model;
             glm_mat4_identity(model);
             glm_translate(model, transform->mPosition);
@@ -147,10 +162,10 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
             glm_rotate(model, transform->mRotation[2], (vec3){0,0,1});
             glm_scale(model, transform->mScale);
 
-            vkCmdPushConstants(_commandBuffer, gVkContext.mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4), model);
+            vkCmdPushConstants(_commandBuffer, gVkContext.mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(mat4), model);
         }
        
-        if(MeshComponent* mesh = &gMeshComponentSystem[i]){
+        if(mesh){
             
             VkBuffer vertexBuffers[] = { mesh->mVertexBuffer };
             VkDeviceSize offsets[] = {0};

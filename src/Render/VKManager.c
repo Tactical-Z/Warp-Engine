@@ -13,6 +13,7 @@
 #include "VkCommandBuffer.h"
 #include "VkSyncObjects.h"
 #include "Math.h"
+#include "FileSystem.h"
 
 VkContext gVkContext = {0};
 SwapChainHandels gVkSwapChainHandles = {0};
@@ -43,6 +44,9 @@ void InitVolk(GLFWwindow* _window){
     SetupCommandBuffers(gVkContext.mDevice, gVkContext.mCommandPool);
     SetupSyncObjects(gVkContext.mDevice);
     
+    // default texture
+    gVkContext.mDefaultTexture = LoadTextureImage(AssetDir("TestLeaf.jpg"));
+
     LOG_INFO("Finished Vk-Init");
 };
 
@@ -331,6 +335,7 @@ void PopulateDrawSubmitCreateInfo(VkSubmitInfo* _createInfo, VkSemaphore* _signa
 
 int CleanupVolk(){
 
+    CleanupTexture(gVkContext.mDefaultTexture);
     vkDeviceWaitIdle(gVkContext.mDevice);
     if(ENABLE_VALIDATION_LAYERS){
         CleanupDebugMessenger();

@@ -84,7 +84,7 @@ void PopulateGraphicsPipeline(VkGraphicsPipelineCreateInfo* _createInfo, uint32_
 
 uint32_t* ReadShaderFile(const char* _filePath, const char* _type, size_t* _codeSize){
 
-    long filesize = GetFileSize(_filePath, _type);
+    long filesize = GetFileSizeSeb(_filePath, _type);
     uint32_t* buffer = (uint32_t*)malloc(filesize);
 
     if(filesize <= 0){
@@ -118,7 +118,7 @@ uint32_t* ReadShaderFile(const char* _filePath, const char* _type, size_t* _code
     return buffer; 
 };
 
-long GetFileSize(const char* _filePath, const char* _type){
+long GetFileSizeSeb(const char* _filePath, const char* _type){
 
     FILE* fptr = fopen(_filePath, _type);
     long fileSize = 0;
@@ -386,9 +386,9 @@ void PopulatePipelineLayoutCreateInfo(VkPipelineLayoutCreateInfo* _createInfo){
 
 void PopulatePipelinePushConstantRangeCreateInfo(VkPushConstantRange* _createInfo){
 
-    _createInfo->stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    _createInfo->stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;;
     _createInfo->offset = 0;
-    _createInfo->size = sizeof(mat4);
+    _createInfo->size = 80; // INT (4) + buffer(12) + MAT4 (64)
 };
 
 void CleanupGraphicsPipeline(){

@@ -20,6 +20,7 @@ build/Render/Vk/VkGraphicsPipeline.o: src/Render/Vk/VkGraphicsPipeline.c \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
+ headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  libs/VulkanSDK/include/vulkan/vulkan.h \
  headers/Render/Vk/VkGraphicsPipeline.h headers/Render/Vertex.h \
  libs/cglm/include/cglm.h libs/cglm/include/common.h \
@@ -84,6 +85,8 @@ libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
 headers/Render/Vk/VkGraphicsPipeline.h:
 headers/Render/Vertex.h:

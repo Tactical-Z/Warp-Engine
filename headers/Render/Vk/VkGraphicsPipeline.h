@@ -35,7 +35,7 @@ void PopulateGraphicsPipeline(VkGraphicsPipelineCreateInfo* _createInfo, uint32_
 
 // helper file functions TODO: move somewhere
 uint32_t* ReadShaderFile(const char* _filePath, const char* _type, size_t* _codeSize);
-long GetFileSize(const char* _filePath, const char* _type);
+long GetFileSizeSeb(const char* _filePath, const char* _type);
 
 // Creats the shader modules by importing the binary spv(SPIR-V) shader file data. Shader modules are just a thin wrapper around the bytecode
 // they can be local verriables since they linking and compilation makes the local veriables unnessasry. 

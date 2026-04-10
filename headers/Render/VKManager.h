@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WindowManager.h"
+#include "Texture.h"
 #include "vulkan.h"
 #include "Math.h"
 
@@ -85,6 +86,9 @@ typedef struct {
     VkSemaphore* mRenderFinishedSemaphores;
     VkFence* mInFlightFences;
     int mFramebufferResized;
+
+    // Defaults
+    VkTexture* mDefaultTexture;
 } VkContext;
 extern VkContext gVkContext;
 

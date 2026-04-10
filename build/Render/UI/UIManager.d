@@ -21,6 +21,7 @@ build/Render/UI/UIManager.o: src/Render/UI/UIManager.c \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
+ headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  libs/VulkanSDK/include/vulkan/vulkan.h headers/Render/UI/imgui_c.h
 headers/Render/UI/UIManager.h:
 headers/Render/VKManager.h:
@@ -46,5 +47,7 @@ libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
 headers/Render/UI/imgui_c.h:

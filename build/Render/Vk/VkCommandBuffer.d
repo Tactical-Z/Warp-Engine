@@ -20,6 +20,7 @@ build/Render/Vk/VkCommandBuffer.o: src/Render/Vk/VkCommandBuffer.c \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
+ headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  libs/VulkanSDK/include/vulkan/vulkan.h headers/Render/UI/UIManager.h \
  headers/Render/Vk/VkCommandBuffer.h headers/Render/Vk/VkRenderPass.h \
  headers/Render/Vk/VkGraphicsPipeline.h \
@@ -64,7 +65,6 @@ build/Render/Vk/VkCommandBuffer.o: src/Render/Vk/VkCommandBuffer.c \
  libs/cglm/include/ease.h libs/cglm/include/curve.h \
  libs/cglm/include/bezier.h libs/cglm/include/ray.h \
  libs/cglm/include/affine2d.h libs/cglm/include/affine2d-post.h \
- headers/Render/Texture.h libs/stb_image/include/stb_image.h \
  headers/Utility/HDF5Reader.h libs/hdf5/include/hdf5.h \
  libs/hdf5/include/H5public.h libs/hdf5/include/H5pubconf.h \
  libs/hdf5/include/H5version.h libs/hdf5/include/H5api_adpt.h \
@@ -117,6 +117,8 @@ libs/VulkanSDK/include/vk_video/vulkan_video_codec_av1std_encode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h:
 libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
 headers/Render/UI/UIManager.h:
 headers/Render/Vk/VkCommandBuffer.h:
@@ -194,8 +196,6 @@ libs/cglm/include/bezier.h:
 libs/cglm/include/ray.h:
 libs/cglm/include/affine2d.h:
 libs/cglm/include/affine2d-post.h:
-headers/Render/Texture.h:
-libs/stb_image/include/stb_image.h:
 headers/Utility/HDF5Reader.h:
 libs/hdf5/include/hdf5.h:
 libs/hdf5/include/H5public.h:

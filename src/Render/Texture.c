@@ -11,7 +11,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-VkTexture* LoadTexture(const char* _filePath){
+VkTexture* LoadTextureImage(const char* _filePath){
 
     VkTexture* texture = malloc(sizeof(VkTexture));
     VkBufferTexture bufferTexture = {0};
@@ -49,7 +49,7 @@ VkTexture* CreateTexture(uint8_t* _pixels, size_t _width, size_t _height){
 void LoadImageBufferFromSrc(const char* _fileLocation, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture){
 
     ImageSize imageSize = {0};
-    stbi_uc* pixels = LoadImage(_fileLocation, &imageSize);
+    stbi_uc* pixels = LoadImageData(_fileLocation, &imageSize);
     if (!pixels) {
         LOG_ERROR("Pixel buffer is 0");
         return;
@@ -70,7 +70,7 @@ void LoadImageBufferFromSrc(const char* _fileLocation, VkDevice _device, VkBuffe
     vkFreeMemory(_device, *_stagingBufferMemory, NULL);
 };
 
-stbi_uc* LoadImage(const char* _fileLocation, ImageSize* _imageSize){
+stbi_uc* LoadImageData(const char* _fileLocation, ImageSize* _imageSize){
 
     int textureWidth, textureHight, textureChannels;
     stbi_uc* pixels = stbi_load(_fileLocation, &textureWidth, &textureHight, &textureChannels, STBI_rgb_alpha);

@@ -20,17 +20,19 @@ main.o: main.c headers/Render/WindowManager.h headers/Utility/Logger.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std_decode.h \
  libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h \
  headers/Online/NetworkManager.h headers/Threads/ThreadManager.h \
- headers/Render/VKManager.h libs/VulkanSDK/include/vulkan/vulkan.h \
- headers/Render/UI/UIManager.h headers/Render/Mesh.h \
- libs/cglm/include/cglm.h libs/cglm/include/common.h \
- libs/cglm/include/types.h libs/cglm/include/simd/intrin.h \
- libs/cglm/include/simd/x86.h libs/cglm/include/simd/intrin.h \
- libs/cglm/include/vec2.h libs/cglm/include/util.h \
- libs/cglm/include/vec2-ext.h libs/cglm/include/vec3.h \
- libs/cglm/include/vec4.h libs/cglm/include/vec4-ext.h \
- libs/cglm/include/vec3-ext.h libs/cglm/include/ivec2.h \
- libs/cglm/include/ivec3.h libs/cglm/include/ivec4.h \
- libs/cglm/include/mat4.h libs/cglm/include/simd/sse2/mat4.h \
+ headers/Render/VKManager.h headers/Render/Texture.h \
+ libs/stb_image/include/stb_image.h \
+ libs/VulkanSDK/include/vulkan/vulkan.h headers/Render/UI/UIManager.h \
+ headers/Render/Mesh.h libs/cglm/include/cglm.h \
+ libs/cglm/include/common.h libs/cglm/include/types.h \
+ libs/cglm/include/simd/intrin.h libs/cglm/include/simd/x86.h \
+ libs/cglm/include/simd/intrin.h libs/cglm/include/vec2.h \
+ libs/cglm/include/util.h libs/cglm/include/vec2-ext.h \
+ libs/cglm/include/vec3.h libs/cglm/include/vec4.h \
+ libs/cglm/include/vec4-ext.h libs/cglm/include/vec3-ext.h \
+ libs/cglm/include/ivec2.h libs/cglm/include/ivec3.h \
+ libs/cglm/include/ivec4.h libs/cglm/include/mat4.h \
+ libs/cglm/include/simd/sse2/mat4.h \
  libs/cglm/include/simd/sse2/../../common.h \
  libs/cglm/include/simd/sse2/../intrin.h libs/cglm/include/mat4x2.h \
  libs/cglm/include/mat4x3.h libs/cglm/include/mat3.h \
@@ -87,6 +89,8 @@ libs/VulkanSDK/include/vk_video/vulkan_video_codec_vp9std.h:
 headers/Online/NetworkManager.h:
 headers/Threads/ThreadManager.h:
 headers/Render/VKManager.h:
+headers/Render/Texture.h:
+libs/stb_image/include/stb_image.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
 headers/Render/UI/UIManager.h:
 headers/Render/Mesh.h:

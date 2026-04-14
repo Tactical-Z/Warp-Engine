@@ -91,9 +91,9 @@ build/Render/Vk/VkDescriptorSetBuffer.o: \
  libs/hdf5/include/H5FDsec2.h libs/hdf5/include/H5FDsplitter.h \
  libs/hdf5/include/H5FDstdio.h libs/hdf5/include/H5FDwindows.h \
  libs/hdf5/include/H5FDsubfiling.h libs/hdf5/include/H5FDioc.h \
- libs/hdf5/include/H5VLpassthru.h headers/Render/VkManager.h \
- headers/Render/WindowManager.h headers/Utility/Logger.h \
- libs/glfw-lib-vc2022/include/glfw3.h \
+ libs/hdf5/include/H5VLpassthru.h headers/Utility/UtilMath.h \
+ headers/Render/VkManager.h headers/Render/WindowManager.h \
+ headers/Utility/Logger.h libs/glfw-lib-vc2022/include/glfw3.h \
  libs/VulkanSDK/include/vulkan/vulkan.h
 headers/Render/Vk/VkDescriptorSetBuffer.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
@@ -245,6 +245,7 @@ libs/hdf5/include/H5FDwindows.h:
 libs/hdf5/include/H5FDsubfiling.h:
 libs/hdf5/include/H5FDioc.h:
 libs/hdf5/include/H5VLpassthru.h:
+headers/Utility/UtilMath.h:
 headers/Render/VkManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:

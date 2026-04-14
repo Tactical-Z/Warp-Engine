@@ -136,7 +136,6 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
     vkCmdSetScissor(_commandBuffer, 0, 1, &scissor);
 
 
-   
     // Render all Meshses
     for (int i = 0; i < gNumMeshComponents; i++) {
 

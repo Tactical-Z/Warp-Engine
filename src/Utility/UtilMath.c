@@ -121,20 +121,17 @@ uint8_t* GenerateVorticityHeatmap(VectorField field) {
     return image;
 }
 
-#include <string.h> // for memcpy
-#include "cglm.h"
-
 void SampleVectorField(VectorField* vf, float x, float y, vec2 out)
 {
+    // Clamp to valid sampling region
+    x = glm_clamp(x, 0.0f, (float)(vf->mWidth  - 1));
+    y = glm_clamp(y, 0.0f, (float)(vf->mHeight - 1));
+
     int x0 = (int)x;
     int y0 = (int)y;
-    int x1 = x0 + 1;
-    int y1 = y0 + 1;
 
-    if (x0 < 0 || y0 < 0 || x1 >= vf->mWidth || y1 >= vf->mHeight) {
-        glm_vec2_zero(out);
-        return;
-    }
+    int x1 = (x0 + 1 < vf->mWidth)  ? x0 + 1 : x0;
+    int y1 = (y0 + 1 < vf->mHeight) ? y0 + 1 : y0;
 
     float tx = x - x0;
     float ty = y - y0;
@@ -148,22 +145,30 @@ void SampleVectorField(VectorField* vf, float x, float y, vec2 out)
 
     vec2 a, b;
 
-    for (int i = 0; i < 2; i++) {
-        a[i] = v00[i] * (1 - tx) + v10[i] * tx;
-        b[i] = v01[i] * (1 - tx) + v11[i] * tx;
-        out[i] = a[i] * (1 - ty) + b[i] * ty;
+    for (int i = 0; i < 2; i++)
+    {
+        a[i] = v00[i] * (1.0f - tx) + v10[i] * tx;
+        b[i] = v01[i] * (1.0f - tx) + v11[i] * tx;
+        out[i] = a[i] * (1.0f - ty) + b[i] * ty;
     }
 }
 
-size_t IntegrateEuler(VectorField* vf, vec2 start, float stepSize, int maxSteps, vec2* outPoints, FieldlineType flt)
+size_t IntegrateEuler(
+    VectorField* vf,
+    vec2 start,
+    float stepSize,
+    int maxSteps,
+    vec2* outPoints,
+    FieldlineType flt)
 {
     vec2 p;
     glm_vec2_copy(start, p);
 
     size_t count = 0;
 
-    for (int i = 0; i < maxSteps; i++) {
-
+    for (int i = 0; i < maxSteps; i++)
+    {
+        // bounds in FIELD SPACE
         if (p[0] < 0 || p[1] < 0 ||
             p[0] >= vf->mWidth || p[1] >= vf->mHeight)
             break;
@@ -173,43 +178,48 @@ size_t IntegrateEuler(VectorField* vf, vec2 start, float stepSize, int maxSteps,
         vec2 v;
         SampleVectorField(vf, p[0], p[1], v);
 
-        if (glm_vec2_norm(v) == 0.0f)
+        float mag = glm_vec2_norm(v);
+
+        // stop if dead field
+        if (mag < 1e-6f)
             break;
 
-        if (flt == PATH_LINE) {
+        // normalize direction
+        glm_vec2_scale(v, 1.0f / mag, v);
 
-            p[0] += stepSize * v[0];
-            p[1] += stepSize * v[1];
+        // 🔥 CRITICAL: scale force so it actually moves
+        glm_vec2_scale(v, FIELD_SCALE, v);
 
-        } else {
-
-            glm_vec2_normalize_to(v, v);
-
-            p[0] += stepSize * v[0];
-            p[1] += stepSize * v[1];
-        }
+        // Euler step
+        p[0] += stepSize * v[0];
+        p[1] += stepSize * v[1];
     }
 
     return count;
 }
 
-size_t IntegrateRK4(VectorField* vf, vec2 start, float h, int maxSteps, vec2* outPoints, FieldlineType flt)
+size_t IntegrateRK4(
+    VectorField* vf,
+    vec2 start,
+    float h,
+    int maxSteps,
+    vec2* outPoints,
+    FieldlineType flt)
 {
     vec2 p;
     glm_vec2_copy(start, p);
 
     size_t count = 0;
 
-    for (int i = 0; i < maxSteps; i++) {
-
+    for (int i = 0; i < maxSteps; i++)
+    {
         if (p[0] < 0 || p[1] < 0 ||
             p[0] >= vf->mWidth || p[1] >= vf->mHeight)
             break;
 
         glm_vec2_copy(p, outPoints[count++]);
 
-        vec2 k1, k2, k3, k4;
-        vec2 tmp;
+        vec2 k1, k2, k3, k4, tmp;
 
         SampleVectorField(vf, p[0], p[1], k1);
 
@@ -225,18 +235,22 @@ size_t IntegrateRK4(VectorField* vf, vec2 start, float h, int maxSteps, vec2* ou
         tmp[1] = p[1] + h * k3[1];
         SampleVectorField(vf, tmp[0], tmp[1], k4);
 
-        if (flt == STREAM_LINE) {
-            glm_vec2_normalize_to(k1, k1);
-            glm_vec2_normalize_to(k2, k2);
-            glm_vec2_normalize_to(k3, k3);
-            glm_vec2_normalize_to(k4, k4);
-        }
+        // combine
+        vec2 v;
+        v[0] = (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) / 6.0f;
+        v[1] = (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) / 6.0f;
 
-        p[0] += (h / 6.0f) *
-                (k1[0] + 2.0f*k2[0] + 2.0f*k3[0] + k4[0]);
+        float mag = glm_vec2_norm(v);
+        if (mag < 1e-6f)
+            break;
 
-        p[1] += (h / 6.0f) *
-                (k1[1] + 2.0f*k2[1] + 2.0f*k3[1] + k4[1]);
+        glm_vec2_scale(v, 1.0f / mag, v);
+
+        // 🔥 SAME SCALE FIX
+        glm_vec2_scale(v, FIELD_SCALE, v);
+
+        p[0] += h * v[0];
+        p[1] += h * v[1];
     }
 
     return count;

@@ -93,7 +93,7 @@ build/Render/Vk/VkCommandBuffer.o: src/Render/Vk/VkCommandBuffer.c \
  libs/hdf5/include/H5FDsec2.h libs/hdf5/include/H5FDsplitter.h \
  libs/hdf5/include/H5FDstdio.h libs/hdf5/include/H5FDwindows.h \
  libs/hdf5/include/H5FDsubfiling.h libs/hdf5/include/H5FDioc.h \
- libs/hdf5/include/H5VLpassthru.h
+ libs/hdf5/include/H5VLpassthru.h headers/Utility/UtilMath.h
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
@@ -252,3 +252,4 @@ libs/hdf5/include/H5FDwindows.h:
 libs/hdf5/include/H5FDsubfiling.h:
 libs/hdf5/include/H5FDioc.h:
 libs/hdf5/include/H5VLpassthru.h:
+headers/Utility/UtilMath.h:

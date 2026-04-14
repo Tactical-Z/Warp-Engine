@@ -2,10 +2,6 @@
 #include "Logger.h"
 #include "VKManager.h"
 #include "VkBuffer.h"
-#include "HDF5Reader.h"
-#include "UtilMath.h"
-
-#include "stdlib.h"
 
 /* --- MESH --- */
 MeshComponent* gMeshComponentSystem = {0};
@@ -180,88 +176,6 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
     return newMesh; 
 };
 
-// MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField){
-
-//     size_t width = _vectorField.mWidth;
-//     size_t height = _vectorField.mHeight;
-//     size_t total = width * height;
-//     size_t numVertices = total * 2;
-//     size_t numIndices = total * 2;
-
-//     float vectorLength = 0.01f;
-
-//     Vertex* vertices = malloc(sizeof(Vertex) * numVertices);
-//     Index* indices = malloc(sizeof(Index) * numIndices);
-
-//     int numCurrentVertices = 0;
-//     int numCurrentIndices = 0;
-
-//     int itx = 0;
-//     int ity = 0;
-//     float stepSizex = 2.0f / width;
-//     float stepSizey = 2.0f / height;
-//     for(size_t i = 0; i < total; i++){
-
-//         float posX = -1.0f + stepSizex * itx;
-//         float posY = -1.0f + stepSizey * ity;
-//         vec2 startPosition = {posX, posY};
-//         itx++;
-//         if(itx >= _vectorField.mWidth){
-//             itx = 0;
-//             ity ++;
-//         }
-
-//         vec2 direction;
-//         glm_vec2_copy(_vectorField.mVectorField[i], direction);
-//         glm_vec2_normalize(direction);
-
-//         // scale direction
-//         vec2 scaledDir;
-//         glm_vec2_scale(direction, vectorLength, scaledDir);
-
-//         // end = start + scaledDir
-//         vec2 endPosition;
-//         glm_vec2_add(startPosition, scaledDir, endPosition);
-        
-//         Vertex startPos = {0};
-//         glm_vec2_copy(startPosition, startPos.mPosition);
-//         glm_vec3_copy((vec3){1.0f, 1.0f, 1.0f}, startPos.mColor);
-
-//         Vertex endPos = {0};
-//         glm_vec2_copy(endPosition, endPos.mPosition);
-//         glm_vec3_copy((vec3){1.0f, 1.0f, 1.0f}, endPos.mColor);
-
-//         vertices[numCurrentVertices] = startPos;
-//         indices[numCurrentIndices] = numCurrentVertices;
-//         numCurrentIndices++;
-//         numCurrentVertices++;
-
-//         vertices[numCurrentVertices] = endPos;
-//         indices[numCurrentIndices] = numCurrentVertices;
-//         numCurrentIndices++;
-//         numCurrentVertices++;
-
-//         // ADD INDICES AND ARROW TIPS AS WELL
-//         // DONT FORGET TO CHANGE TO WIRE STRIP MODE OR WHATEVER VK
-//     }   
-
-
-//     MeshComponent newMesh = {0};
-//     newMesh.mID = _id;
-//     newMesh.mVertexCount = numVertices;
-//     newMesh.mVertices = malloc(sizeof(Vertex) * numVertices);
-//     memcpy(newMesh.mVertices, vertices, sizeof(Vertex) * numVertices);
-
-//     newMesh.mIndexCount = numIndices;
-//     newMesh.mIndices = malloc(sizeof(Index) * numIndices);
-//     memcpy(newMesh.mIndices, indices, sizeof(Index) * numIndices);
-    
-//     SetupBuffer(gVkContext.mDevice, newMesh.mVertices, &newMesh.mVertexBuffer, &newMesh.mVertexBufferMemory, sizeof(Vertex) * newMesh.mVertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-//     SetupBuffer(gVkContext.mDevice, newMesh.mIndices, &newMesh.mIndexBuffer, &newMesh.mIndexBufferMemory, sizeof(Index) * newMesh.mIndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-
-//     return newMesh;
-// };
-
 MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, float _vectorLength, float _resolutionScale, int _showMagnitude){
 
     float resolutionScale = _resolutionScale;
@@ -410,6 +324,105 @@ MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField
 
     return newMesh;
 };
+
+MeshComponent GenerateFieldLineMeshComponent(int _id, VectorField* vf, vec2 start, float stepSize, int maxSteps, FieldlineType flt, int useRK4)
+{
+    const int MAX_POINTS = maxSteps;
+
+    vec2* points = malloc(sizeof(vec2) * MAX_POINTS);
+
+    size_t count = 0;
+    if (useRK4)
+        count = IntegrateRK4(vf, start, stepSize, maxSteps, points, flt);
+    else
+        count = IntegrateEuler(vf, start, stepSize, maxSteps, points, flt);
+
+    if (count < 2) {
+        free(points);
+        MeshComponent empty = {0};
+        return empty;
+    }
+
+    size_t numSegments = count - 1;
+    size_t numVertices = numSegments * 2;
+    size_t numIndices  = numVertices;
+
+    Vertex* vertices = malloc(sizeof(Vertex) * numVertices);
+    Index*  indices  = malloc(sizeof(Index)  * numIndices);
+
+    size_t v = 0;
+    size_t i = 0;
+
+    float stepSizex = 2.0f / vf->mWidth;
+    float stepSizey = 2.0f / vf->mHeight;
+
+    LOG_DEBUG("Num field line segmetns: %i", numSegments);
+    for (size_t k = 0; k < numSegments; k++) {
+
+        vec2 p0 = { points[k][0],     points[k][1]     };
+        vec2 p1 = { points[k+1][0],   points[k+1][1]   };
+
+        vec2 ndc0 = {
+            -1.0f + stepSizex * p0[0],
+            -1.0f + stepSizey * p0[1]
+        };
+
+        vec2 ndc1 = {
+            -1.0f + stepSizex * p1[0],
+            -1.0f + stepSizey * p1[1]
+        };
+        //LOG_DEBUG("P0: %f %f", points[k][0], points[k][1]);
+        //LOG_DEBUG("NDC0.x: %f", ndc0[0]);
+        //LOG_DEBUG("NDC0.y: %f", ndc0[1]);
+        Vertex v0 = {0};
+        Vertex v1 = {0};
+
+        glm_vec2_copy(ndc0, v0.mPosition);
+        glm_vec2_copy(ndc1, v1.mPosition);
+
+        glm_vec3_copy((vec3){1,1,1}, v0.mColor);
+        glm_vec3_copy((vec3){1,1,1}, v1.mColor);
+
+        vertices[v] = v0; indices[i++] = v++;
+        vertices[v] = v1; indices[i++] = v++;
+    }
+
+    free(points);
+
+    MeshComponent mesh = {0};
+    mesh.mID = _id;
+
+    LOG_DEBUG("Num field line vertices: %i", numVertices);
+    LOG_DEBUG("Num field line indices: %i", numIndices);
+    LOG_DEBUG("sizeof(Index) = %zu\n", sizeof(Index));
+
+    mesh.mVertexCount = numVertices;
+    mesh.mVertices = malloc(sizeof(Vertex) * numVertices);
+    memcpy(mesh.mVertices, vertices, sizeof(Vertex) * numVertices);
+
+    mesh.mIndexCount = numIndices;
+    mesh.mIndices = malloc(sizeof(Index) * numIndices);
+    memcpy(mesh.mIndices, indices, sizeof(Index) * numIndices);
+
+    SetupBuffer(gVkContext.mDevice,
+        mesh.mVertices,
+        &mesh.mVertexBuffer,
+        &mesh.mVertexBufferMemory,
+        sizeof(Vertex) * mesh.mVertexCount,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+    SetupBuffer(gVkContext.mDevice,
+        mesh.mIndices,
+        &mesh.mIndexBuffer,
+        &mesh.mIndexBufferMemory,
+        sizeof(Index) * mesh.mIndexCount,
+        VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+    free(vertices);
+    free(indices);
+
+    return mesh;
+}
 
 void CleanupMesh(){
 

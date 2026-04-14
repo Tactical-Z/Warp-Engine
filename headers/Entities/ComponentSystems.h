@@ -2,6 +2,9 @@
 
 #include "Components.h"
 #include "HDF5Reader.h"
+#include "UtilMath.h"
+
+#include "stdlib.h"
 
 /* --- SHADER --- */
 typedef struct {
@@ -25,6 +28,7 @@ void InitMeshSystem();
 void AddMeshComponent(MeshComponent _mesh);
 MeshComponent CreateMeshComponent(int _id, MeshType _meshType);
 MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, float _vectorLength, float _resolutionScale, int _showMagnitude);
+MeshComponent GenerateFieldLineMeshComponent(int _id, VectorField* vf, vec2 start, float stepSize, int maxSteps, FieldlineType flt, int useRK4);
 void CleanupMesh();
 /* --- MESH --- */
 

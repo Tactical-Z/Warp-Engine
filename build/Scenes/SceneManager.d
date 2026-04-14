@@ -89,10 +89,10 @@ build/Scenes/SceneManager.o: src/Scenes/SceneManager.c \
  libs/hdf5/include/H5FDsec2.h libs/hdf5/include/H5FDsplitter.h \
  libs/hdf5/include/H5FDstdio.h libs/hdf5/include/H5FDwindows.h \
  libs/hdf5/include/H5FDsubfiling.h libs/hdf5/include/H5FDioc.h \
- libs/hdf5/include/H5VLpassthru.h headers/Render/VKManager.h \
- headers/Render/WindowManager.h headers/Utility/Logger.h \
- headers/Render/Vk/VkDescriptorSetBuffer.h headers/Utility/FileSystem.h \
- headers/Utility/UtilMath.h
+ libs/hdf5/include/H5VLpassthru.h headers/Utility/UtilMath.h \
+ headers/Render/VKManager.h headers/Render/WindowManager.h \
+ headers/Utility/Logger.h headers/Render/Vk/VkDescriptorSetBuffer.h \
+ headers/Utility/FileSystem.h
 headers/Scenes/SceneManager.h:
 libs/glfw-lib-vc2022/include/glfw3.h:
 headers/Entities/ComponentSystems.h:
@@ -244,9 +244,9 @@ libs/hdf5/include/H5FDwindows.h:
 libs/hdf5/include/H5FDsubfiling.h:
 libs/hdf5/include/H5FDioc.h:
 libs/hdf5/include/H5VLpassthru.h:
+headers/Utility/UtilMath.h:
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 headers/Utility/Logger.h:
 headers/Render/Vk/VkDescriptorSetBuffer.h:
 headers/Utility/FileSystem.h:
-headers/Utility/UtilMath.h:

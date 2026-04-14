@@ -88,10 +88,10 @@ build/Entities/ComponentSystems.o: src/Entities/ComponentSystems.c \
  libs/hdf5/include/H5FDsec2.h libs/hdf5/include/H5FDsplitter.h \
  libs/hdf5/include/H5FDstdio.h libs/hdf5/include/H5FDwindows.h \
  libs/hdf5/include/H5FDsubfiling.h libs/hdf5/include/H5FDioc.h \
- libs/hdf5/include/H5VLpassthru.h headers/Utility/Logger.h \
- headers/Render/VKManager.h headers/Render/WindowManager.h \
- libs/glfw-lib-vc2022/include/glfw3.h \
- libs/VulkanSDK/include/vulkan/vulkan.h headers/Utility/UtilMath.h
+ libs/hdf5/include/H5VLpassthru.h headers/Utility/UtilMath.h \
+ headers/Utility/Logger.h headers/Render/VKManager.h \
+ headers/Render/WindowManager.h libs/glfw-lib-vc2022/include/glfw3.h \
+ libs/VulkanSDK/include/vulkan/vulkan.h
 headers/Entities/ComponentSystems.h:
 headers/Entities/Components.h:
 headers/Render/Vk/VkBuffer.h:
@@ -241,9 +241,9 @@ libs/hdf5/include/H5FDwindows.h:
 libs/hdf5/include/H5FDsubfiling.h:
 libs/hdf5/include/H5FDioc.h:
 libs/hdf5/include/H5VLpassthru.h:
+headers/Utility/UtilMath.h:
 headers/Utility/Logger.h:
 headers/Render/VKManager.h:
 headers/Render/WindowManager.h:
 libs/glfw-lib-vc2022/include/glfw3.h:
 libs/VulkanSDK/include/vulkan/vulkan.h:
-headers/Utility/UtilMath.h:

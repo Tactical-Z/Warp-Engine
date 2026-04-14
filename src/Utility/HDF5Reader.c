@@ -152,18 +152,25 @@ VectorField Readhdf5File(const char* _file, DatasetType _type, const char* _data
 
             size_t idx;
 
-            if (_type == DATASET_METSIM) {
-                // x + y * width
-                idx = x + y * vectorField.mWidth;
-            } else {
-                // y + x * height
-                idx = y + x * vectorField.mHeight;
-            }
+            // if (_type == DATASET_METSIM) {
+            //     idx = y + x * vectorField.mWidth;
+            // } else {
+            //     idx = y + x * vectorField.mHeight;
+            // }
+
+            //idx = y * vectorField.mWidth + x;
+
+            idx = y + x * vectorField.mWidth;
 
             size_t out = y * vectorField.mWidth + x;
 
-            vectorField.mVectorField[out][0] = xData[idx];
-            vectorField.mVectorField[out][1] = yData[idx];
+            if (_type == DATASET_METSIM) {
+                vectorField.mVectorField[out][0] = xData[idx]; 
+                vectorField.mVectorField[out][1] = yData[idx];
+            } else if (_type == DATASET_ISABEL){
+                vectorField.mVectorField[out][0] = yData[idx]; 
+                vectorField.mVectorField[out][1] = xData[idx];
+            }
         }
     }
 

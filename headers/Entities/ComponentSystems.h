@@ -28,7 +28,7 @@ void InitMeshSystem();
 void AddMeshComponent(MeshComponent _mesh);
 MeshComponent CreateMeshComponent(int _id, MeshType _meshType);
 MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, float _vectorLength, float _resolutionScale, int _showMagnitude);
-MeshComponent GenerateFieldLineMeshComponent(int _id, VectorField* vf, vec2 start, float stepSize, int maxSteps, FieldlineType flt, int useRK4);
+MeshComponent CreateLineMeshFromArray(int _id, vec2* _lineArray, size_t _arraySize, vec3 _color);
 void CleanupMesh();
 /* --- MESH --- */
 

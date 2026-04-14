@@ -26,13 +26,21 @@ void SceneBegin(){
     //gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
 
     // vector field
-    AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.05f, 0.05, 0));
+    AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.03f, 0.1, 0));
     AddTransformComponent(CreateTransformComponent(0));
     gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
 
     // Field line
-    vec2 start = {50.0f, 50.0f};
-    AddMeshComponent(GenerateFieldLineMeshComponent(1, &vecField, start, 0.1, 100, STREAM_LINE, 1));
+    vec3 color = {1,0.5,0.2};
+    vec2 points[] = {
+        {-1.0f, -1.0f},
+        {-0.2f, -0.2f},
+        {0.0f, 0.0f},
+        {0.8f, 0.6f},
+        {1.0f, 1.0f}
+    };
+    size_t count = sizeof(points) / sizeof(points[0]);
+    AddMeshComponent(CreateLineMeshFromArray(1, points, count, color));
     AddTransformComponent(CreateTransformComponent(1));
     gMeshComponentSystem[1].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[1]);
 

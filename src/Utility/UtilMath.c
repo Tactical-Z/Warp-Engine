@@ -121,137 +121,253 @@ uint8_t* GenerateVorticityHeatmap(VectorField field) {
     return image;
 }
 
-void SampleVectorField(VectorField* vf, float x, float y, vec2 out)
+void ConvertPointsToNDC(vec2* _points, int _count, float _width, float _height)
 {
-    // Clamp to valid sampling region
-    x = glm_clamp(x, 0.0f, (float)(vf->mWidth  - 1));
-    y = glm_clamp(y, 0.0f, (float)(vf->mHeight - 1));
+    for (int i = 0; i < _count; i++)
+    {
+        float x = _points[i][0];
+        float y = _points[i][1];
 
-    int x0 = (int)x;
-    int y0 = (int)y;
+        float ndcX = (x / _width) * 2.0f - 1.0f;
+        float ndcY = (y / _height) * 2.0f - 1.0f;
 
-    int x1 = (x0 + 1 < vf->mWidth)  ? x0 + 1 : x0;
-    int y1 = (y0 + 1 < vf->mHeight) ? y0 + 1 : y0;
+        _points[i][0] = ndcX;
+        _points[i][1] = ndcY;
+    }
+}
 
-    float tx = x - x0;
-    float ty = y - y0;
+void SampleField(VectorField* _field, float _x, float _y, vec2* _out)
+{
+    int x0 = (int)floorf(_x);
+    int y0 = (int)floorf(_y);
+    int x1 = x0 + 1;
+    int y1 = y0 + 1;
+
+    // Bounds check
+    if (x0 < 0 || y0 < 0 || x1 >= _field->mWidth || y1 >= _field->mHeight){
+        (*_out)[0] = 0.0f;
+        (*_out)[1] = 0.0f;
+        return;
+    }
+        
+    float tx = _x - x0;
+    float ty = _y - y0;
 
     vec2 v00, v10, v01, v11;
 
-    glm_vec2_copy(vf->mVectorField[y0 * vf->mWidth + x0], v00);
-    glm_vec2_copy(vf->mVectorField[y0 * vf->mWidth + x1], v10);
-    glm_vec2_copy(vf->mVectorField[y1 * vf->mWidth + x0], v01);
-    glm_vec2_copy(vf->mVectorField[y1 * vf->mWidth + x1], v11);
+    glm_vec2_copy(_field->mVectorField[y0 * _field->mWidth + x0], v00);
+    glm_vec2_copy(_field->mVectorField[y0 * _field->mWidth + x1], v10);
+    glm_vec2_copy(_field->mVectorField[y1 * _field->mWidth + x0], v01);
+    glm_vec2_copy(_field->mVectorField[y1 * _field->mWidth + x1], v11);
 
-    vec2 a, b;
+    vec2 v0 = {
+        v00[0] * (1 - tx) + v10[0] * tx,
+        v00[1] * (1 - tx) + v10[1] * tx
+    };
 
-    for (int i = 0; i < 2; i++)
-    {
-        a[i] = v00[i] * (1.0f - tx) + v10[i] * tx;
-        b[i] = v01[i] * (1.0f - tx) + v11[i] * tx;
-        out[i] = a[i] * (1.0f - ty) + b[i] * ty;
-    }
+    vec2 v1 = {
+        v01[0] * (1 - tx) + v11[0] * tx,
+        v01[1] * (1 - tx) + v11[1] * tx
+    };
+
+    (*_out)[0] = v0[0] * (1 - ty) + v1[0] * ty;
+    (*_out)[1] = v0[1] * (1 - ty) + v1[1] * ty;
 }
 
-size_t IntegrateEuler(
-    VectorField* vf,
-    vec2 start,
-    float stepSize,
-    int maxSteps,
-    vec2* outPoints,
-    FieldlineType flt)
+void GetNormalizedFieldSample(VectorField* _field, float _x, float _y, vec2* _out)
 {
-    vec2 p;
-    glm_vec2_copy(start, p);
+    vec2 fieldVector;
+    SampleField(_field, _x, _y, &fieldVector);
+    float len = glm_vec2_norm(fieldVector);
 
-    size_t count = 0;
+    if (len < 1e-8f) {
+        (*_out)[0] = 0.0f;
+        (*_out)[1] = 0.0f;
+        return;
+    }
 
-    for (int i = 0; i < maxSteps; i++)
+    (*_out)[0] = fieldVector[0] / len;
+    (*_out)[1] = fieldVector[1] / len;
+}
+
+vec2* GenerateFieldlineEuler(VectorField* _field, vec2 _seed, float _stepSize, int _maxSteps, int* _outCount, IntegratorNormalization _normalization)
+{
+    vec2* points = malloc(sizeof(vec2) * _maxSteps);
+    if (!points){
+        return NULL;
+    } 
+
+    // Start at seed location
+    vec2 point = {_seed[0], _seed[1]};
+
+    // number of points
+    int count = 0;
+    for (int i = 0; i < _maxSteps; i++)
     {
-        // bounds in FIELD SPACE
-        if (p[0] < 0 || p[1] < 0 ||
-            p[0] >= vf->mWidth || p[1] >= vf->mHeight)
+        // Stop if outside field
+        if (point[0] < 0 || 
+            point[1] < 0 ||
+            point[0] >= _field->mWidth ||
+            point[1] >= _field->mHeight)
+        {
+            break;
+        }
+        
+        // Store point
+        glm_vec2_copy(point, points[count++]);
+
+        // Sample vector field
+        vec2 fieldVector = {0};
+        SampleField(_field, point[0], point[1], &fieldVector);
+        float lenOfFieldVec = glm_vec2_norm(fieldVector);
+
+        // Stop if near zero (dead zone)
+        if (lenOfFieldVec < 1e-5f)
             break;
 
-        glm_vec2_copy(p, outPoints[count++]);
-
-        vec2 v;
-        SampleVectorField(vf, p[0], p[1], v);
-
-        float mag = glm_vec2_norm(v);
-
-        // stop if dead field
-        if (mag < 1e-6f)
-            break;
-
-        // normalize direction
-        glm_vec2_scale(v, 1.0f / mag, v);
-
-        // 🔥 CRITICAL: scale force so it actually moves
-        glm_vec2_scale(v, FIELD_SCALE, v);
+        if(_normalization == NORMALIZE){
+            fieldVector[0] /= lenOfFieldVec;
+            fieldVector[1] /= lenOfFieldVec;
+        }
 
         // Euler step
-        p[0] += stepSize * v[0];
-        p[1] += stepSize * v[1];
+        point[0] += _stepSize * fieldVector[0];
+        point[1] += _stepSize * fieldVector[1];
     }
 
-    return count;
+    *_outCount = count;
+    return points;
 }
 
-size_t IntegrateRK4(
-    VectorField* vf,
-    vec2 start,
-    float h,
-    int maxSteps,
-    vec2* outPoints,
-    FieldlineType flt)
+vec2* GenerateFieldlineRK4(VectorField* _field, vec2 _seed, float _stepSize, int _maxSteps, int* _outCount, IntegratorNormalization _normalization)
 {
-    vec2 p;
-    glm_vec2_copy(start, p);
-
-    size_t count = 0;
-
-    for (int i = 0; i < maxSteps; i++)
-    {
-        if (p[0] < 0 || p[1] < 0 ||
-            p[0] >= vf->mWidth || p[1] >= vf->mHeight)
-            break;
-
-        glm_vec2_copy(p, outPoints[count++]);
-
-        vec2 k1, k2, k3, k4, tmp;
-
-        SampleVectorField(vf, p[0], p[1], k1);
-
-        tmp[0] = p[0] + 0.5f * h * k1[0];
-        tmp[1] = p[1] + 0.5f * h * k1[1];
-        SampleVectorField(vf, tmp[0], tmp[1], k2);
-
-        tmp[0] = p[0] + 0.5f * h * k2[0];
-        tmp[1] = p[1] + 0.5f * h * k2[1];
-        SampleVectorField(vf, tmp[0], tmp[1], k3);
-
-        tmp[0] = p[0] + h * k3[0];
-        tmp[1] = p[1] + h * k3[1];
-        SampleVectorField(vf, tmp[0], tmp[1], k4);
-
-        // combine
-        vec2 v;
-        v[0] = (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) / 6.0f;
-        v[1] = (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) / 6.0f;
-
-        float mag = glm_vec2_norm(v);
-        if (mag < 1e-6f)
-            break;
-
-        glm_vec2_scale(v, 1.0f / mag, v);
-
-        // 🔥 SAME SCALE FIX
-        glm_vec2_scale(v, FIELD_SCALE, v);
-
-        p[0] += h * v[0];
-        p[1] += h * v[1];
+    vec2* points = malloc(sizeof(vec2) * _maxSteps);
+    if (!points){
+        return NULL;
     }
 
-    return count;
+    vec2 point = { _seed[0], _seed[1] };
+    int count = 0;
+
+    for (int i = 0; i < _maxSteps; i++)
+    {
+        // bounds check
+        if (point[0] < 0 || 
+            point[1] < 0 ||
+            point[0] >= _field->mWidth ||
+            point[1] >= _field->mHeight)
+        {
+            break;
+        }
+        
+        glm_vec2_copy(point, points[count++]);
+
+        vec2 k1 = {0}, k2 = {0}, k3 = {0}, k4 = {0};
+        vec2 temp = {0};
+
+        // k1
+        if(_normalization == NORMALIZE){
+            GetNormalizedFieldSample(_field, point[0], point[1], &k1);
+        } else {
+            SampleField(_field, point[0], point[1], &k1);
+        }
+            
+        // k2
+        temp[0] = point[0] + 0.5f * _stepSize * k1[0];
+        temp[1] = point[1] + 0.5f * _stepSize * k1[1];
+        if(_normalization == NORMALIZE){
+            GetNormalizedFieldSample(_field, temp[0], temp[1], &k2);
+        } else {
+            SampleField(_field, temp[0], temp[1], &k2);
+        }
+    
+        // k3
+        temp[0] = point[0] + 0.5f * _stepSize * k2[0];
+        temp[1] = point[1] + 0.5f * _stepSize * k2[1];
+        if(_normalization == NORMALIZE){
+            GetNormalizedFieldSample(_field, temp[0], temp[1], &k3);
+        } else {
+            SampleField(_field, temp[0], temp[1], &k3);
+        }
+
+        // k4
+        temp[0] = point[0] + _stepSize * k3[0];
+        temp[1] = point[1] + _stepSize * k3[1];
+        if(_normalization == NORMALIZE){
+            GetNormalizedFieldSample(_field, temp[0], temp[1], &k4);
+        } else {
+            SampleField(_field, temp[0], temp[1], &k4);
+        }        
+
+        // RK4 combine
+        vec2 delta = {0};
+        delta[0] = (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) / 6.0f;
+        delta[1] = (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) / 6.0f;
+
+        point[0] += _stepSize * delta[0];
+        point[1] += _stepSize * delta[1];
+    }
+
+    *_outCount = count;
+    return points;
+}
+
+vec2* GenerateFullFieldLine(VectorField* _field, vec2 _seed, float _stepSize, int _maxSteps, int* _outCount, IntegratorType _integratorType, IntegratorNormalization _normalization){
+
+    int countFront = 0;
+    int countBack = 0;
+    float stepSizeFront = _stepSize;
+    float stepSizeBack = _stepSize * -1.f;
+
+    vec2* pointsFront;
+    vec2* pointsBack;
+
+    switch (_integratorType)
+    {
+    case INTEGRATOR_EULER:
+        pointsFront = GenerateFieldlineEuler(_field, _seed, stepSizeFront, _maxSteps, &countFront, _normalization);
+        pointsBack = GenerateFieldlineEuler(_field, _seed, stepSizeBack, _maxSteps, &countBack, _normalization);
+        break;
+    case INTEGRATOR_4RK:
+        pointsFront = GenerateFieldlineRK4(_field, _seed, stepSizeFront, _maxSteps, &countFront, _normalization);
+        pointsBack = GenerateFieldlineRK4(_field, _seed, stepSizeBack, _maxSteps, &countBack, _normalization);
+        break;
+    default:
+        break;
+    }
+
+    // Seed out of bounds
+    if(!pointsFront && !pointsBack){
+        return NULL;
+    }
+
+    int fullCount = countFront + countBack - 1;
+    
+    vec2* fullFieldLine = malloc(sizeof(vec2) * fullCount);
+    if(!fullFieldLine){
+        LOG_ERROR("Full Field Line array memory allocation failure.");
+        return NULL;
+    }
+
+    int idx = 0;
+
+    // Reverse backward
+    if(pointsBack){
+        for (int i = countBack - 1; i >= 1; i--){
+            glm_vec2_copy(pointsBack[i], fullFieldLine[idx++]);
+        }
+    }
+    
+    if(pointsFront){
+        for (int i = 0; i < countFront; i++){
+            glm_vec2_copy(pointsFront[i], fullFieldLine[idx++]);
+        }
+    }
+
+    *_outCount = fullCount;
+    ConvertPointsToNDC(fullFieldLine, fullCount, (float)_field->mWidth, (float)_field->mHeight);
+
+    free(pointsFront);
+    free(pointsBack);
+    return fullFieldLine;
 }

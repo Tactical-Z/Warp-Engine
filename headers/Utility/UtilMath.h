@@ -14,18 +14,23 @@ uint8_t* GenerateMagnitudeHeatmap(VectorField field);
 uint8_t* GenerateVorticityHeatmap(VectorField field);
 
 typedef enum {
-    PATH_LINE,
-    STREAM_LINE
-} FieldlineType;
+    NORMALIZE,
+    NON_NORMALIZE
+} IntegratorNormalization;
 
-void SampleVectorField(VectorField* vf, float x, float y, vec2 out);
+typedef enum {
+    INTEGRATOR_EULER,
+    INTEGRATOR_4RK
+} IntegratorType;
 
-size_t IntegrateEuler(VectorField* _vf, vec2 _start, float _stepSize, int _maxSteps, vec2* _outPoints, FieldlineType _flt);
+void ConvertPointsToNDC(vec2* _points, int _count, float _width, float _height);
 
-size_t IntegrateRK4(
-    VectorField* vf,
-    vec2 start,
-    float h,
-    int maxSteps,
-    vec2* outPoints,
-    FieldlineType flt);
+void SampleField(VectorField* _field, float _x, float _y, vec2* _out);
+
+void GetNormalizedFieldSample(VectorField* _field, float _x, float _y, vec2* _out);
+
+vec2* GenerateFieldlineEuler(VectorField* _field, vec2 _seed, float _stepSize, int _maxSteps, int* _outCount, IntegratorNormalization _normalization);
+
+vec2* GenerateFieldlineRK4(VectorField* _field, vec2 _seed, float _stepSize, int _maxSteps, int* _outCount, IntegratorNormalization _normalization);
+
+vec2* GenerateFullFieldLine(VectorField* _field, vec2 _seed, float _stepSize, int _maxSteps, int* _outCount, IntegratorType _integratorType, IntegratorNormalization _normalization);

@@ -20,6 +20,9 @@ void AddMeshComponent(MeshComponent _mesh){
     // verry inneficient, update to allocate more room and track actual vs max size.
     // make a sparse set to manage indexing vs components. 
     // create a general function for adding components that works for all types
+    if(_mesh.mVertexCount <= 0){
+        return;
+    }
 
     // Allocate temp memory and make temporary array.
     MeshComponent* tempMeshSys = malloc(sizeof(MeshComponent) * gNumMeshComponents);
@@ -82,10 +85,10 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
     case MESHTYPE_PLANE_WINDOW:
       
          Vertex planeWindowVertices[] = {
-            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+            {{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+            {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+            {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
         };
         numVertices = sizeof(planeWindowVertices) / sizeof(Vertex);
         newMesh.mVertexCount = numVertices;
@@ -243,8 +246,8 @@ MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField
             float centerX = (float)bx + (float)actualBlockWidth  * 0.5f;
             float centerY = (float)by + (float)actualBlockHeight * 0.5f;
 
-            float posX = -1.0f + stepSizex * centerY; // X = centerY
-            float posY = -1.0f + stepSizey * centerX; // Y = 1 - centerX (flip vertically)
+            float posX = -1.0f + stepSizex * centerX;
+            float posY = -1.0f + stepSizey * centerY;
 
             vec2 startPosition = {posX, posY};
 
@@ -326,6 +329,11 @@ MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField
 };
 
 MeshComponent CreateLineMeshFromArray(int _id, vec2* _lineArray, size_t _arraySize, vec3 _color){
+
+    if(_arraySize <= 1){
+        MeshComponent tmp = {0};
+        return tmp;
+    }
 
     size_t numVertices = _arraySize;
     size_t numIndices = (numVertices - 1) * 2;

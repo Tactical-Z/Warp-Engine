@@ -152,15 +152,8 @@ VectorField Readhdf5File(const char* _file, DatasetType _type, const char* _data
 
             size_t idx;
 
-            // if (_type == DATASET_METSIM) {
-            //     idx = y + x * vectorField.mWidth;
-            // } else {
-            //     idx = y + x * vectorField.mHeight;
-            // }
-
-            //idx = y * vectorField.mWidth + x;
-
-            idx = y + x * vectorField.mWidth;
+            idx = y * vectorField.mWidth + x; // ROW MAGOR (what data set uses)
+            //idx = y + x * vectorField.mWidth; // COLUM MAGOR
 
             size_t out = y * vectorField.mWidth + x;
 

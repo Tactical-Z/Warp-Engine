@@ -13,6 +13,7 @@ layout(push_constant) uniform PushConstants {
 layout(location = 0) out vec4 outColor;
 
 void main() {
+    
     if (pc.hasTexture == 1) {
         outColor = texture(texSampler, fragUV);
     } else {

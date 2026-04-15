@@ -4,51 +4,58 @@
 #include "VkBuffer.h"
 
 /* --- MESH --- */
-MeshComponent* gMeshComponentSystem = {0};
+MeshComponent* gMeshComponentSystem = NULL;
 int gNumMeshComponents = 0;
-TransformComponent* gTransformComponentSystem = {0};
+int gMeshCapacity = 16;
+TransformComponent* gTransformComponentSystem = NULL;
 int gNumTransformComponents = 0;
+
+void InitComponentSystems(){
+    InitMeshSystem();
+    InitTransformSystem();
+};
 
 void InitMeshSystem(){
 
-    gMeshComponentSystem = malloc(sizeof(MeshComponent) * gNumMeshComponents);
+    gMeshComponentSystem = malloc(sizeof(MeshComponent) * gMeshCapacity);
+    if (!gMeshComponentSystem) {
+        LOG_ERROR("Failed to initialize mesh system");
+        gMeshCapacity = 0;
+    }
 };
 
-void AddMeshComponent(MeshComponent _mesh){
+int AddMeshComponent(MeshComponent _mesh){
 
-    // TODO:
-    // verry inneficient, update to allocate more room and track actual vs max size.
-    // make a sparse set to manage indexing vs components. 
-    // create a general function for adding components that works for all types
-    if(_mesh.mVertexCount <= 0){
-        return;
+    if (_mesh.mVertexCount <= 0) {
+        return -1;
     }
 
-    // Allocate temp memory and make temporary array.
-    MeshComponent* tempMeshSys = malloc(sizeof(MeshComponent) * gNumMeshComponents);
-    if(!tempMeshSys)
-        LOG_ERROR("Faild to allocate memory for temporary MeshComponentSystem");
-    
-    // copy actual into temp
-    for(int i = 0; i < gNumMeshComponents; i++)
-        tempMeshSys[i] = gMeshComponentSystem[i];
-    
-    // Itterate mesh system and re allocate mesh array
-    free(gMeshComponentSystem);
-    gNumMeshComponents += 1;
-    gMeshComponentSystem = malloc(sizeof(MeshComponent) * gNumMeshComponents);
-    if(!gMeshComponentSystem)
-        LOG_ERROR("Faild to allocate memory for ComponentMeshSystem");
+    // Grow if needed
+    if (gNumMeshComponents >= gMeshCapacity) {
 
-    // repopulate mesh array
-    for(int i = 0; i < gNumMeshComponents -1; i++){
-        gMeshComponentSystem[i] = tempMeshSys[i];
+        int newCapacity = gMeshCapacity == 0 ? 16 : gMeshCapacity * 2;
+
+        MeshComponent* newBuffer =
+            realloc(gMeshComponentSystem, sizeof(MeshComponent) * newCapacity);
+
+        if (!newBuffer) {
+            LOG_ERROR("Failed to grow mesh system");
+            return -1;
+        }
+
+        gMeshComponentSystem = newBuffer;
+        gMeshCapacity = newCapacity;
     }
 
-    // Add the new Mesh and dealocate temp
-    gMeshComponentSystem[gNumMeshComponents - 1] = _mesh;
-    free(tempMeshSys);
+    int index = gNumMeshComponents;
+    gMeshComponentSystem[index] = _mesh;
+    gNumMeshComponents++;
+    return index;
 };
+
+int GetNumMeshes(){
+    return gNumMeshComponents;
+}
 
 MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
 
@@ -330,9 +337,10 @@ MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField
 
 MeshComponent CreateLineMeshFromArray(int _id, vec2* _lineArray, size_t _arraySize, vec3 _color){
 
+    MeshComponent newMesh = {0};
+   
     if(_arraySize <= 1){
-        MeshComponent tmp = {0};
-        return tmp;
+        return newMesh;
     }
 
     size_t numVertices = _arraySize;
@@ -340,6 +348,10 @@ MeshComponent CreateLineMeshFromArray(int _id, vec2* _lineArray, size_t _arraySi
 
     Vertex* vertices = malloc(sizeof(Vertex) * numVertices);
     Index* indices = malloc(sizeof(Index) * numIndices);
+    if(!vertices || !indices){
+        LOG_ERROR("Faild allocation of line mesh vertices or indices memory.");
+        return newMesh;
+    }
 
     // Vertices
     for(int i = 0; i < numVertices; i++){
@@ -353,7 +365,6 @@ MeshComponent CreateLineMeshFromArray(int _id, vec2* _lineArray, size_t _arraySi
         indices[i * 2 + 1] = i + 1;
     }
 
-    MeshComponent newMesh = {0};
     newMesh.mID = _id;
     newMesh.mVertexCount = numVertices;
     newMesh.mVertices = malloc(sizeof(Vertex) * numVertices);

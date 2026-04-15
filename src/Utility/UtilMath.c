@@ -2,6 +2,12 @@
 #include "UtilMath.h"
 #include "Logger.h"
 
+float Distance2(vec2 _a, vec2 _b) {
+    float dx = _a[0] - _b[0];
+    float dy = _a[1] - _b[1];
+    return dx * dx + dy * dy;
+}
+
 uint8_t* GenerateMagnitudeHeatmap(VectorField field) {
 
     size_t width = field.mWidth;
@@ -370,4 +376,125 @@ vec2* GenerateFullFieldLine(VectorField* _field, vec2 _seed, float _stepSize, in
     free(pointsFront);
     free(pointsBack);
     return fullFieldLine;
+}
+
+vec2* GenerateDensityBasedSeeds(VectorField* _field, int _seedCount)
+{
+    if (!_field || _seedCount <= 0)
+        return NULL;
+
+    vec2* seeds = malloc(sizeof(vec2) * _seedCount);
+    if (!seeds) {
+        LOG_ERROR("Seed allocation failed");
+        return NULL;
+    }
+
+    int width  = _field->mWidth;
+    int height = _field->mHeight;
+
+    // Minimum spacing (tune this!)
+    float minDist = sqrtf((width * height) / (float)_seedCount);
+    float minDist2 = minDist * minDist;
+
+    int count = 0;
+    int maxAttempts = _seedCount * 10;
+
+    for (int attempts = 0; attempts < maxAttempts && count < _seedCount; attempts++)
+    {
+        vec2 candidate;
+
+        candidate[0] = ((float)rand() / RAND_MAX) * (width - 1);
+        candidate[1] = ((float)rand() / RAND_MAX) * (height - 1);
+
+        // Check distance against all existing seeds
+        int valid = 1;
+
+        for (int i = 0; i < count; i++) {
+            if (Distance2(candidate, seeds[i]) < minDist2) {
+                valid = 0;
+                break;
+            }
+        }
+
+        if (valid) {
+            seeds[count][0] = candidate[0];
+            seeds[count][1] = candidate[1];
+            count++;
+        }
+    }
+
+    // If we failed to fill all seeds, shrink logically (optional)
+    if (count == 0) {
+        free(seeds);
+        return NULL;
+    }
+
+    return seeds;
+}
+
+vec2* GenerateUniformBasedSeeds(VectorField* _field, int _seedCount) {
+    
+    if (!_field || _seedCount <= 0){
+        return NULL;
+    }
+    
+    vec2* seeds = (vec2*)malloc(sizeof(vec2) * _seedCount);
+    if (!seeds){
+        LOG_ERROR("Seed position array memory allocation faild.");
+        return NULL;
+    }
+
+    int width  = _field->mWidth;
+    int height = _field->mHeight;
+
+    // Compute grid dimensions (Nx * Ny ≈ seedCount)
+    int nx = (int)sqrtf((float)_seedCount);
+    int ny = nx;
+
+    if (nx * ny < _seedCount)
+        nx++;
+
+    float dx = (float)width  / (float)nx;
+    float dy = (float)height / (float)ny;
+
+    int i = 0;
+    for (int y = 0; y < ny && i < _seedCount; y++) {
+        for (int x = 0; x < nx && i < _seedCount; x++) {
+
+            // center of each cell
+            float sx = (x + 0.5f) * dx;
+            float sy = (y + 0.5f) * dy;
+
+            seeds[i][0] = sx;
+            seeds[i][1] = sy;
+
+            i++;
+        }
+    }
+
+    return seeds;
+}
+
+vec2* GenerateRandomBasedSeeds(VectorField* _field, int _seedCount) {
+    
+    if (!_field || _seedCount <= 0){
+        return NULL;
+    }
+    
+    vec2* seeds = (vec2*)malloc(sizeof(vec2) * _seedCount);
+    if (!seeds){
+        LOG_ERROR("Seed position array memory allocation faild.");
+        return NULL;
+    }
+
+    for (int i = 0; i < _seedCount; i++) {
+        // Uniform random in [0, width)
+        float x = ((float)rand() / (float)RAND_MAX) * (float)(_field->mWidth - 1);
+        float y = ((float)rand() / (float)RAND_MAX) * (float)(_field->mHeight - 1);
+
+        seeds[i][0] = x;
+        seeds[i][1] = y;
+    }
+
+    return seeds;
 }

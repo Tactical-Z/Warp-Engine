@@ -12,6 +12,7 @@
 #define VK_TOPOLOGY VK_PRIMITIVE_TOPOLOGY_LINE_LIST         // Line mode
 //#define VK_TOPOLOGY VK_PRIMITIVE_TOPOLOGY_LINE_STRIP         // Line mode
 
+#define MAX_MESHES 1000
 #define MAX_FRAMES_IN_FLIGHT 3
 extern uint32_t gCurrentFrame;
 

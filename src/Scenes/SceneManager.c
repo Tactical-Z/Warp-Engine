@@ -5,8 +5,7 @@
 #include "VkDescriptorSetBuffer.h"
 #include "Texture.h"
 #include "FileSystem.h"
-#include "HDF5Reader.h"
-#include "UtilMath.h"
+
 
 void SceneBegin(){
 
@@ -60,32 +59,120 @@ void SceneBegin(){
     // AddTransformComponent(CreateTransformComponent(1));
     // gMeshComponentSystem[1].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[1]);
 
-    // Field line 
-    vec3 color = {1, 0, 0};
-    vec2 seedPoint = {300,300};
-    int totalCount = 0;
-    vec2* fieldLinePoints = GenerateFullFieldLine(&vecField, seedPoint, 0.1, 5000, &totalCount, INTEGRATOR_EULER, NON_NORMALIZE);
-    AddMeshComponent(CreateLineMeshFromArray(1, fieldLinePoints, totalCount, color));
-    if(gMeshComponentSystem[1].mVertexCount > 0){
-        AddTransformComponent(CreateTransformComponent(1));
-        gMeshComponentSystem[1].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[1]);
-    }
-    free(fieldLinePoints);
+    // // Field line 
+    // vec3 color = {1, 0, 0};
+    // vec2 seedPoint = {300,300};
+    // int totalCount = 0;
+    // vec2* fieldLinePoints = GenerateFullFieldLine(&vecField, seedPoint, 0.1, 5000, &totalCount, INTEGRATOR_EULER, NON_NORMALIZE);
+    // AddMeshComponent(CreateLineMeshFromArray(1, fieldLinePoints, totalCount, color));
+    // if(gMeshComponentSystem[1].mVertexCount > 0){
+    //     AddTransformComponent(CreateTransformComponent(1));
+    //     gMeshComponentSystem[1].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[1]);
+    // }
+    // free(fieldLinePoints);
 
     // Field line RK4
-    vec3 colornew = {0, 0, 1.0};
-    vec2 seedPointnew = {300,300};
-    int totalCountnew = 0;
-    vec2* fieldLinePointsOther = GenerateFullFieldLine(&vecField, seedPointnew, 0.1, 5000, &totalCountnew, INTEGRATOR_4RK, NON_NORMALIZE);
-    AddMeshComponent(CreateLineMeshFromArray(2, fieldLinePointsOther, totalCountnew, colornew));
-    if(gMeshComponentSystem[2].mVertexCount > 0){
-        AddTransformComponent(CreateTransformComponent(2));
-        gMeshComponentSystem[2].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[2]);
-    }
-    free(fieldLinePointsOther);
+    // vec3 colornew = {0, 0, 1.0};
+    // vec2 seedPointnew = {300,300};
+    // int totalCountnew = 0;
+    // vec2* fieldLinePointsOther = GenerateFullFieldLine(&vecField, seedPointnew, 0.1, 5000, &totalCountnew, INTEGRATOR_4RK, NON_NORMALIZE);
+    // AddMeshComponent(CreateLineMeshFromArray(2, fieldLinePointsOther, totalCountnew, colornew));
+    // if(gMeshComponentSystem[2].mVertexCount > 0){
+    //     AddTransformComponent(CreateTransformComponent(2));
+    //     gMeshComponentSystem[2].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[2]);
+    // }
+    // free(fieldLinePointsOther);
+
+    GenerateFieldLinesFromVectorField(&vecField, 0.1, 5000, INTEGRATOR_EULER, NORMALIZE, 500, UNIFORM, 1);
 
     free(vecField.mVectorField);
+}
 
+void GenerateFieldLinesFromVectorField(VectorField* _vecField, float _stepSize, int _maxSteps, IntegratorType _integratorType, IntegratorNormalization _normalization, int _numSeeds, SeedGenerator _seedGenerator, int _renderSeeds){
+
+    int numFailSeeds = 0;
+    vec2* seeds = NULL;
+    switch (_seedGenerator)
+    {
+    case DENSITY:
+        seeds = GenerateDensityBasedSeeds(_vecField, _numSeeds);
+        break;
+    case UNIFORM:
+        seeds = GenerateUniformBasedSeeds(_vecField, _numSeeds);
+        break;
+    case RANDOM:
+        seeds = GenerateRandomBasedSeeds(_vecField, _numSeeds);
+        break;
+    default:
+        break;
+    }
+
+    int CurrentNumMeshes = GetNumMeshes();
+    for (int i = 0; i < _numSeeds; i++) {
+        int index = i + CurrentNumMeshes;
+        int totalCount = 0;
+        
+        vec3 color = {1, 0, 0};
+        vec2* fieldLinePoints = GenerateFullFieldLine(_vecField, seeds[i], _stepSize, _maxSteps, &totalCount, _integratorType, _normalization);
+        if(!fieldLinePoints){
+            LOG_ERROR("Invalid Field line");
+            continue;
+        }
+
+        int meshIndex = AddMeshComponent(CreateLineMeshFromArray(index, fieldLinePoints, totalCount, color));
+        if (meshIndex < 0) {
+            numFailSeeds++;
+            free(fieldLinePoints);
+            continue;
+        }
+        gMeshComponentSystem[meshIndex].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[meshIndex]);
+        free(fieldLinePoints);
+    }
+    LOG_WARN("Num out of bound seeds: %i", numFailSeeds);
+
+    if(_renderSeeds){
+        for (int i = 0; i < _numSeeds; i++) {
+            vec3 color = {0, 1, 0};
+            int index = i + CurrentNumMeshes;
+
+            vec2 seed;
+            glm_vec2_copy(seeds[i], seed);
+
+            float size = 2.0f;
+
+            vec2 vOffset = { 0.0f, size };
+            vec2 hOffset = { size, 0.0f };
+
+            vec2 v0, v1;
+            vec2 h0, h1;
+
+            // vertical line
+            glm_vec2_sub(seed, vOffset, v0);
+            glm_vec2_add(seed, vOffset, v1);
+
+            // horizontal line
+            glm_vec2_sub(seed, hOffset, h0);
+            glm_vec2_add(seed, hOffset, h1);
+
+            int totalCount = 4;
+
+            vec2* fieldLinePoints = malloc(sizeof(vec2) * totalCount);
+
+            glm_vec2_copy(v0, fieldLinePoints[0]);
+            glm_vec2_copy(v1, fieldLinePoints[1]);
+            glm_vec2_copy(h0, fieldLinePoints[2]);
+            glm_vec2_copy(h1, fieldLinePoints[3]);
+            
+            ConvertPointsToNDC(fieldLinePoints, totalCount, (float)_vecField->mWidth, (float)_vecField->mHeight);
+
+            int meshIndex = AddMeshComponent(CreateLineMeshFromArray(index, fieldLinePoints, totalCount, color));
+            gMeshComponentSystem[meshIndex].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[meshIndex]);
+            free(fieldLinePoints);
+        }
+    }
+    
+
+    free(seeds);
 }
 
 void SceneUpdate(float _dt){

@@ -1,8 +1,8 @@
 
 #include "WindowManager.h"
 #include "VkManager.h"
+#include "ComponentSystems.h"
 #include "SceneManager.h"
-
 #include "Windows.h"
 
 double gDeltaTime = 0.0;
@@ -39,6 +39,7 @@ void Run(GLFWwindow* _glfwWindow){
 
     int frames = 0;
     InitTimer();
+    InitComponentSystems();
     SceneBegin();
     while (!glfwWindowShouldClose(_glfwWindow))
     {

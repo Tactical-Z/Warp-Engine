@@ -40,20 +40,21 @@ VkDescriptorPool SetupUIDescriptorPool(VkDevice _device){
 
 void PopulateDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, size_t _poolSizeCount, VkDescriptorPoolCreateInfo* _createInfo){
     
+    uint32_t maxSets = MAX_MESHES;
     // Describes which discriptor sets are going to contain and how many
     // We have two descriptiors
     // UBO
     _poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    _poolSize[0].descriptorCount = MAX_FRAMES_IN_FLIGHT;
+    _poolSize[0].descriptorCount = maxSets;
 
     // Combined image sampler
     _poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    _poolSize[1].descriptorCount = MAX_FRAMES_IN_FLIGHT;
+    _poolSize[1].descriptorCount = maxSets;
 
     _createInfo->sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     _createInfo->poolSizeCount = _poolSizeCount;
     _createInfo->pPoolSizes = _poolSize;
-    _createInfo->maxSets = (uint32_t)MAX_FRAMES_IN_FLIGHT;
+    _createInfo->maxSets = maxSets;
 };
 
 void PopulateUIDescriptorPoolCreateInfo(VkDescriptorPoolSize* _poolSize, VkDescriptorPoolCreateInfo* _createInfo){
@@ -81,11 +82,11 @@ VkDescriptorSet SetupMeshDescriptorSet(VkDevice _device, MeshComponent* _mesh){
     VkDescriptorSet descriptorSet = {0};
     VkDescriptorSetAllocateInfo allocInfo = {0};
     PopulateDescriptorSetsCreateInfo(&allocInfo, gVkContext.mDescriptorPool, 1, &gVkContext.mDescriptorSetLayout);
-    if (vkAllocateDescriptorSets(_device, &allocInfo, &descriptorSet) != VK_SUCCESS) {
-        LOG_ERROR("Failed to allocate descriptor set");
+    VkResult res = vkAllocateDescriptorSets(_device, &allocInfo, &descriptorSet);
+    if (res != VK_SUCCESS) {
+        LOG_ERROR("Failed to allocate descriptor set: %d", res);
         return VK_NULL_HANDLE;
     }
-
     // UBO
     VkDescriptorBufferInfo UBOBufferInfo = {0};
     UBOBufferInfo.buffer = gVkContext.mUniformBuffers[0]; // or current frame

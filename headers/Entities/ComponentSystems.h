@@ -13,9 +13,12 @@ typedef struct {
 }UniformBufferObject;
 /* --- SHADER --- */
 
+void InitComponentSystems();
+
 /* --- MESH --- */
 extern MeshComponent* gMeshComponentSystem;
 extern int gNumMeshComponents;
+extern int gMeshCapacity;
 typedef enum{
     MESHTYPE_PLANE,
     MESHTYPE_PLANE_WINDOW,
@@ -25,7 +28,8 @@ typedef enum{
 }MeshType;
 
 void InitMeshSystem();
-void AddMeshComponent(MeshComponent _mesh);
+int AddMeshComponent(MeshComponent _mesh);
+int GetNumMeshes();
 MeshComponent CreateMeshComponent(int _id, MeshType _meshType);
 MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, float _vectorLength, float _resolutionScale, int _showMagnitude);
 MeshComponent CreateLineMeshFromArray(int _id, vec2* _lineArray, size_t _arraySize, vec3 _color);

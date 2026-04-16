@@ -8,6 +8,111 @@ float Distance2(vec2 _a, vec2 _b) {
     return dx * dx + dy * dy;
 }
 
+float* GenerateNoiseMap(size_t _width, size_t _height) {
+
+    float* noise = malloc(sizeof(float) * _width * _height);
+    if (!noise) {
+        LOG_ERROR("Fail to allocate nosie map memory");
+        return NULL;
+    }
+
+    for (size_t i = 0; i < _width * _height; i++) {
+        noise[i] = (float)rand() / RAND_MAX;
+    }
+
+    return noise;
+}
+    
+uint8_t* GenerateImageFromNoise(float* _noise, size_t _width, size_t _height) {
+
+    uint8_t* image = malloc(_width * _height * 4);
+    if (!image || !_noise) {
+        LOG_ERROR("Fail to allocate image memory");
+        return NULL;
+    }
+
+    for (size_t i = 0; i < _width * _height; i++) {
+        uint8_t c = (uint8_t)(_noise[i] * 255.0f);
+
+        image[i*4 + 0] = c;
+        image[i*4 + 1] = c;
+        image[i*4 + 2] = c;
+        image[i*4 + 3] = 255;
+    }
+
+    free(_noise);
+    return image;
+}
+
+float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorNormalization _noramlization, int _width, int _height, float _x, float _y)
+{
+    float sum = 0.0f;
+    float weightSum = 0.0f;
+
+    // center sample
+    int ix = (int)_x;
+    int iy = (int)_y;
+    sum += _noise[iy * _width + ix];
+    weightSum += 1.0f;
+
+    // forward + backward
+    for (int dir = -1; dir <= 1; dir += 2)
+    {
+        float px = _x;
+        float py = _y;
+
+        for (int i = 0; i < _maxSteps; i++)
+        {
+            vec2 fieldVector;
+            if(_noramlization == NORMALIZE){
+                GetNormalizedFieldSample(_field, px, py, &fieldVector);
+            } else {
+                SampleField(_field, px, py, &fieldVector);
+            }
+            
+
+            if (fabsf(fieldVector[0]) < 1e-6f && fabsf(fieldVector[1]) < 1e-6f)
+                break;
+
+            px += fieldVector[0] * _stepSize * dir;
+            py += fieldVector[1] * _stepSize * dir;
+
+            if (px < 0 || py < 0 || px >= _width || py >= _height)
+                break;
+
+            int sx = (int)px;
+            int sy = (int)py;
+
+            float sample = _noise[sy * _width + sx];
+
+            sum += sample;
+            weightSum += 1.0f;
+        }
+    }
+
+    return sum / weightSum;
+}
+
+float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorNormalization _noramlization)
+{
+    size_t width = _field->mWidth;
+    size_t height = _field->mHeight;
+
+    float* lic = malloc(sizeof(float) * width * height);
+    if (!lic) return NULL;
+
+    for (size_t y = 0; y < height; y++)
+    {
+        for (size_t x = 0; x < width; x++)
+        {
+            size_t idx = y * width + (width - 1 - x); // horizontal flip
+            lic[idx] = ComputeLICPixel(_field, _noise, _stepSize, _maxSteps, _noramlization, width, height, (float)x, (float)y);
+        }
+    }
+
+    return lic;
+}
+
 uint8_t* GenerateMagnitudeHeatmap(VectorField field) {
 
     size_t width = field.mWidth;
@@ -26,7 +131,6 @@ uint8_t* GenerateMagnitudeHeatmap(VectorField field) {
         if (mag > maxMag) maxMag = mag;
     }
 
-    // Second pass: fill image with 90° clockwise rotation
     for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
 
@@ -37,13 +141,12 @@ uint8_t* GenerateMagnitudeHeatmap(VectorField field) {
             float normalized = mag / maxMag;
             uint8_t c = (uint8_t)(normalized * 255.0f);
 
-            // Rotated index in flat array
-            size_t rotatedIndex = x * height + (height - 1 - y);
+            size_t idx = y * width + (width - 1 - x);
 
-            image[rotatedIndex * 4 + 0] = c;
-            image[rotatedIndex * 4 + 1] = c;
-            image[rotatedIndex * 4 + 2] = c;
-            image[rotatedIndex * 4 + 3] = 255;
+            image[idx * 4 + 0] = c;
+            image[idx * 4 + 1] = c;
+            image[idx * 4 + 2] = c;
+            image[idx * 4 + 3] = 255;
         }
     }
 
@@ -113,14 +216,13 @@ uint8_t* GenerateVorticityHeatmap(VectorField field) {
 
             uint8_t c = (uint8_t)(normalized * 255.0f);
 
-            // Rotated index: 90° clockwise
-            size_t rotatedIndex = x * height + (height - 1 - y);
+            size_t idx = y * width + (width - 1 - x);
 
             // Colors: positive curl = red, negative curl = blue
-            image[rotatedIndex * 4 + 0] = c;         // Red
-            image[rotatedIndex * 4 + 1] = 0;         // Green
-            image[rotatedIndex * 4 + 2] = 255 - c;   // Blue
-            image[rotatedIndex * 4 + 3] = 255;       // Alpha
+            image[idx * 4 + 0] = c;         // Red
+            image[idx * 4 + 1] = 0;         // Green
+            image[idx * 4 + 2] = 255 - c;   // Blue
+            image[idx * 4 + 3] = 255;       // Alpha
         }
     }
 

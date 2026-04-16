@@ -29,13 +29,13 @@ VkTexture* LoadTextureImage(const char* _filePath){
     return texture;
 };
 
-VkTexture* CreateTexture(uint8_t* _pixels, size_t _width, size_t _height){
+VkTexture* CreateTexture(uint8_t* _pixels, size_t _width, size_t _height, VkFormat _format){
     VkTexture* texture = malloc(sizeof(VkTexture));
     VkBufferTexture bufferTexture = {0};
     
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    LoadImageBufferFromPixels(_pixels, _width, _height, gVkContext.mDevice, &stagingBuffer, &stagingBufferMemory, &bufferTexture);
+    LoadImageBufferFromPixels(_pixels, _width, _height, gVkContext.mDevice, &stagingBuffer, &stagingBufferMemory, &bufferTexture,_format);
 
     texture->mImageView = SetupTextureImageView(gVkContext.mDevice, bufferTexture.mBufferTextureImage);
     texture->mSampler = SetupTextureSampler(gVkContext.mDevice, gVkContext.mPhysicalDevice);
@@ -85,7 +85,7 @@ stbi_uc* LoadImageData(const char* _fileLocation, ImageSize* _imageSize){
     return pixels;
 };
 
-void LoadImageBufferFromPixels(uint8_t* _pixels, size_t _width, size_t _height, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture){
+void LoadImageBufferFromPixels(uint8_t* _pixels, size_t _width, size_t _height, VkDevice _device, VkBuffer* _stagingBuffer, VkDeviceMemory* _stagingBufferMemory, VkBufferTexture* _bufferTexture, VkFormat _format){
 
     ImageSize imageSize = {0};
     imageSize.mImageWidth = _width;
@@ -101,11 +101,11 @@ void LoadImageBufferFromPixels(uint8_t* _pixels, size_t _width, size_t _height, 
     UploadToMemory(_device, *_stagingBufferMemory, _pixels, (size_t)(imageSize.mImageDeviceSize));
     
     
-    SetupVkImage(_device, imageSize.mImageWidth, imageSize.mImageHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _bufferTexture);
+    SetupVkImage(_device, imageSize.mImageWidth, imageSize.mImageHeight, _format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _bufferTexture);
     
-    TransitionImageLayout(_bufferTexture->mBufferTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    TransitionImageLayout(_bufferTexture->mBufferTextureImage, _format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     CopyBufferToImage(*_stagingBuffer, _bufferTexture->mBufferTextureImage, imageSize);
-    TransitionImageLayout(_bufferTexture->mBufferTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    TransitionImageLayout(_bufferTexture->mBufferTextureImage, _format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     free(_pixels);
     vkDestroyBuffer(_device, *_stagingBuffer, NULL);

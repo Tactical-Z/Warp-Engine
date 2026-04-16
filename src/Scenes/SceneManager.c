@@ -20,15 +20,25 @@ void SceneBegin(){
 
     // Heat map
     //AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
-    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateMagnitudeHeatmap(vecField),vecField.mWidth, vecField.mHeight);
-    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateVorticityHeatmap(vecField),vecField.mWidth, vecField.mHeight);
+    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateMagnitudeHeatmap(vecField),vecField.mWidth, vecField.mHeight, VK_FORMAT_R8G8B8A8_SRGB);
+    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateVorticityHeatmap(vecField),vecField.mWidth, vecField.mHeight, VK_FORMAT_R8G8B8A8_SRGB);
     //gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
     
-    // vector field
-    AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.03f, 0.1, 0));
-    AddTransformComponent(CreateTransformComponent(0));
+    // Vector field
+    //AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.03f, 0.1, 0));
+    //AddTransformComponent(CreateTransformComponent(0));
+    //gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
+    
+    // Field Lines
+    //GenerateFieldLinesFromVectorField(&vecField, 0.1, 5000, INTEGRATOR_EULER, NORMALIZE, 500, UNIFORM, 1);
+
+    // LIC
+    AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
+    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateNoiseMap(vecField.mWidth, vecField.mHeight), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight,VK_FORMAT_R8G8B8A8_UNORM);
+    gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateLICImage(&vecField, GenerateNoiseMap(vecField.mWidth, vecField.mHeight), 0.5, 20, NORMALIZE), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight, VK_FORMAT_R8G8B8A8_UNORM);
     gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
     
+
     //
     //for (int y = 0; y < vecField.mHeight; y += 50) {
     //    for (int x = 0; x < vecField.mWidth; x += 50) {
@@ -83,7 +93,6 @@ void SceneBegin(){
     // }
     // free(fieldLinePointsOther);
 
-    GenerateFieldLinesFromVectorField(&vecField, 0.1, 5000, INTEGRATOR_EULER, NORMALIZE, 500, UNIFORM, 1);
 
     free(vecField.mVectorField);
 }

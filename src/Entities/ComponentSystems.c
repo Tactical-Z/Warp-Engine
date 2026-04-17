@@ -26,6 +26,11 @@ void InitMeshSystem(){
 
 int AddMeshComponent(MeshComponent _mesh){
 
+    if (gNumMeshComponents >= MAX_MESHES) {
+        LOG_ERROR("Exceeded MAX_MESHES");
+        return -1;
+    }
+
     if (_mesh.mVertexCount <= 0) {
         return -1;
     }
@@ -188,6 +193,8 @@ MeshComponent CreateMeshComponent(int _id, MeshType _meshType){
 
 MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField, float _vectorLength, float _resolutionScale, int _showMagnitude){
 
+    float ndcMargin = NDC_MARGIN;
+
     float resolutionScale = _resolutionScale;
     CLAMP(resolutionScale, 0.001f, 1.f);
     float vectorLength = _vectorLength;
@@ -253,8 +260,8 @@ MeshComponent GenerateVectorFieldMeshComponent(int _id, VectorField _vectorField
             float centerX = (float)bx + (float)actualBlockWidth  * 0.5f;
             float centerY = (float)by + (float)actualBlockHeight * 0.5f;
 
-            float posX = -1.0f + stepSizex * centerX;
-            float posY = -1.0f + stepSizey * centerY;
+            float posX = (-1.0f + stepSizex * centerX) * ndcMargin;
+            float posY = (-1.0f + stepSizey * centerY) * ndcMargin;
 
             vec2 startPosition = {posX, posY};
 

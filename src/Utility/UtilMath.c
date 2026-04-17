@@ -231,13 +231,14 @@ uint8_t* GenerateVorticityHeatmap(VectorField field) {
 
 void ConvertPointsToNDC(vec2* _points, int _count, float _width, float _height)
 {
+    float ndcMargin = NDC_MARGIN;
     for (int i = 0; i < _count; i++)
     {
         float x = _points[i][0];
         float y = _points[i][1];
 
-        float ndcX = (x / _width) * 2.0f - 1.0f;
-        float ndcY = (y / _height) * 2.0f - 1.0f;
+        float ndcX = ((x / _width) * 2.0f - 1.0f) * ndcMargin;
+        float ndcY = ((y / _height) * 2.0f - 1.0f) * ndcMargin;
 
         _points[i][0] = ndcX;
         _points[i][1] = ndcY;

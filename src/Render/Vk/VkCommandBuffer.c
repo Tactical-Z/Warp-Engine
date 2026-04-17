@@ -138,10 +138,10 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
 
     // Render all Meshses
     for (int i = 0; i < gNumMeshComponents; i++) {
-
         MeshComponent* mesh = &gMeshComponentSystem[i];
         TransformComponent* transform  = &gTransformComponentSystem[i];
 
+        // TODO - Fix Crash when there is no transform component on any mesh
         if(transform){
             int hasTexture = 0;
             if(mesh){               
@@ -166,6 +166,18 @@ void RecordDrawCommandBuffer(VkCommandBuffer _commandBuffer, uint32_t _imageInde
        
         if(mesh){
             
+            if (mesh->mVertexBuffer == VK_NULL_HANDLE ||
+                mesh->mIndexBuffer == VK_NULL_HANDLE ||
+                mesh->mIndexCount <= 0){
+                LOG_ERROR("Invalid mesh at %d", i);
+                continue;
+            }
+
+            if (mesh->mDescriptorSet == VK_NULL_HANDLE) {
+                LOG_ERROR("Invalid descriptor at %d", i);
+                continue;
+            }
+
             VkBuffer vertexBuffers[] = { mesh->mVertexBuffer };
             VkDeviceSize offsets[] = {0};
 

@@ -34,7 +34,7 @@ int main(int argc, char *argv[]){
       break;
    }
 
-   struct GLFWwindow* glfwWindow = InitWindow(1000, 800, "C-Test");
+   struct GLFWwindow* glfwWindow = InitWindow(1000, 800, "Visualization Compulsory");
    if(!glfwWindow)
       return 1;
 

@@ -25,7 +25,7 @@ void DrawUI()
     ImGuiC_BeginFrame();
 
     // UI to draw goes here:
-    StarterWindow();
+    //StarterWindow();
 
     ImGuiC_EndFrame(gVkContext.mCommandBuffers[gCurrentFrame]);
 }

@@ -5,7 +5,7 @@
 #include "cglm.h"
 
 #define FIELD_SCALE 50.0f
-
+#define NDC_MARGIN 0.98f
 
 #define CLAMP(x,lower, upper) ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)))
 

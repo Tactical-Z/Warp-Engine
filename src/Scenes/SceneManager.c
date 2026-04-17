@@ -11,16 +11,16 @@ void SceneBegin(){
 
     //ExmapleInit();
 
-    VectorField vecField = Readhdf5File(AssetDir("VisData/isabel_2d.h5"), DATASET_ISABEL, "/Velocity/X-comp", "/Velocity/Y-comp");
-    //VectorField vecField = Readhdf5File(AssetDir("VisData/metsim1_2d.h5"), DATASET_METSIM, "/Velocity/X-comp", "/Velocity/Y-comp");
+    //VectorField vecField = Readhdf5File(AssetDir("VisData/isabel_2d.h5"), DATASET_ISABEL, "/Velocity/X-comp", "/Velocity/Y-comp");
+    VectorField vecField = Readhdf5File(AssetDir("VisData/metsim1_2d.h5"), DATASET_METSIM, "/Velocity/X-comp", "/Velocity/Y-comp");
   
     // Vector field
-    AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.03f, 0.1f, 0));
+    //AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.03f, 0.1f, 0));
     AddTransformComponent(CreateTransformComponent(0));
-    gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
+    //gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
     
     // Field Lines
-    GenerateFieldLinesFromVectorField(&vecField, 0.1, 5000, INTEGRATOR_EULER, NORMALIZE, 500, UNIFORM, 1, 0);
+    //GenerateFieldLinesFromVectorField(&vecField, 0.1, 2000, INTEGRATOR_4RK, NORMALIZE, 500, UNIFORM, 1, 0);
 
     // Heat map / vort map
     //AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
@@ -29,10 +29,10 @@ void SceneBegin(){
     //gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
     
     // LIC / noise
-    //AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
-    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateNoiseMap(vecField.mWidth, vecField.mHeight), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight,VK_FORMAT_R8G8B8A8_UNORM);
-    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateLICImage(&vecField, GenerateNoiseMap(vecField.mWidth, vecField.mHeight), 0.5, 20, NORMALIZE), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight, VK_FORMAT_R8G8B8A8_UNORM);
-    //gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
+    AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
+    gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateNoiseMap(vecField.mWidth, vecField.mHeight), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight,VK_FORMAT_R8G8B8A8_UNORM);
+    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateLICImage(&vecField, GenerateNoiseMap(vecField.mWidth, vecField.mHeight), 0.5, 100, NORMALIZE), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight, VK_FORMAT_R8G8B8A8_UNORM);
+    gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
     
     free(vecField.mVectorField);
 }
@@ -92,6 +92,65 @@ void ExmapleInit(){
     // AddMeshComponent(CreateLineMeshFromArray(1, points, count, color));
     // AddTransformComponent(CreateTransformComponent(1));
     // gMeshComponentSystem[1].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[1]);
+
+      // Single field line
+    // vec2* pointsFront;
+    // vec2* pointsBack;
+    // vec3 color = {1,0,0};
+    // vec2 seed = {300,250};
+    // int counterFront = 0;
+    // int counterBack = 0;
+    // pointsFront = GenerateFieldlineEuler(&vecField, seed, 0.8, 800, &counterFront, NON_NORMALIZE);
+    // pointsBack = GenerateFieldlineEuler(&vecField, seed, -0.8, 500, &counterBack, NON_NORMALIZE);
+    // int fullCount = counterFront + counterBack - 1;
+    // vec2* totalPoints = malloc(sizeof(vec2) * fullCount);
+    // int idx = 0;
+    // if(pointsBack){
+    //     for (int i = counterBack - 1; i >= 1; i--){
+    //         glm_vec2_copy(pointsBack[i], totalPoints[idx++]);
+    //     }
+    // }
+    // if(pointsFront){
+    //     for (int i = 0; i < counterFront; i++){
+    //         glm_vec2_copy(pointsFront[i], totalPoints[idx++]);
+    //     }
+    // }
+    // ConvertPointsToNDC(totalPoints, fullCount, (float)vecField.mWidth, (float)vecField.mHeight);
+    // AddMeshComponent(CreateLineMeshFromArray(1, totalPoints, fullCount, color));
+    // gMeshComponentSystem[1].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[1]);
+    // free(totalPoints);
+    // free(pointsBack);
+    // free(pointsFront);
+
+
+    // // Single field line
+    // vec2* pointsFronttwo;
+    // vec2* pointsBacktwo;
+    // vec3 colortwo = {0,0,1};
+    // vec2 seedtwo = {300,250};
+    // int counterFronttwo = 0;
+    // int counterBacktwo = 0;
+    // pointsFronttwo = GenerateFieldlineRK4(&vecField, seedtwo, 0.8, 800, &counterFronttwo, NON_NORMALIZE);
+    // pointsBacktwo = GenerateFieldlineRK4(&vecField, seedtwo, -0.8, 500, &counterBacktwo, NON_NORMALIZE);
+    // int fullCounttwo = counterFronttwo + counterBacktwo - 1;
+    // vec2* totalPointstwo = malloc(sizeof(vec2) * fullCounttwo);
+    // int idxtwo = 0;
+    // if(pointsBacktwo){
+    //     for (int i = counterBacktwo - 1; i >= 1; i--){
+    //         glm_vec2_copy(pointsBacktwo[i], totalPointstwo[idxtwo++]);
+    //     }
+    // }
+    // if(pointsFronttwo){
+    //     for (int i = 0; i < counterFronttwo; i++){
+    //         glm_vec2_copy(pointsFronttwo[i], totalPointstwo[idxtwo++]);
+    //     }
+    // }
+    // ConvertPointsToNDC(totalPointstwo, fullCounttwo, (float)vecField.mWidth, (float)vecField.mHeight);
+    // AddMeshComponent(CreateLineMeshFromArray(2, totalPointstwo, fullCounttwo, colortwo));
+    // gMeshComponentSystem[2].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[2]);
+    // free(totalPointstwo);
+    // free(pointsBacktwo);
+    // free(pointsFronttwo);
 
     // free data
     //free(vecField.mVectorField);

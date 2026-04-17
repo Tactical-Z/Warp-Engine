@@ -44,7 +44,8 @@ uint8_t* GenerateImageFromNoise(float* _noise, size_t _width, size_t _height) {
     return image;
 }
 
-float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorNormalization _noramlization, int _width, int _height, float _x, float _y)
+float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize, 
+    float _maxSteps, IntegratorNormalization _noramlization, int _width, int _height, float _x, float _y)
 {
     float sum = 0.0f;
     float weightSum = 0.0f;
@@ -93,7 +94,8 @@ float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize, float
     return sum / weightSum;
 }
 
-float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorNormalization _noramlization)
+float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize, 
+    float _maxSteps, IntegratorNormalization _noramlization)
 {
     size_t width = _field->mWidth;
     size_t height = _field->mHeight;
@@ -105,8 +107,9 @@ float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize, flo
     {
         for (size_t x = 0; x < width; x++)
         {
-            size_t idx = y * width + (width - 1 - x); // horizontal flip
-            lic[idx] = ComputeLICPixel(_field, _noise, _stepSize, _maxSteps, _noramlization, width, height, (float)x, (float)y);
+            size_t idx = y * width + (width - 1 - x);
+            lic[idx] = ComputeLICPixel(_field, _noise, _stepSize, _maxSteps, 
+                                        _noramlization, width, height, (float)x, (float)y);
         }
     }
 
@@ -122,7 +125,7 @@ uint8_t* GenerateMagnitudeHeatmap(VectorField field) {
 
     if (!image) return NULL;
     
-    // First pass: find max magnitude
+    // find max magnitude
     float maxMag = 0.0f;
     for (size_t i = 0; i < total; i++) {
         float vx = field.mVectorField[i][0];
@@ -166,9 +169,7 @@ uint8_t* GenerateVorticityHeatmap(VectorField field) {
 
     float maxAbsCurl = 0.0f;
 
-    // =========================
-    // PASS 1: compute max curl
-    // =========================
+    // compute max curl
     for (size_t y = 1; y < height - 1; y++) {
         for (size_t x = 1; x < width - 1; x++) {
 
@@ -192,9 +193,8 @@ uint8_t* GenerateVorticityHeatmap(VectorField field) {
     if (maxAbsCurl < 1e-6f)
         maxAbsCurl = 1.0f;
 
-    // =========================
-    // PASS 2: generate image with 90° clockwise rotation
-    // =========================
+
+    // generate image with 90° clockwise rotation
     for (size_t y = 1; y < height - 1; y++) {
         for (size_t x = 1; x < width - 1; x++) {
 
@@ -299,7 +299,8 @@ void GetNormalizedFieldSample(VectorField* _field, float _x, float _y, vec2* _ou
     (*_out)[1] = fieldVector[1] / len;
 }
 
-vec2* GenerateFieldlineEuler(VectorField* _field, vec2 _seed, float _stepSize, int _maxSteps, int* _outCount, IntegratorNormalization _normalization)
+vec2* GenerateFieldlineEuler(VectorField* _field, vec2 _seed, float _stepSize, 
+    int _maxSteps, int* _outCount, IntegratorNormalization _normalization)
 {
     vec2* points = malloc(sizeof(vec2) * _maxSteps);
     if (!points){
@@ -354,33 +355,24 @@ vec2* GenerateFieldlineRK4(VectorField* _field, vec2 _seed, float _stepSize, int
     if (!points){
         return NULL;
     }
-
     vec2 point = { _seed[0], _seed[1] };
     int count = 0;
-
     for (int i = 0; i < _maxSteps; i++)
     {
         // bounds check
-        if (point[0] < 0 || 
-            point[1] < 0 ||
-            point[0] >= _field->mWidth ||
-            point[1] >= _field->mHeight)
-        {
+        if (point[0] < 0 ||  point[1] < 0 || point[0] >= _field->mWidth || point[1] >= _field->mHeight){
             break;
         }
-        
         glm_vec2_copy(point, points[count++]);
 
         vec2 k1 = {0}, k2 = {0}, k3 = {0}, k4 = {0};
         vec2 temp = {0};
-
         // k1
         if(_normalization == NORMALIZE){
             GetNormalizedFieldSample(_field, point[0], point[1], &k1);
         } else {
             SampleField(_field, point[0], point[1], &k1);
         }
-            
         // k2
         temp[0] = point[0] + 0.5f * _stepSize * k1[0];
         temp[1] = point[1] + 0.5f * _stepSize * k1[1];
@@ -389,7 +381,6 @@ vec2* GenerateFieldlineRK4(VectorField* _field, vec2 _seed, float _stepSize, int
         } else {
             SampleField(_field, temp[0], temp[1], &k2);
         }
-    
         // k3
         temp[0] = point[0] + 0.5f * _stepSize * k2[0];
         temp[1] = point[1] + 0.5f * _stepSize * k2[1];
@@ -398,7 +389,6 @@ vec2* GenerateFieldlineRK4(VectorField* _field, vec2 _seed, float _stepSize, int
         } else {
             SampleField(_field, temp[0], temp[1], &k3);
         }
-
         // k4
         temp[0] = point[0] + _stepSize * k3[0];
         temp[1] = point[1] + _stepSize * k3[1];
@@ -407,7 +397,6 @@ vec2* GenerateFieldlineRK4(VectorField* _field, vec2 _seed, float _stepSize, int
         } else {
             SampleField(_field, temp[0], temp[1], &k4);
         }        
-
         // RK4 combine
         vec2 delta = {0};
         delta[0] = (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) / 6.0f;
@@ -495,7 +484,6 @@ vec2* GenerateDensityBasedSeeds(VectorField* _field, int _seedCount)
     int width  = _field->mWidth;
     int height = _field->mHeight;
 
-    // Minimum spacing (tune this!)
     float minDist = sqrtf((width * height) / (float)_seedCount);
     float minDist2 = minDist * minDist;
 
@@ -526,7 +514,6 @@ vec2* GenerateDensityBasedSeeds(VectorField* _field, int _seedCount)
         }
     }
 
-    // If we failed to fill all seeds, shrink logically (optional)
     if (count == 0) {
         free(seeds);
         return NULL;

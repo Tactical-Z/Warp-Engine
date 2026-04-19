@@ -31,9 +31,11 @@ float* GenerateNoiseMap(size_t _width, size_t _height);
 
 uint8_t* GenerateImageFromNoise(float* _noise, size_t _width, size_t _height);
 
-float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorNormalization _noramlization, int _width, int _height, float _x, float _y);
+float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorType _integratorType, IntegratorNormalization _noramlization, int _width, int _height, float _x, float _y);
 
-float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorNormalization _noramlization);
+void IntegrateLICStep(VectorField* _field, float* _px, float* _py, float _stepSize, int _dir, IntegratorType _type, IntegratorNormalization _normalization);
+
+float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize, float _maxSteps, IntegratorType _integratorType, IntegratorNormalization _noramlization);
 
 uint8_t* GenerateMagnitudeHeatmap(VectorField _field);
 

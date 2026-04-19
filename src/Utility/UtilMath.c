@@ -45,7 +45,8 @@ uint8_t* GenerateImageFromNoise(float* _noise, size_t _width, size_t _height) {
 }
 
 float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize, 
-    float _maxSteps, IntegratorNormalization _noramlization, int _width, int _height, float _x, float _y)
+    float _maxSteps, IntegratorType _integratorType, IntegratorNormalization _noramlization, 
+    int _width, int _height, float _x, float _y)
 {
     float sum = 0.0f;
     float weightSum = 0.0f;
@@ -75,8 +76,7 @@ float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize,
             if (fabsf(fieldVector[0]) < 1e-6f && fabsf(fieldVector[1]) < 1e-6f)
                 break;
 
-            px += fieldVector[0] * _stepSize * dir;
-            py += fieldVector[1] * _stepSize * dir;
+            IntegrateLICStep(_field, &px, &py, _stepSize, dir, _integratorType, _noramlization);
 
             if (px < 0 || py < 0 || px >= _width || py >= _height)
                 break;
@@ -94,8 +94,59 @@ float ComputeLICPixel(VectorField* _field, float* _noise, float _stepSize,
     return sum / weightSum;
 }
 
+void IntegrateLICStep(VectorField* _field, float* _px, float* _py, float _stepSize,
+     int _dir, IntegratorType _type, IntegratorNormalization _normalization)
+{
+    vec2 v;
+    if (_type == INTEGRATOR_EULER)
+    {
+        if (_normalization == NORMALIZE)
+            GetNormalizedFieldSample(_field, *_px, *_py, &v);
+        else
+            SampleField(_field, *_px, *_py, &v);
+        *_px += v[0] * _stepSize * _dir;
+        *_py += v[1] * _stepSize * _dir;
+    }
+    else // RK4
+    {
+        vec2 k1, k2, k3, k4;
+        vec2 temp;
+        // k1
+        if (_normalization == NORMALIZE)
+            GetNormalizedFieldSample(_field, *_px, *_py, &k1);
+        else
+            SampleField(_field, *_px, *_py, &k1);
+        // k2
+        temp[0] = *_px + 0.5f * _stepSize * k1[0] * _dir;
+        temp[1] = *_py + 0.5f * _stepSize * k1[1] * _dir;
+        if (_normalization == NORMALIZE)
+            GetNormalizedFieldSample(_field, temp[0], temp[1], &k2);
+        else
+            SampleField(_field, temp[0], temp[1], &k2);
+        // k3
+        temp[0] = *_px + 0.5f * _stepSize * k2[0] * _dir;
+        temp[1] = *_py + 0.5f * _stepSize * k2[1] * _dir;
+        if (_normalization == NORMALIZE)
+            GetNormalizedFieldSample(_field, temp[0], temp[1], &k3);
+        else
+            SampleField(_field, temp[0], temp[1], &k3);
+        // k4
+        temp[0] = *_px + _stepSize * k3[0] * _dir;
+        temp[1] = *_py + _stepSize * k3[1] * _dir;
+        if (_normalization == NORMALIZE)
+            GetNormalizedFieldSample(_field, temp[0], temp[1], &k4);
+        else
+            SampleField(_field, temp[0], temp[1], &k4);
+        vec2 delta;
+        delta[0] = (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) / 6.0f;
+        delta[1] = (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) / 6.0f;
+        *_px += _stepSize * delta[0] * _dir;
+        *_py += _stepSize * delta[1] * _dir;
+    }
+}
+
 float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize, 
-    float _maxSteps, IntegratorNormalization _noramlization)
+    float _maxSteps, IntegratorType _integratorType, IntegratorNormalization _noramlization)
 {
     size_t width = _field->mWidth;
     size_t height = _field->mHeight;
@@ -108,7 +159,7 @@ float* GenerateLICImage(VectorField* _field, float* _noise, float _stepSize,
         for (size_t x = 0; x < width; x++)
         {
             size_t idx = y * width + (width - 1 - x);
-            lic[idx] = ComputeLICPixel(_field, _noise, _stepSize, _maxSteps, 
+            lic[idx] = ComputeLICPixel(_field, _noise, _stepSize, _maxSteps, _integratorType,
                                         _noramlization, width, height, (float)x, (float)y);
         }
     }

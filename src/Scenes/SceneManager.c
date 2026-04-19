@@ -11,16 +11,18 @@ void SceneBegin(){
 
     //ExmapleInit();
 
-    //VectorField vecField = Readhdf5File(AssetDir("VisData/isabel_2d.h5"), DATASET_ISABEL, "/Velocity/X-comp", "/Velocity/Y-comp");
-    VectorField vecField = Readhdf5File(AssetDir("VisData/metsim1_2d.h5"), DATASET_METSIM, "/Velocity/X-comp", "/Velocity/Y-comp");
+    VectorField vecField = Readhdf5File(AssetDir("VisData/isabel_2d.h5"), DATASET_ISABEL, "/Velocity/X-comp", "/Velocity/Y-comp");
+    //VectorField vecField = Readhdf5File(AssetDir("VisData/metsim1_2d.h5"), DATASET_METSIM, "/Velocity/X-comp", "/Velocity/Y-comp");
   
+    LOG_DEBUG("Width: %i", vecField.mWidth);
+    LOG_DEBUG("Height: %i", vecField.mHeight);
     // Vector field
-    //AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.03f, 0.1f, 0));
+    //AddMeshComponent(GenerateVectorFieldMeshComponent(0, vecField, 0.02f, 0.1f, 0));
     AddTransformComponent(CreateTransformComponent(0));
     //gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
     
     // Field Lines
-    //GenerateFieldLinesFromVectorField(&vecField, 0.1, 2000, INTEGRATOR_4RK, NORMALIZE, 500, UNIFORM, 1, 0);
+    //GenerateFieldLinesFromVectorField(&vecField, 0.1, 3000, INTEGRATOR_4RK, NORMALIZE, 100, RANDOM, 1, 0);
 
     // Heat map / vort map
     //AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
@@ -30,8 +32,8 @@ void SceneBegin(){
     
     // LIC / noise
     AddMeshComponent(CreateMeshComponent(0, MESHTYPE_PLANE_WINDOW));
-    gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateNoiseMap(vecField.mWidth, vecField.mHeight), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight,VK_FORMAT_R8G8B8A8_UNORM);
-    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateLICImage(&vecField, GenerateNoiseMap(vecField.mWidth, vecField.mHeight), 0.5, 100, NORMALIZE), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight, VK_FORMAT_R8G8B8A8_UNORM);
+    //gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateNoiseMap(vecField.mWidth, vecField.mHeight), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight,VK_FORMAT_R8G8B8A8_UNORM);
+    gMeshComponentSystem[0].mTexture = CreateTexture(GenerateImageFromNoise(GenerateLICImage(&vecField, GenerateNoiseMap(vecField.mWidth, vecField.mHeight), 0.5, 20, INTEGRATOR_4RK, NORMALIZE), vecField.mWidth, vecField.mHeight),vecField.mWidth, vecField.mHeight, VK_FORMAT_R8G8B8A8_UNORM);
     gMeshComponentSystem[0].mDescriptorSet = SetupMeshDescriptorSet(gVkContext.mDevice, &gMeshComponentSystem[0]);
     
     free(vecField.mVectorField);
